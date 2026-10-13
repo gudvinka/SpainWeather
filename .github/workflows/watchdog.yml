@@ -30,7 +30,7 @@ jobs:
     env:
       TZ: Europe/Madrid # «сегодня» — по Мадриду, как у сбора
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: main # свежий main — уже с данными, которые только что закоммитил бот
 
