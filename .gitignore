@@ -1,4 +1,5 @@
 node_modules/
 *.log
-CLAUDE.md
+CLAUDE.local.md
+.claude/settings.local.json
 tmp/
