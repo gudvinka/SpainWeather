@@ -1,4 +1,5 @@
-# Агент-сторож (watchdog): после каждого сбора snap Claude проверяет, всё ли собралось, и при проблемах пишет в issue.
+# Агент-сторож (watchdog): после каждого сбора snap и раз в день вечером Claude проверяет, всё ли собралось,
+# и при повторяющихся проблемах пишет в issue.
 # Описание агента — .claude/agents/watchdog.md, разрешения — .claude/settings.json, правила проекта — CLAUDE.md.
 name: watchdog
 
@@ -6,6 +7,11 @@ on:
   workflow_run:
     workflows: [snap] # сразу после того, как закончился сбор
     types: [completed]
+  schedule:
+    # Вечерняя проверка «были ли сегодня сборы» — свой будильник, не зависит от Cloudflare и snap
+    # (если они умрут, сторож «после snap» тоже не запустится). Время UTC: 21:30 Мадрид летом, 20:30 зимой.
+    # Расписание GitHub может опоздать на часы — для этой проверки не страшно.
+    - cron: '30 19 * * *'
   workflow_dispatch: # кнопка «Run workflow» для ручной проверки
 
 permissions:
@@ -35,16 +41,23 @@ jobs:
         env:
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }} # подписка владельца (claude setup-token)
           GH_TOKEN: ${{ github.token }} # для gh: права — из блока permissions выше
-          SNAP_RESULT: ${{ github.event.workflow_run.conclusion || 'ручной запуск сторожа' }}
-        # --agent watchdog — вся сессия идёт как агент из .claude/agents/watchdog.md (у него только Read, Grep, Glob, Bash);
+          # Кто разбудил сторожа — от этого зависит, что он проверяет (см. «Что проверить» в watchdog.md)
+          WAKE: >-
+            ${{ github.event_name == 'workflow_run'
+            && format('Тебя разбудили после snap, результат сбора: {0}.', github.event.workflow_run.conclusion)
+            || github.event_name == 'schedule' && 'Тебя разбудили на вечернюю проверку (по расписанию).'
+            || 'Тебя запустили вручную.' }}
+        # --agent watchdog — вся сессия идёт как агент из .claude/agents/watchdog.md (у него только Read, Grep, Glob, Bash, WebFetch);
         # --permission-prompts none — спрашивать некого: всё, что не разрешено в .claude/settings.json, отклоняется;
         # --allowedTools — что можно без спроса. Разрешения из .claude/settings.json в `claude -p` на «недоверенной»
         #   папке не применяются (защита от чужих репозиториев), а на сервере GitHub папка всегда новая — поэтому здесь;
         # --disallowedTools — явные запреты именно для сторожа (на сессии людей в проекте они не действуют).
         # Задание стоит сразу после -p: оба списка принимают несколько значений и «съели» бы текст после себя.
         run: >
-          claude -p "Сбор snap только что завершился, результат: $SNAP_RESULT. Проверь сбор по своей инструкции."
+          claude -p "$WAKE Проверь сбор по своей инструкции."
           --agent watchdog --permission-prompts none --max-turns 20
-          --allowedTools "Bash(date *)" "Bash(git log *)" "Bash(gh run list *)" "Bash(gh run view *)"
+          --allowedTools "Bash(date *)" "Bash(ls *)" "Bash(git log *)" "Bash(gh run list *)" "Bash(gh run view *)"
           "Bash(gh issue list *)" "Bash(gh issue view *)" "Bash(gh issue create *)" "Bash(gh issue comment *)"
+          "WebFetch(domain:www.hispacams.com)" "WebFetch(domain:rtsp.me)" "WebFetch(domain:webcam.meteo365.es)"
+          "WebFetch(domain:www.meteobuenavista.es)" "WebFetch(domain:www.ugr.es)" "WebFetch(domain:api.open-meteo.com)"
           --disallowedTools "Bash(git push *)" "Bash(git commit *)" "Bash(gh workflow *)" "Bash(gh issue close *)"
