@@ -1,0 +1,370 @@
+<HTML>
+<HEAD>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-B2P3FW305P"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-B2P3FW305P');
+</script>
+
+<TITLE>El tiempo actual en Granada-Albayzín></TITLE>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</HEAD>
+
+<meta http-equiv="refresh" content="250";>
+
+<BODY bgcolor="#F6E3CE" text="#FF0000" link="#0000FF" vlink="#0000FF">
+
+<script type="text/javascript"> /* script para sumar datos en el año hidrológico */
+        var valor1; /* define variables*/  
+        var valor2;
+        valor1=-439.4/* valor de octubre-diciembre año anterior o en negativo enero-septiembre actual, segun corresponda, lo pongo directamente aquí*/
+        valor2=445.4
+        var suma= (parseFloat(valor1)+ parseFloat(valor2));            
+</script>
+
+<script type="text/javascript">/* script para redondear a entero */
+barmx=Math.round(
+1021.9
+) 
+barmi=Math.round(
+1014.1
+) 
+baryx=Math.round(
+1036.2
+) 
+barym=Math.round(
+997.8
+) 
+intmx=Math.round(
+21.4
+) 
+intyx=Math.round(
+157.8
+) 
+</script>
+
+<p align="center">&nbsp;&nbsp;</p>
+<p align="center"><font face="verdana, Arial, Helvetica" size="6" color="#660000"><strong>Estación meteorológica Granada-Albayzín (España) </strong></font></p>
+<p align="center">&nbsp;&nbsp;<font face="verdana, Arial, Helvetica" size="2" color="#000000"><strong>Coordenadas:&nbsp;&nbsp;Longitud: 3º35'26" W, &nbsp;&nbsp;Latitud: 37º10'48" N,&nbsp;&nbsp;  Altitud: 730 m</strong></font></p>
+
+<p align="center"><font face="verdana, Arial, Helvetica" size="2" color="#333333"><strong> Estación automática Davis Vantage Pro2</strong> (Fotos 
+<a href="javascript:void(0)" onclick="abrirVisor('archivos/foto1.jpg')">1</a>, 
+<a href="javascript:void(0)" onclick="abrirVisor('archivos/foto2.jpg')">2</a>). <strong>Actualización cada 5 minutos. </strong></font></p> 
+
+  <!-- Estructura del Visor -->
+<div id="visor-overlay" class="overlay">
+    <div class="contenedor-modal">
+        <span class="boton-cerrar" onclick="cerrarVisor()">&times;</span>
+        <img id="imagen-destino" src="" alt="Cargando...">
+    </div>
+</div>
+  
+ <style>
+ .overlay {
+    display: none; /* Oculto inicialmente */
+    position: fixed;
+    z-index: 10000;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.60);
+    justify-content: center;
+    align-items: center;
+}
+
+.contenedor-modal {
+    position: relative;
+    max-width: 80%;
+    max-height: 80%;
+}
+
+#imagen-destino {
+    width: 100%;
+    height: auto;
+    border: 3px solid white;
+    border-radius: 3px;
+}
+
+.boton-cerrar {
+    position: absolute;
+    top: -40px;
+    right: -40px;
+    color: white;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.boton-cerrar:hover { color: #ccc; }
+</style>
+
+<script>
+function abrirVisor(url) {
+    document.getElementById('imagen-destino').src = url;
+    document.getElementById('visor-overlay').style.display = 'flex';
+}
+
+function cerrarVisor() {
+    document.getElementById('visor-overlay').style.display = 'none';
+}
+</script> 
+
+<style>
+  .tabla {
+    border-collapse: collapse;
+     }
+  .tabla td, .tabla th {
+    border: 1px solid #000;
+    padding: 4px; /* Opcional: añade espacio interno para que el texto no toque el borde */
+  }
+</style>
+
+
+<p align="center"><font face="verdana, Arial, Helvetica" size="2" color="#333333">La estación opera en tiempo universal coordinado "UTC". Por tanto, la hora en gráficos y cuadros de datos se expresa en tiempo "UTC", salvo que se indique hora local. Esta hora es en Granada UTC+1h en horario de invierno y UTC+2h en verano. Los valores de presión atmosférica están normalizados a la presión a nivel del mar mediante un algoritmo que considera la temperatura, humedad y diferencia de altitud.<br>
+Datos: <strong>prof. Nicolás Velilla </strong>(Dpto. de Mineralogía y Petrología, Universidad de Granada) (velilla@ugr.es)</font></p>
+<hr>
+<p align="left"><a href="http://www.ugr.es/~velilla/"><img name="home" src="flechahome.gif" width="32" height="20" alt="Home"></a></p>
+
+
+<table class ="tabla"  align=center>
+  <tr height="50">
+  <td align=center valign=middle bgcolor="#EDBB99" colspan="2"><font face="verdana, Arial, Helvetica" size="3" color="#000000"><strong>
+
+<script language="javascript">
+<!--
+   nombres_dias = new Array("Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado")
+   nombres_meses = new Array("Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre")
+   fecha_actual = new Date()
+   dia_mes = fecha_actual.getDate()		//dia del mes
+   strdia_mes = (dia_mes <= 9) ? "0" + dia_mes : dia_mes
+   dia_semana = fecha_actual.getDay()		//dia de la semana
+   mes = fecha_actual.getMonth() + 1
+   strmes = (mes <= 9) ? "0" + mes : mes
+   anio = fecha_actual.getYear()
+   if (anio < 100) anio = "19" + anio			//pasa el año a 4 digitos
+   else if ( ( anio > 100 ) && ( anio < 999 ) ) {	//efecto 2000
+      var cadena_anio = new String(anio)
+      anio = "20" + cadena_anio.substring(1,3)
+   }
+document.write(dia_mes + " de " + nombres_meses[mes - 1] + " de " + anio)
+//-->
+</script>
+   </strong></font></td>
+ 
+ <!-- column 3 -->
+  <td align=center valign=middle bgcolor="#EDBB99"><font face="verdana, Arial, Helvetica" size="3" color="#000000"><strong>Salida del sol en Granada (hora local)&nbsp; 8:19&nbsp;h.&nbsp;&nbsp; Puesta&nbsp;19:42&nbsp;h</strong></font>
+   </td>
+   </tr>
+  
+     <tr>
+     <td align=center height="50" bgcolor="#AF601A" colspan="2"><font face="verdana, Arial, Helvetica" size="4" color="#FFFFFF"><strong>Tiempo actual en Granada (Albayzín)</strong></font>
+     </td>
+     
+  <!-- GRAFICOS --> 
+    
+     <td nowrap  rowspan="31"  align="center" bgcolor="#f7c998">
+        <p align=center>&nbsp;&nbsp;</p>
+        <p align=center><img src="reloj.png" alt="Hora"><font face="verdana, Arial, Helvetica" size="3" color="#000000"><strong>17:13&nbsp;(Hora local de actualización, CET) </strong></font></p>
+       <p align=center><img src="temperatura.gif" alt="Temperatura"><font face="verdana, Arial, Helvetica" size="6"> <font color="#FF0033"><strong>28.4°C</strong></font>&nbsp;&nbsp;&nbsp;&nbsp;<img src="humedad.gif" alt="Humedad"><font color="#0000FF"><strong>24% </strong>
+       </font></font></p><br><font face="verdana, Arial, Helvetica">
+      <p align=center><img src="WindDirection.gif" alt="Current Wind Direction">&nbsp;&nbsp;<img src="WindSpeed.gif" alt="Current Wind Speed"></p><br>
+      <p align=center><img src="OutsideTempHistory.gif" alt="Outside Temp History">&nbsp;&nbsp;<img src="BarometerHistory.gif" alt="Barometer History"></p><br>
+      <p align=center><img src="OutsideHumidityHistory.gif" alt="Outside Humidity History">&nbsp;&nbsp;<img src="RainHistory.gif" alt="Rain History"></p><br>
+      <p align=center><img src="WindSpeedHistory.gif" alt="Wind Speed History">&nbsp;&nbsp;<img src="HiWindSpeedHistory.gif" alt="HiWind Speed History"></p><br>
+      <p align=center><img src="WindDirectionHistory.gif" alt="Wind Direction History">&nbsp;&nbsp;<img src="HighWindDirHistory.gif" alt="HiWind Run History"></p><br>
+     </td>
+     </tr> 
+    
+  <!-- DATOS ACTUALES -->
+  <tr height="33">
+    <td width="210"><font face="verdana, Arial, Helvetica" size="2" color="#0000CC"><strong>Temperatura</strong> </font></td>
+    <td ><font face="verdana, Arial, Helvetica" size="2" color="#0000CC"><strong>28.4&nbsp;°C</strong></font></td>
+  </tr>
+  <tr height="33">
+    <td ><font face="verdana, Arial, Helvetica" size="2" color="#0000CC"><strong>Humedad</strong></font></td>
+    <td><font face="verdana, Arial, Helvetica" size="2" color="#0000CC"><strong>24&nbsp;% </strong></font></td>
+  </tr>
+  <tr height="33">
+    <td><font face="verdana, Arial, Helvetica" size="2" color="#0000CC"><strong>Punto de rocío</strong></font></td>
+    <td><font face="verdana, Arial, Helvetica" size="2" color="#0000CC"><strong>5.9&nbsp;°C</strong></font></td>
+  </tr>
+  <tr height="33">
+    <td><font face="verdana, Arial, Helvetica" size="2" color="#0000CC"><strong>Viento</strong></font></td>
+    <td><font face="verdana, Arial, Helvetica" size="2" color="#0000CC"><strong>1.6&nbsp;km/h&nbsp;&nbsp;<br>Dirección:&nbsp;W</strong></font></td>
+  </tr> 
+  <tr height="33">
+    <td><font face="verdana, Arial, Helvetica" size="2" color="#0000CC"><strong>Viento medio (últ. 10 min)</strong></font></td>
+    <td><font face="verdana, Arial, Helvetica" size="2" <font color="#0000CC"><strong>1.6&nbsp;km/h</font></strong> </font></td>
+  </tr>
+  <tr height="40">
+    <td><font face="verdana, Arial, Helvetica" size="2" color="#0000CC"><strong>Barómetro</strong></font></td>
+    <td><font face="verdana, Arial, Helvetica" size="2" color="#0000CC"><strong>1017.1&nbsp;hPa&nbsp;&nbsp;<br>Falling Slowly</strong></font></td>
+  </tr>
+  <tr height="33">
+    <td><font face="verdana, Arial, Helvetica" size="2" color="#0000CC"><strong>Lluvia hoy</strong></font></td>
+    <td><font face="verdana, Arial, Helvetica" size="2"color="#0000CC"><strong>0.0&nbsp;mm</strong></font></td>
+  </tr>
+  <tr height="33">
+    <td><font face="verdana, Arial, Helvetica" size="2" color="#0000CC"><strong>Intensidad de lluvia</strong></font></td>
+    <td><font face="verdana, Arial, Helvetica" size="2" color="#0000CC"><strong>0.0&nbsp;mm/h</strong></font></td>
+  </tr>
+  <tr height="33">
+    <td><font face="verdana, Arial, Helvetica" size="2" color="#0000CC"><strong>Lluvia mensual</strong></font></td>
+    <td><font face="verdana, Arial, Helvetica" size="2" color="#0000CC"><strong>6.0&nbsp;mm</strong></font></td>
+  </tr>
+  <tr height="33">
+    <td><font face="verdana, Arial, Helvetica" size="2" color="#0000CC"><strong>Lluvia año natural</strong></font></td>
+    <td><font face="verdana, Arial, Helvetica" size="2" color="#0000CC"><strong>445.4&nbsp;mm</strong></font></td>
+   </tr>
+    <tr height="33">
+    <td><font face="verdana, Arial, Helvetica" size="2" color="#0000CC"><strong>Lluvia año hidrológico</strong> </font></td>
+    <td><font face="verdana, Arial, Helvetica" size="2" color="#0000CC"><strong>
+     <script type="text/javascript">document.writeln(suma.toFixed(1)); /* escribe la variable suma año hidrológico, 1 es  n decimales*/
+    </script>
+      mm</strong></font></td>
+  </tr>
+   <tr height="33">
+    <td><font face="verdana, Arial, Helvetica" size="2" color="#0000CC"><strong>Índice de calor</strong></font></td>
+    <td><font face="verdana, Arial, Helvetica" size="2" color="#0000CC"><strong> 27.0&nbsp;°C</strong> </font></td>
+  </tr>
+    <tr height="33">
+    <td><font face="verdana, Arial, Helvetica" size="2" color="#0000CC"><strong>Sensación térmica</strong></font></td>
+    <td><font face="verdana, Arial, Helvetica" size="2" color="#0000CC"><strong> 28.4&nbsp;°C</strong></font></td>
+  </tr>
+ 
+  <!-- MAXIMAS Y MINIMAS DE HOY -->
+  
+   <tr height="35">
+    <td bgcolor="#AF601A" colspan="2" ><font face="verdana, Arial, Helvetica"  size="4" color="#FFFFFF"><strong>Máximas y mínimas hoy</strong><font size="3"> (hora UTC) / local </font></font></td>
+  </tr>
+  <tr height="40">
+    <td><font face="verdana, Arial, Helvetica" size="2" color="#663300"><strong>Temperatura máx. y mín.</strong></font></td>     
+    <td nowrap><font face="verdana, Arial, Helvetica" size="2" color="#663300"><strong>28.7&nbsp;°C&nbsp;&nbsp;(14:57)&nbsp;+2h</strong></font><br>
+    <font face="verdana, Arial, Helvetica" size="2" color="#663300"><strong>11.3&nbsp;°C&nbsp;&nbsp;( 5:47)&nbsp;+2h</strong></font></td>
+   </tr>
+   
+  <tr height="40">
+    <td><font face="verdana,Arial, Helvetica" size="2" color="#663300"><strong>Humedad máx. y mín.</strong></font></td>
+    <td>
+    <font face="verdana, Arial, Helvetica" size="2" color="#663300"><strong>67&nbsp;% &nbsp;&nbsp;( 5:47)&nbsp;+2h</strong></font><br>
+    <font face="verdana, Arial, Helvetica" size="2" color="#663300"><strong>23&nbsp;% &nbsp;&nbsp;(14:32)&nbsp;+2h</strong></font></td>
+ </tr>  
+  
+   <tr height="40">
+    <td><font face="verdana,Arial, Helvetica" size="2" color="#663300"><strong>Velocidad máx. del viento</strong></font></td>
+    <td><font face="verdana, Arial, Helvetica" size="2" color="#663300"><strong>14.5&nbsp;km/h&nbsp;&nbsp;<br>( 0:32)&nbsp;+2h</strong></font></td>
+  </tr>
+    
+  <tr height="40">
+    <td><font face="verdana,Arial, Helvetica" size="2" color="#663300"><strong>Barómetro máx. y mín.</strong></font></td>
+    <td nowrap>
+    <font face="verdana, Arial, Helvetica" size="2" color="#663300"><strong> 1019.2&nbsp;&nbsp;hPa</strong></font><br>
+    <font face="verdana, Arial, Helvetica" size="2" color="#663300"><strong> 1016.7&nbsp;&nbsp;hPa</strong></font></strong></font></td>
+  </tr>
+     
+  <tr height="40">
+    <td><font face="verdana,Arial, Helvetica" size="2" color="#663300"><strong>Intensidad máx. de lluvia</strong></font></td>
+    <td><font face="verdana, Arial, Helvetica" size="2" color="#663300"><strong>0.0&nbsp;mm/h&nbsp;&nbsp;<br>(----)&nbsp;+2h</strong></font></td>
+   </tr>
+   
+  <tr height="30">
+    <td><font face="verdana,Arial, Helvetica" size="2" color="#663300"><strong>Índice de calor máx.</strong></font></td>
+    <td><font face="verdana, Arial, Helvetica" size="2" color="#663300"><strong>27.2&nbsp;°C</strong></font></td>
+   </tr>
+   
+  <tr height="30">
+    <td><font face="verdana,Arial, Helvetica" size="2" color="#663300"><strong>Sensación térmica mín.</strong></font></td>
+    <td><font face="verdana, Arial, Helvetica" size="2" color="#663300"><strong>11.1°C</strong></font></td>
+  </tr>
+ 
+  <!-- MAXIMAS Y MINIMAS DEL MES Y AÑO -->
+   <tr height="35">
+    <td bgcolor="#AF601A" colspan="2"><font face="verdana, Arial, Helvetica"  size="4" color="#FFFFFF"><strong>Máximas y mínimas del mes y año</strong></font></td>
+  </tr>
+ 
+  <tr height="40">
+    <td><font face="verdana, Arial, Helvetica" size="2" color="#006633"><strong>Temperatura máx. y mín.</strong></font></td>
+    <td>
+    <font face="verdana, Arial, Helvetica" size="2" color="#006633"><strong> 29.9&nbsp;°C&nbsp;&nbsp;&nbsp;&nbsp;10.9&nbsp;°C</strong></font><br>
+    <font face="verdana, Arial, Helvetica" size="2" color="#9900C0"><strong> 42.1&nbsp;°C&nbsp;&nbsp;&nbsp;&nbsp;-3.5&nbsp;°C</strong></font></td>  
+  </tr>
+  
+   <tr height="40">
+    <td><font face="verdana, Arial, Helvetica" size="2" color="#006633"><strong>Humedad máx. y mín.</strong></font></td>
+    <td><font face="verdana, Arial, Helvetica" size="2" color="#006633"><strong> 87&nbsp;% &nbsp;&nbsp;&nbsp;&nbsp;23&nbsp;% </strong></font><br>
+    <font face="verdana, Arial, Helvetica" size="2" color="#9900C0"><strong> 94&nbsp;% &nbsp;&nbsp;&nbsp;&nbsp;8&nbsp;% </strong></font></td>  
+   </tr>
+ 
+  <tr height="40">
+    <td><font face="verdana, Arial, Helvetica" size="2" color="#006633"><strong>Velocidad máx. del viento</strong> </font></td>
+    <td>
+    <font face="verdana, Arial, Helvetica" size="2" color="#006633"><strong>25.7&nbsp;km/h</strong></font><br>
+    <font face="verdana, Arial, Helvetica" size="2" color="#9900C0"><strong>41.8&nbsp;km/h</strong></font></td> 
+  </tr>
+ 
+    <tr height="40">
+    <td><font face="verdana, Arial, Helvetica" size="2" color="#006633"><strong>Barómetro máx. y mín.</strong></font></td>      
+    <td><font face="verdana, Arial, Helvetica"><strong><small><font color="#006633"><script type="text/javascript">document.writeln(barmx);
+    </script>&nbsp;&nbsp;<script type="text/javascript">document.writeln(barmi);
+    </script>&nbsp;hPa</font></small></strong></font><br>
+    <font face="verdana, Arial, Helvetica"><strong><small><font color="#9900C0"> <script type="text/javascript">document.writeln(baryx);
+    </script>&nbsp;&nbsp;&nbsp;<script type="text/javascript">document.writeln(barym);</script>&nbsp;hPa</font></small></strong></font></td>
+  </tr>
+ 
+   <tr height="40">
+    <td><font face="verdana, Arial, Helvetica" size="2" color="#006633"><strong>Intensidad máx. de lluvia</strong></font></td>
+    <td><font face="verdana, Arial, Helvetica"><strong><small><font color="#006633">
+    <script type="text/javascript">document.writeln(intmx);</script>mm/h</font>&nbsp;&nbsp;<br>
+    <font color="#9900C0"><script type="text/javascript">document.writeln(intyx);</script>mm/h</font><br></small></strong></font></td>
+  </tr>
+ 
+  <tr> 
+      <td height="45" align=center valign=middle colspan="2" bgcolor="#EDBB99">
+      <p><font face="verdana, Arial, Helvetica" size="4" color="#0000FF"><strong>Previsión meteorológica y enlaces</strong></font></p>
+  </tr>
+ 
+  <tr>
+   <td align=center valign=middle colspan="2" >
+<iframe src="https://www.meteoblue.com/es/tiempo/widget/daily/granada_espa%c3%b1a_2517117?geoloc=fixed&days=7&tempunit=CELSIUS&windunit=KILOMETER_PER_HOUR&precipunit=MILLIMETER&coloured=coloured&pictoicon=1&maxtemperature=1&mintemperature=1&windspeed=1&windgust=1&winddirection=1&uv=1&humidity=0&precipitation=1&precipitationprobability=0&spot=0&pressure=0&layout=light&user_key=a732c88d9cec77b3&embed_key=ff711cf0397042c1&sig=d09b8fdd8eaa02d5a93fd00f54957f68b4c3338f22c5652ec652b6fbe796115b" frameborder="0" scrolling="NO" allowtransparency="true" sandbox="allow-same-origin allow-scripts allow-popups allow-popups-to-escape-sandbox" style="width: 378px;height: 320px;border: 0;overflow: hidden;"></iframe><div><!-- DO NOT REMOVE THIS LINK --><a href="https://www.meteoblue.com/es/tiempo/semana/index" target="_blank" rel="noopener">meteoblue</a></div>
+   </td>
+  </tr>
+
+  <tr height="60">
+    <td align=center valign=middle colspan="2">
+     <a href="http://www.aemet.es/es/eltiempo/prediccion/municipios/granada-id18087#detallada"><img src="aemet-gr.gif" alt="AEMET-GR" width="90" height="54"></a>&nbsp;&nbsp;
+     <a href="https://www.meteoblue.com/es/tiempo/pronostico/semana/granada_espa%C3%B1a_2517117"><img src="meteob-gr.gif" alt="meteoblue-GR" width="70" height="54" border="0" /></a>&nbsp;&nbsp;
+   <a href="https://www.accuweather.com/es/es/granada/306729/weather-forecast/306729"><img src="accu-gr.gif" alt="accuweather-GR" width="54" height="54" border="0" /></a>&nbsp;&nbsp;   
+  <a href="https://www.tiempo.com/granada.htm"><img src="meteored.gif" alt="Meteored" width="88" height="50" border="1" /></a>
+     </td>
+  </tr>
+
+  <tr height="72">
+  <td align=center valign=middle colspan="2" >
+       <a href="https://www.meteoclimatic.net/mapinfo/ESAND"><img src="ESAND1800000018010A.png" alt="Meteoclimatic" width="115" height="70" border="0" /></a>&nbsp;&nbsp;
+       <a href="https://www.wunderground.com/dashboard/pws/IGRANADA58"><img src="wu-gr.gif" alt="Wunderground-GR" width="65" height="65" border="0" /></a>&nbsp;&nbsp;
+       <a href="https://www.mountain-forecast.com/peaks/Sierra-Nevada-Spain/forecasts/3478"><img src="mountain-gr.gif" alt="mountain-forecast" width="65" height="65" border="0" /></a>&nbsp;&nbsp;
+       <a href="https://snowy.es/embalses?view=provinces&markers=true"><img src="embalsesA.gif" alt="embalses"  width="85" height="65" border="0" /></a>
+     </td>
+
+    <td align=center valign=middle  bgcolor="#f7c998">
+      <p><font face="verdana, Arial, Helvetica" size="4"><strong><a href="resumen.htm">ACCESO A RESUMEN DE DATOS MENSUALES Y ANUALES. <br>GRÁFICAS DE DATOS</a></strong></font></p>
+    </td>
+  </tr>
+
+</table>
+<hr>
+
+<p align="center"><font face="verdana, Arial, Helvetica" size="2" color="#555555">key words: weather station, current weather, meteo, Granada, Albayzin, Albaicin, forecast, temperature, humidity, dew point, wind speed, wind chill, heat index, rain, Albaizyn, history data</font></p>
+
+<script>
+const trends = { "Rising": "Subiendo", "Falling": "Bajando", "Slowly": "lento", "Rapidly": "rápido", "Steady": "Estable" };
+document.body.innerHTML = document.body.innerHTML.replace(/Rising|Falling|Slowly|Rapidly|Steady/g, matched => trends[matched]);
+</script>
+
+</BODY>
+</HTML>

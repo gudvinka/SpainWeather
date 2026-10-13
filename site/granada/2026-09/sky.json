@@ -1,0 +1,142 @@
+{
+  "2026-09-11": {
+    "cloud": 1,
+    "sunHours": 12.1,
+    "aqiMax": 35,
+    "sunrise": "07:53",
+    "sunset": "20:28"
+  },
+  "2026-09-12": {
+    "cloud": 0,
+    "sunHours": 12.1,
+    "aqiMax": 34,
+    "sunrise": "07:53",
+    "sunset": "20:26"
+  },
+  "2026-09-13": {
+    "cloud": 1,
+    "sunHours": 12.1,
+    "aqiMax": 34,
+    "sunrise": "07:54",
+    "sunset": "20:25"
+  },
+  "2026-09-14": {
+    "cloud": 0,
+    "sunHours": 12.1,
+    "aqiMax": 39,
+    "sunrise": "07:55",
+    "sunset": "20:23"
+  },
+  "2026-09-15": {
+    "cloud": 20,
+    "sunHours": 12,
+    "aqiMax": 38,
+    "sunrise": "07:56",
+    "sunset": "20:22"
+  },
+  "2026-09-16": {
+    "cloud": 11,
+    "sunHours": 12,
+    "aqiMax": 43,
+    "sunrise": "07:57",
+    "sunset": "20:20"
+  },
+  "2026-09-17": {
+    "cloud": 23,
+    "sunHours": 10.6,
+    "aqiMax": 37,
+    "sunrise": "07:57",
+    "sunset": "20:18"
+  },
+  "2026-09-18": {
+    "cloud": 34,
+    "sunHours": 12,
+    "aqiMax": 41,
+    "sunrise": "07:58",
+    "sunset": "20:17"
+  },
+  "2026-09-19": {
+    "cloud": 25,
+    "sunHours": 11.9,
+    "aqiMax": 33,
+    "sunrise": "07:59",
+    "sunset": "20:15"
+  },
+  "2026-09-20": {
+    "cloud": 17,
+    "sunHours": 11.9,
+    "aqiMax": 34,
+    "sunrise": "08:00",
+    "sunset": "20:14"
+  },
+  "2026-09-21": {
+    "cloud": 1,
+    "sunHours": 11.9,
+    "aqiMax": 37,
+    "sunrise": "08:01",
+    "sunset": "20:12"
+  },
+  "2026-09-22": {
+    "cloud": 0,
+    "sunHours": 11.9,
+    "aqiMax": 35,
+    "sunrise": "08:01",
+    "sunset": "20:11"
+  },
+  "2026-09-23": {
+    "cloud": 0,
+    "sunHours": 11.9,
+    "aqiMax": 36,
+    "sunrise": "08:02",
+    "sunset": "20:09"
+  },
+  "2026-09-24": {
+    "cloud": 2,
+    "sunHours": 11.9,
+    "aqiMax": 38,
+    "sunrise": "08:03",
+    "sunset": "20:08"
+  },
+  "2026-09-25": {
+    "cloud": 19,
+    "sunHours": 11.9,
+    "aqiMax": 39,
+    "sunrise": "08:04",
+    "sunset": "20:06"
+  },
+  "2026-09-26": {
+    "cloud": 15,
+    "sunHours": 11.8,
+    "aqiMax": 36,
+    "sunrise": "08:05",
+    "sunset": "20:05"
+  },
+  "2026-09-27": {
+    "cloud": 28,
+    "sunHours": 10.6,
+    "aqiMax": 33,
+    "sunrise": "08:06",
+    "sunset": "20:03"
+  },
+  "2026-09-28": {
+    "cloud": 97,
+    "sunHours": 0,
+    "aqiMax": 37,
+    "sunrise": "08:07",
+    "sunset": "20:02"
+  },
+  "2026-09-29": {
+    "cloud": 28,
+    "sunHours": 11.5,
+    "aqiMax": 31,
+    "sunrise": "08:07",
+    "sunset": "20:00"
+  },
+  "2026-09-30": {
+    "cloud": 62,
+    "sunHours": 8,
+    "aqiMax": 32,
+    "sunrise": "08:08",
+    "sunset": "19:59"
+  }
+}

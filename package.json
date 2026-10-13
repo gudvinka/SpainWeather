@@ -1,0 +1,20 @@
+{
+  "name": "spainweather",
+  "description": "SpainWeather — погода в Испании: камеры, метеостанции и итоги по дням для выбора города",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "snap": "node src/snap.ts",
+    "report": "node src/report.ts",
+    "test": "node --test",
+    "check": "tsc -p . && node --test"
+  },
+  "dependencies": {
+    "playwright": "^1.55.0",
+    "sharp": "^0.35.5"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^7.0.2"
+  }
+}

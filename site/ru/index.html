@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SpainWeather · погода в Испании</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --page: #f6f5f2;
+    --text: #1d2433;
+    --muted: #6b7280;
+    --line: #e5e2dc;
+    --icon: #4b5563;
+    --empty: #ece9e3;
+  }
+  * { box-sizing: border-box; }
+  html { min-height: 100%; background: var(--page); }
+  body {
+    position: relative;
+    margin: 0; padding: 32px 40px 48px;
+    color: var(--text); font: 15px/1.45 Inter, system-ui, sans-serif;
+  }
+  a { color: inherit; }
+  h1 { margin: 0 0 6px; font-size: 32px; font-weight: 700; line-height: 1.15; letter-spacing: -0.01em; }
+  .sub { margin: 0 0 16px; color: var(--muted); }
+  .crumbs { margin-bottom: 14px; color: var(--muted); font-size: 14px; }
+  .crumbs a { color: var(--muted); text-decoration: none; }
+  .crumbs a:hover { color: var(--text); text-decoration: underline; }
+  .crumbs b { color: var(--text); font-weight: 600; }
+  .crumbs i { margin: 0 6px; font-style: normal; opacity: 0.6; }
+
+  /* Шапка страницы месяца: вывод и одна строка плиток на всю ширину. */
+  .mhdr { margin-bottom: 16px; padding: 18px 22px; border-radius: 16px; background: #fff; border: 1px solid var(--line); }
+  .mtitle { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+  .mtitle h1 { margin: 0; }
+  .mtitle span { color: var(--muted); font-size: 13px; white-space: nowrap; }
+  .verdict { margin: 4px 0 14px; font-size: 18px; }
+  .verdict.muted { color: var(--muted); font-size: 15px; }
+  .tiles { display: flex; gap: 10px; }
+  .tile { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; padding: 9px 12px; border-radius: 10px; background: var(--page); }
+  .tile span { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 13px; white-space: nowrap; }
+  .tile span svg { flex: none; width: 16px; height: 16px; color: var(--icon); }
+  .tile b { font-size: 20px; line-height: 1.3; }
+  .tile b em { font-style: normal; font-weight: 400; font-size: 15px; color: var(--muted); }
+  .tile small { color: var(--muted); font-size: 13px; }
+  .mhdr .src { margin: 12px 0 0; color: #9aa0a8; font-size: 12px; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 24px; }
+  .legend span { padding: 4px 10px; border-radius: 99px; font-size: 13px; font-weight: 600; }
+
+  /* Строка дня целиком окрашена в цвет типа дня, белая карточка погоды выделяется на ней. */
+  .day { display: flex; gap: 16px; margin-bottom: 12px; padding: 14px; border-radius: 16px; }
+  .card {
+    flex: 0 0 296px; align-self: stretch; /* по высоте блока «время + кадр» */ padding: 14px 16px; border-radius: 12px;
+    background: #fff; color: var(--text);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08), 0 6px 16px rgba(0, 0, 0, 0.08);
+  }
+  .card header { display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; }
+  .date { font-size: 22px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+  .wd, .temps i { color: var(--muted); font-style: normal; }
+  .badge { margin-left: auto; padding: 2px 8px; border-radius: 99px; font-size: 12px; font-weight: 600; color: #fff; background: var(--text); }
+  .temps { display: flex; gap: 14px; margin-bottom: 10px; }
+  .temps b { font-size: 20px; font-weight: 600; }
+  .card ul { list-style: none; margin: 0; padding: 0; }
+  .card li { display: flex; align-items: center; gap: 8px; padding: 3px 0; }
+  .card li svg { flex: none; color: var(--icon); }
+
+  .shots { display: flex; flex-wrap: wrap; gap: 12px; align-content: flex-start; }
+  figure { margin: 0; }
+  figcaption { margin-bottom: 4px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .shots img { display: block; width: 400px; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 8px; background: rgba(0, 0, 0, 0.12); }
+  .noshots { align-self: center; font-weight: 600; opacity: 0.75; }
+
+  h2 { margin: 28px 0 12px; font-size: 22px; font-weight: 700; }
+  .months { display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start; }
+  .month { display: block; width: 520px; padding: 18px 20px; border-radius: 14px; background: #fff; border: 1px solid var(--line); text-decoration: none; }
+  .month:hover { border-color: var(--text); }
+  .month .head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px; }
+  .month .head b { font-size: 20px; font-weight: 700; }
+  .month .head span { color: var(--muted); font-size: 13px; }
+  .strip { display: grid; grid-template-columns: repeat(31, 1fr); gap: 2px; margin-bottom: 16px; }
+  .seg i { display: block; height: 22px; border-radius: 3px; }
+  .seg small { display: block; margin-top: 2px; text-align: center; font-size: 9px; color: var(--muted); }
+  .avg { margin-bottom: 10px; }
+  .avg span { color: var(--muted); }
+  .avg b { font-size: 18px; }
+  .counts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px 10px; margin-bottom: 6px; font-size: 14px; }
+  .counts span { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+  .counts i { flex: none; width: 10px; height: 10px; border-radius: 50%; }
+  .counts .zero { opacity: 0.35; }
+  .totals { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); }
+  .empty { color: var(--muted); }
+  .card li.warn { color: var(--icon); font-weight: 600; cursor: help; }
+
+  .cities { display: flex; flex-wrap: wrap; gap: 20px; margin-top: 24px; }
+  .city {
+    display: block; width: 380px; padding: 20px 22px; border-radius: 16px; text-decoration: none;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08), 0 6px 16px rgba(0, 0, 0, 0.08);
+  }
+  .city:hover { outline: 2px solid var(--text); }
+  .city h2 { margin: 0 0 4px; font-size: 26px; }
+  /* Рисунок знакового места — крупно, тонко, едва заметно, выходит за край карточки; текст поверх. */
+  .city { position: relative; overflow: hidden; }
+  .city > :not(.landmark) { position: relative; }
+  .city .landmark { position: absolute; right: -40px; bottom: -18px; width: 320px; height: auto; opacity: 0.18; pointer-events: none; }
+  .city .now { display: flex; align-items: baseline; gap: 12px; margin: 10px 0 4px; }
+  .city .now b { font-size: 44px; font-weight: 700; line-height: 1; }
+  .city .line { opacity: 0.85; }
+  .city ul { list-style: none; margin: 10px 0; padding: 0; }
+  .city li { display: flex; align-items: center; gap: 8px; padding: 2px 0; font-weight: 600; }
+  .city li svg { flex: none; }
+  .city .warn { margin-top: 8px; font-weight: 600; }
+  /* Переключатель языка RU | ES — в правом верхнем углу каждой страницы. */
+  .lang { position: absolute; top: 28px; right: 40px; z-index: 10; display: flex; padding: 3px; border-radius: 99px;
+    background: #fff; border: 1px solid var(--line); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06); font-size: 13px; font-weight: 600; }
+  .lang a, .lang b { padding: 5px 12px; border-radius: 99px; text-decoration: none; }
+  .lang a { color: var(--muted); }
+  .lang a:hover { color: var(--text); }
+  .lang b { background: var(--text); color: #fff; }
+
+  /* Month details: над днями — легенда слева, ссылка «сегодня ↓» справа; круглая кнопка «↑ наверх» после прокрутки.
+     Обе кнопки белые, как карточки. */
+  html { scroll-behavior: smooth; }
+  .bar { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 24px; }
+  .bar .legend { margin: 0; }
+  .today { flex: none; padding: 5px 14px; border-radius: 99px; background: #fff; border: 1px solid var(--line);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06); color: var(--text); font-size: 13px; font-weight: 600; text-decoration: none; }
+  .today:hover { border-color: var(--text); }
+  .day { scroll-margin-top: 12px; }
+  .totop { position: fixed; right: 20px; bottom: 20px; z-index: 20; width: 48px; height: 48px; display: grid; place-items: center;
+    border-radius: 50%; background: #fff; border: 1px solid var(--line); color: var(--icon); font-size: 22px; text-decoration: none;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18); opacity: 0; pointer-events: none; transition: opacity 0.2s;
+    -webkit-tap-highlight-color: transparent; }
+  .totop.show { opacity: 1; pointer-events: auto; }
+
+  /* Телефон (iPhone 17 Pro Max — 440 точек): поля уже, карточки на всю ширину. */
+  @media (max-width: 600px) {
+    body { padding: 20px 16px 80px; } /* снизу место под кнопку «↑» */
+    .lang { top: 16px; right: 16px; }
+    .totop { right: 16px; bottom: 16px; }
+    h1 { font-size: 28px; }
+    .crumbs { margin-right: 110px; }
+    .city { width: 100%; }
+    /* City overview: без полоски дней — месяц, средние и счётчики в две колонки. */
+    .months { gap: 14px; }
+    .month { width: 100%; padding: 16px; }
+    .month .head { margin-bottom: 10px; }
+    .strip { display: none; }
+    .counts { grid-template-columns: repeat(2, 1fr); gap: 6px 10px; }
+    /* Month details: заголовок в строку, «данные за» под ним, плитки по две в ряд
+       (нечётная последняя — на всю ширину); легенду цветов не показываем. */
+    .mhdr { padding: 16px; }
+    .mtitle { flex-direction: column; gap: 2px; }
+    .mtitle h1 { font-size: 24px; }
+    .verdict { font-size: 16px; }
+    .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .tile:last-child:nth-child(odd) { grid-column: span 2; }
+    .tile span { white-space: normal; }
+    .legend { display: none; }
+    .bar { margin-bottom: 12px; }
+    .mhdr .src { display: none; }
+    /* Month details, дни: белая карточка в рамке цвета дня, кадры скрыты — раскрываются нажатием на день. */
+    .day { flex-direction: column; gap: 0; padding: 10px; margin-bottom: 10px; -webkit-tap-highlight-color: transparent; }
+    .day.has-shots { cursor: pointer; }
+    .card { position: relative; flex: none; align-self: stretch; display: grid; grid-template-columns: 1fr auto;
+      align-items: baseline; padding: 10px 12px; border-radius: 8px; box-shadow: none; }
+    .card header { margin: 0; }
+    .date { font-size: 20px; }
+    .temps { margin: 0; gap: 10px; }
+    .temps b { font-size: 18px; }
+    .card ul { grid-column: span 2; display: grid; grid-template-columns: 1fr 1fr; gap: 0 10px; margin-top: 6px; font-size: 14px; }
+    .card li { padding: 2px 0; }
+    .card li svg { width: 16px; height: 16px; }
+    .card li.sky { grid-column: span 2; order: 99; }
+    .has-shots .card::after { grid-column: span 2; justify-self: end; margin-top: 4px; content: attr(data-more); font-size: 12px; color: var(--muted); }
+    .open .card::after { content: attr(data-less); }
+    .has-shots .badge { position: absolute; left: 12px; bottom: 9px; margin: 0; }
+    .shots { display: none; flex-direction: column; gap: 10px; padding-top: 10px; }
+    .day.open .shots { display: flex; }
+    .shots figure { width: 100%; }
+    .shots img { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="lang"><b>RU</b><a href="../es/index.html" hreflang="es">ES</a></nav>
+<h1>SpainWeather</h1>
+<p class="sub">Погода в Испании: камеры, метеостанции и итоги по дням</p>
+<div class="cities">
+  <a class="city" href="oviedo/index.html" style="background: #d9d6e4; color: #1d2433">
+    <svg class="landmark" viewBox="0 0 120 90" fill="none" stroke="currentColor" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Собор Сан-Сальвадор"><title>Собор Сан-Сальвадор</title><path d="M4 86H116"/><path d="M60 2V9"/><path d="M57 4.5H63"/><path d="M52 30 60 9 68 30"/><path d="M55 22H65"/><path d="M50 30V22M70 30V22"/><path d="M49 23 50 20 51 23M69 23 70 20 71 23"/><path d="M48 30H72"/><path d="M50 30V66M70 30V66"/><path d="M50 56H70"/><path d="M54 50V40A4 4 0 0 1 56 36.52A4 4 0 0 1 58 40V50"/><path d="M62 50V40A4 4 0 0 1 64 36.52A4 4 0 0 1 66 40V50"/><path d="M34 86V66H86V86"/><path d="M34 66 40 61H80L86 66"/><path d="M38 86V74A8 8 0 0 1 42 67.04A8 8 0 0 1 46 74V86"/><path d="M56 86V73A8 8 0 0 1 60 66.04A8 8 0 0 1 64 73V86"/><path d="M74 86V74A8 8 0 0 1 78 67.04A8 8 0 0 1 82 74V86"/><path d="M10 86V58L22 50 34 58V66"/><path d="M16 72V64A4 4 0 0 1 18 60.52A4 4 0 0 1 20 64V72"/><path d="M24 72V64A4 4 0 0 1 26 60.52A4 4 0 0 1 28 64V72"/><path d="M86 66V60L98 52 110 60V86"/><path d="M92 74V66A4 4 0 0 1 94 62.52A4 4 0 0 1 96 66V74"/><path d="M100 74V66A4 4 0 0 1 102 62.52A4 4 0 0 1 104 66V74"/><path d="M14 86V58.6M30 86V58.6M90 86V62M106 86V62"/></svg>
+    <h2>Овьедо</h2>
+    <div class="line">сегодня, облачно</div>
+    <div class="now"><b>18°</b><span>мин 18 · макс 18</span></div>
+    <ul><li><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/><path d="m3 3 18 18"/></svg>без осадков</li><li><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"/><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"/></svg>ощущается: душно</li></ul>
+    <div class="line">обновлено 12:03</div>
+    
+  </a>
+  <a class="city" href="granada/index.html" style="background: #8ec9ee; color: #1d2433">
+    <svg class="landmark" viewBox="0 0 120 90" fill="none" stroke="currentColor" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Альгамбра"><title>Альгамбра</title><path d="M74 30 80 24 86 27 96 13 104 22 110 19 120 30"/><path d="M92 17.5 96 13 99.5 17.5"/><path d="M0 84C22 70 46 63 70 62C92 61 108 64 120 70"/><path d="M10 78.2V33.5H13V36H16V33.5H19V36H22V33.5H24V71.7"/><path d="M15 52V46A4 4 0 0 1 17 42.52A4 4 0 0 1 19 46V52"/><path d="M24 54.5V52H27"/><path d="M27 70.6V41.5H30V44H33V41.5H35V67.9"/><path d="M35 52.5V50H38V52.5H41V50H44V52.5H47V50H50V52.5H53V50H56V52.5H58"/><path d="M58 63V25.5H61V28H64V25.5H67V28H70V25.5H73V28H74V61.9"/><path d="M58 48H74"/><path d="M62 42V36A3 3 0 0 1 63.5 33.39A3 3 0 0 1 65 36V42"/><path d="M67 42V36A3 3 0 0 1 68.5 33.39A3 3 0 0 1 70 36V42"/><path d="M74 50 80 46H98L104 50"/><path d="M78 61.9V55A3 3 0 0 1 79.5 52.39A3 3 0 0 1 81 55V61.9"/><path d="M84 62.1V55A3 3 0 0 1 85.5 52.39A3 3 0 0 1 87 55V62.1"/><path d="M90 62.6V55A3 3 0 0 1 91.5 52.39A3 3 0 0 1 93 55V62.6"/><path d="M96 63.3V55A3 3 0 0 1 97.5 52.39A3 3 0 0 1 99 55V63.3"/><path d="M104 64.4V39.5H107V42H110V39.5H112V66.7"/><path d="M3.25 82C3.25 69 4.7 63 5 61C5.3 63 6.75 69 6.75 80"/><path d="M114.25 67.5C114.25 54 115.7 48 116 46C116.3 48 117.75 54 117.75 68.9"/></svg>
+    <h2>Гранада</h2>
+    <div class="line">сегодня, переменная облачность, 4 ч</div>
+    <div class="now"><b>23°</b><span>мин 13 · макс 23</span></div>
+    <ul><li><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/><path d="m3 3 18 18"/></svg>без осадков</li><li><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"/><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"/></svg>ощущается: комфортно</li></ul>
+    <div class="line">обновлено 12:03</div>
+    
+  </a>
+</div>
+</body>
+</html>

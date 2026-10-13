@@ -1,0 +1,82 @@
+{
+  "2022-09": {
+    "days": 30,
+    "tMax": 29.1,
+    "rainy": 5,
+    "grey": 0,
+    "heat": 2,
+    "badAir": 0,
+    "sunrise": "07:44",
+    "sunset": "20:43"
+  },
+  "2022-10": {
+    "days": 31,
+    "tMax": 27.6,
+    "rainy": 0,
+    "grey": 2,
+    "heat": 0,
+    "badAir": 0,
+    "sunrise": "08:09",
+    "sunset": "19:57"
+  },
+  "2023-09": {
+    "days": 30,
+    "tMax": 28.2,
+    "rainy": 5,
+    "grey": 0,
+    "heat": 0,
+    "badAir": 0,
+    "sunrise": "07:44",
+    "sunset": "20:43"
+  },
+  "2023-10": {
+    "days": 31,
+    "tMax": 24.5,
+    "rainy": 9,
+    "grey": 0,
+    "heat": 0,
+    "badAir": 0,
+    "sunrise": "08:09",
+    "sunset": "19:58"
+  },
+  "2024-09": {
+    "days": 30,
+    "tMax": 27.5,
+    "rainy": 4,
+    "grey": 0,
+    "heat": 0,
+    "badAir": 0,
+    "sunrise": "07:45",
+    "sunset": "20:42"
+  },
+  "2024-10": {
+    "days": 31,
+    "tMax": 21.9,
+    "rainy": 15,
+    "grey": 2,
+    "heat": 0,
+    "badAir": 0,
+    "sunrise": "08:10",
+    "sunset": "19:57"
+  },
+  "2025-09": {
+    "days": 30,
+    "tMax": 29.9,
+    "rainy": 3,
+    "grey": 1,
+    "heat": 2,
+    "badAir": 0,
+    "sunrise": "07:45",
+    "sunset": "20:42"
+  },
+  "2025-10": {
+    "days": 31,
+    "tMax": 24.9,
+    "rainy": 6,
+    "grey": 0,
+    "heat": 0,
+    "badAir": 0,
+    "sunrise": "08:09",
+    "sunset": "19:57"
+  }
+}

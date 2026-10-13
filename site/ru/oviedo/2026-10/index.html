@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Овьедо · октябрь 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --page: #f6f5f2;
+    --text: #1d2433;
+    --muted: #6b7280;
+    --line: #e5e2dc;
+    --icon: #4b5563;
+    --empty: #ece9e3;
+  }
+  * { box-sizing: border-box; }
+  html { min-height: 100%; background: var(--page); }
+  body {
+    position: relative;
+    margin: 0; padding: 32px 40px 48px;
+    color: var(--text); font: 15px/1.45 Inter, system-ui, sans-serif;
+  }
+  a { color: inherit; }
+  h1 { margin: 0 0 6px; font-size: 32px; font-weight: 700; line-height: 1.15; letter-spacing: -0.01em; }
+  .sub { margin: 0 0 16px; color: var(--muted); }
+  .crumbs { margin-bottom: 14px; color: var(--muted); font-size: 14px; }
+  .crumbs a { color: var(--muted); text-decoration: none; }
+  .crumbs a:hover { color: var(--text); text-decoration: underline; }
+  .crumbs b { color: var(--text); font-weight: 600; }
+  .crumbs i { margin: 0 6px; font-style: normal; opacity: 0.6; }
+
+  /* Шапка страницы месяца: вывод и одна строка плиток на всю ширину. */
+  .mhdr { margin-bottom: 16px; padding: 18px 22px; border-radius: 16px; background: #fff; border: 1px solid var(--line); }
+  .mtitle { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+  .mtitle h1 { margin: 0; }
+  .mtitle span { color: var(--muted); font-size: 13px; white-space: nowrap; }
+  .verdict { margin: 4px 0 14px; font-size: 18px; }
+  .verdict.muted { color: var(--muted); font-size: 15px; }
+  .tiles { display: flex; gap: 10px; }
+  .tile { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; padding: 9px 12px; border-radius: 10px; background: var(--page); }
+  .tile span { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 13px; white-space: nowrap; }
+  .tile span svg { flex: none; width: 16px; height: 16px; color: var(--icon); }
+  .tile b { font-size: 20px; line-height: 1.3; }
+  .tile b em { font-style: normal; font-weight: 400; font-size: 15px; color: var(--muted); }
+  .tile small { color: var(--muted); font-size: 13px; }
+  .mhdr .src { margin: 12px 0 0; color: #9aa0a8; font-size: 12px; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 24px; }
+  .legend span { padding: 4px 10px; border-radius: 99px; font-size: 13px; font-weight: 600; }
+
+  /* Строка дня целиком окрашена в цвет типа дня, белая карточка погоды выделяется на ней. */
+  .day { display: flex; gap: 16px; margin-bottom: 12px; padding: 14px; border-radius: 16px; }
+  .card {
+    flex: 0 0 296px; align-self: stretch; /* по высоте блока «время + кадр» */ padding: 14px 16px; border-radius: 12px;
+    background: #fff; color: var(--text);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08), 0 6px 16px rgba(0, 0, 0, 0.08);
+  }
+  .card header { display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; }
+  .date { font-size: 22px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+  .wd, .temps i { color: var(--muted); font-style: normal; }
+  .badge { margin-left: auto; padding: 2px 8px; border-radius: 99px; font-size: 12px; font-weight: 600; color: #fff; background: var(--text); }
+  .temps { display: flex; gap: 14px; margin-bottom: 10px; }
+  .temps b { font-size: 20px; font-weight: 600; }
+  .card ul { list-style: none; margin: 0; padding: 0; }
+  .card li { display: flex; align-items: center; gap: 8px; padding: 3px 0; }
+  .card li svg { flex: none; color: var(--icon); }
+
+  .shots { display: flex; flex-wrap: wrap; gap: 12px; align-content: flex-start; }
+  figure { margin: 0; }
+  figcaption { margin-bottom: 4px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .shots img { display: block; width: 400px; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 8px; background: rgba(0, 0, 0, 0.12); }
+  .noshots { align-self: center; font-weight: 600; opacity: 0.75; }
+
+  h2 { margin: 28px 0 12px; font-size: 22px; font-weight: 700; }
+  .months { display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start; }
+  .month { display: block; width: 520px; padding: 18px 20px; border-radius: 14px; background: #fff; border: 1px solid var(--line); text-decoration: none; }
+  .month:hover { border-color: var(--text); }
+  .month .head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px; }
+  .month .head b { font-size: 20px; font-weight: 700; }
+  .month .head span { color: var(--muted); font-size: 13px; }
+  .strip { display: grid; grid-template-columns: repeat(31, 1fr); gap: 2px; margin-bottom: 16px; }
+  .seg i { display: block; height: 22px; border-radius: 3px; }
+  .seg small { display: block; margin-top: 2px; text-align: center; font-size: 9px; color: var(--muted); }
+  .avg { margin-bottom: 10px; }
+  .avg span { color: var(--muted); }
+  .avg b { font-size: 18px; }
+  .counts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px 10px; margin-bottom: 6px; font-size: 14px; }
+  .counts span { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+  .counts i { flex: none; width: 10px; height: 10px; border-radius: 50%; }
+  .counts .zero { opacity: 0.35; }
+  .totals { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); }
+  .empty { color: var(--muted); }
+  .card li.warn { color: var(--icon); font-weight: 600; cursor: help; }
+
+  .cities { display: flex; flex-wrap: wrap; gap: 20px; margin-top: 24px; }
+  .city {
+    display: block; width: 380px; padding: 20px 22px; border-radius: 16px; text-decoration: none;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08), 0 6px 16px rgba(0, 0, 0, 0.08);
+  }
+  .city:hover { outline: 2px solid var(--text); }
+  .city h2 { margin: 0 0 4px; font-size: 26px; }
+  /* Рисунок знакового места — крупно, тонко, едва заметно, выходит за край карточки; текст поверх. */
+  .city { position: relative; overflow: hidden; }
+  .city > :not(.landmark) { position: relative; }
+  .city .landmark { position: absolute; right: -40px; bottom: -18px; width: 320px; height: auto; opacity: 0.18; pointer-events: none; }
+  .city .now { display: flex; align-items: baseline; gap: 12px; margin: 10px 0 4px; }
+  .city .now b { font-size: 44px; font-weight: 700; line-height: 1; }
+  .city .line { opacity: 0.85; }
+  .city ul { list-style: none; margin: 10px 0; padding: 0; }
+  .city li { display: flex; align-items: center; gap: 8px; padding: 2px 0; font-weight: 600; }
+  .city li svg { flex: none; }
+  .city .warn { margin-top: 8px; font-weight: 600; }
+  /* Переключатель языка RU | ES — в правом верхнем углу каждой страницы. */
+  .lang { position: absolute; top: 28px; right: 40px; z-index: 10; display: flex; padding: 3px; border-radius: 99px;
+    background: #fff; border: 1px solid var(--line); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06); font-size: 13px; font-weight: 600; }
+  .lang a, .lang b { padding: 5px 12px; border-radius: 99px; text-decoration: none; }
+  .lang a { color: var(--muted); }
+  .lang a:hover { color: var(--text); }
+  .lang b { background: var(--text); color: #fff; }
+
+  /* Month details: над днями — легенда слева, ссылка «сегодня ↓» справа; круглая кнопка «↑ наверх» после прокрутки.
+     Обе кнопки белые, как карточки. */
+  html { scroll-behavior: smooth; }
+  .bar { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 24px; }
+  .bar .legend { margin: 0; }
+  .today { flex: none; padding: 5px 14px; border-radius: 99px; background: #fff; border: 1px solid var(--line);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06); color: var(--text); font-size: 13px; font-weight: 600; text-decoration: none; }
+  .today:hover { border-color: var(--text); }
+  .day { scroll-margin-top: 12px; }
+  .totop { position: fixed; right: 20px; bottom: 20px; z-index: 20; width: 48px; height: 48px; display: grid; place-items: center;
+    border-radius: 50%; background: #fff; border: 1px solid var(--line); color: var(--icon); font-size: 22px; text-decoration: none;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18); opacity: 0; pointer-events: none; transition: opacity 0.2s;
+    -webkit-tap-highlight-color: transparent; }
+  .totop.show { opacity: 1; pointer-events: auto; }
+
+  /* Телефон (iPhone 17 Pro Max — 440 точек): поля уже, карточки на всю ширину. */
+  @media (max-width: 600px) {
+    body { padding: 20px 16px 80px; } /* снизу место под кнопку «↑» */
+    .lang { top: 16px; right: 16px; }
+    .totop { right: 16px; bottom: 16px; }
+    h1 { font-size: 28px; }
+    .crumbs { margin-right: 110px; }
+    .city { width: 100%; }
+    /* City overview: без полоски дней — месяц, средние и счётчики в две колонки. */
+    .months { gap: 14px; }
+    .month { width: 100%; padding: 16px; }
+    .month .head { margin-bottom: 10px; }
+    .strip { display: none; }
+    .counts { grid-template-columns: repeat(2, 1fr); gap: 6px 10px; }
+    /* Month details: заголовок в строку, «данные за» под ним, плитки по две в ряд
+       (нечётная последняя — на всю ширину); легенду цветов не показываем. */
+    .mhdr { padding: 16px; }
+    .mtitle { flex-direction: column; gap: 2px; }
+    .mtitle h1 { font-size: 24px; }
+    .verdict { font-size: 16px; }
+    .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .tile:last-child:nth-child(odd) { grid-column: span 2; }
+    .tile span { white-space: normal; }
+    .legend { display: none; }
+    .bar { margin-bottom: 12px; }
+    .mhdr .src { display: none; }
+    /* Month details, дни: белая карточка в рамке цвета дня, кадры скрыты — раскрываются нажатием на день. */
+    .day { flex-direction: column; gap: 0; padding: 10px; margin-bottom: 10px; -webkit-tap-highlight-color: transparent; }
+    .day.has-shots { cursor: pointer; }
+    .card { position: relative; flex: none; align-self: stretch; display: grid; grid-template-columns: 1fr auto;
+      align-items: baseline; padding: 10px 12px; border-radius: 8px; box-shadow: none; }
+    .card header { margin: 0; }
+    .date { font-size: 20px; }
+    .temps { margin: 0; gap: 10px; }
+    .temps b { font-size: 18px; }
+    .card ul { grid-column: span 2; display: grid; grid-template-columns: 1fr 1fr; gap: 0 10px; margin-top: 6px; font-size: 14px; }
+    .card li { padding: 2px 0; }
+    .card li svg { width: 16px; height: 16px; }
+    .card li.sky { grid-column: span 2; order: 99; }
+    .has-shots .card::after { grid-column: span 2; justify-self: end; margin-top: 4px; content: attr(data-more); font-size: 12px; color: var(--muted); }
+    .open .card::after { content: attr(data-less); }
+    .has-shots .badge { position: absolute; left: 12px; bottom: 9px; margin: 0; }
+    .shots { display: none; flex-direction: column; gap: 10px; padding-top: 10px; }
+    .day.open .shots { display: flex; }
+    .shots figure { width: 100%; }
+    .shots img { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="lang"><b>RU</b><a href="../../../es/oviedo/2026-10/index.html" hreflang="es">ES</a></nav>
+<nav class="crumbs"><a href="../../index.html">SpainWeather</a><i>›</i><a href="../index.html">Овьедо</a><i>›</i><b>октябрь 2026</b></nav>
+
+<section class="mhdr">
+  <div class="mtitle"><h1>Овьедо · октябрь 2026</h1><span>данные за 13 из 31 дн.</span></div>
+  <p class="verdict">Октябрь пока: <b>по температуре как обычно, дождей как обычно</b></p>
+  <div class="tiles"><div class="tile"><span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/></svg>днём в среднем</span><b>20°</b><small>обычно 21°</small></div><div class="tile"><span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M16 14v6"/><path d="M8 14v6"/><path d="M12 16v6"/></svg>дождливые дни</span><b>6 <em>из 13</em></b><small>обычно 14 из 31</small></div><div class="tile"><span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>серые дни (без солнца)</span><b>2 <em>из 13</em></b><small>обычно 3 из 31</small></div><div class="tile"><span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-2-4-2-4 2-4 2"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg>плохой воздух</span><b>0 <em>из 13</em></b><small>обычно 0 из 31</small></div><div class="tile"><span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>световой день</span><b>08:20–20:04</b><small>&nbsp;</small></div></div>
+  <p class="src">«Обычно» — среднее за октябри 2022–2025 годов, модель Open-Meteo. Этот месяц: камера buenavista · станция MeteoBuenavista · небо и воздух Open-Meteo.</p>
+</section>
+<div class="bar"><div class="legend"><span style="background: #ffc93c; color: #1d2433">солнечно</span><span style="background: #8ec9ee; color: #1d2433">переменная облачность</span><span style="background: #b4c2cf; color: #1d2433">облачно</span><span style="background: #9aa4ae; color: #1d2433">пасмурно</span><span style="background: #d9d6e4; color: #1d2433">туман</span><span style="background: #4db6ac; color: #1d2433">морось</span><span style="background: #2f7fe0; color: #ffffff">дождь</span><span style="background: #1b2f8a; color: #ffffff">ливень</span></div><a class="today" href="#d13">сегодня ↓</a></div>
+
+  <section id="d01" class="day" style="background: #8ec9ee; color: #1d2433" title="переменная облачность">
+    <article class="card">
+      <header>
+        <span class="date">01.10</span>
+        <span class="wd">чт</span>
+        
+      </header>
+      <div class="temps"><span><i>мин</i> <b>12</b></span><span><i>макс</i> <b>19</b></span></div>
+      <ul><li><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/><path d="m3 3 18 18"/></svg>без осадков</li><li class="sky"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="M20 12h2"/><path d="m19.07 4.93-1.41 1.41"/><path d="M15.947 12.65a4 4 0 0 0-5.925-4.128"/><path d="M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6Z"/></svg>переменная облачность, 11 ч</li><li title="качество воздуха: хороший" style="--icon: #1f9d55"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg>воздух</li></ul>
+    </article>
+    <div class="shots"><span class="noshots">кадров нет</span></div>
+  </section>
+  <section id="d02" class="day" style="background: #8ec9ee; color: #1d2433" title="переменная облачность">
+    <article class="card">
+      <header>
+        <span class="date">02.10</span>
+        <span class="wd">пт</span>
+        
+      </header>
+      <div class="temps"><span><i>мин</i> <b>11</b></span><span><i>макс</i> <b>21</b></span></div>
+      <ul><li><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/><path d="m3 3 18 18"/></svg>без осадков</li><li class="sky"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="M20 12h2"/><path d="m19.07 4.93-1.41 1.41"/><path d="M15.947 12.65a4 4 0 0 0-5.925-4.128"/><path d="M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6Z"/></svg>переменная облачность, 11 ч</li><li title="качество воздуха: хороший" style="--icon: #1f9d55"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg>воздух</li></ul>
+    </article>
+    <div class="shots"><span class="noshots">кадров нет</span></div>
+  </section>
+  <section id="d03" class="day" style="background: #2f7fe0; color: #ffffff" title="дождь">
+    <article class="card">
+      <header>
+        <span class="date">03.10</span>
+        <span class="wd">сб</span>
+        
+      </header>
+      <div class="temps"><span><i>мин</i> <b>16</b></span><span><i>макс</i> <b>20</b></span></div>
+      <ul><li><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M16 14v6"/><path d="M8 14v6"/><path d="M12 16v6"/></svg>дождь</li><li class="sky"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.5 21H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/><path d="M22 10a3 3 0 0 0-3-3h-2.207a5.502 5.502 0 0 0-10.702.5"/></svg>пасмурно</li><li title="качество воздуха: хороший" style="--icon: #1f9d55"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg>воздух</li></ul>
+    </article>
+    <div class="shots"><span class="noshots">кадров нет</span></div>
+  </section>
+  <section id="d04" class="day" style="background: #1b2f8a; color: #ffffff" title="ливень">
+    <article class="card">
+      <header>
+        <span class="date">04.10</span>
+        <span class="wd">вс</span>
+        
+      </header>
+      <div class="temps"><span><i>мин</i> <b>16</b></span><span><i>макс</i> <b>22</b></span></div>
+      <ul><li><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M16 14v6"/><path d="M8 14v6"/><path d="M12 16v6"/></svg>сильный дождь</li><li class="sky"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>облачно</li><li title="качество воздуха: хороший" style="--icon: #1f9d55"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg>воздух</li></ul>
+    </article>
+    <div class="shots"><span class="noshots">кадров нет</span></div>
+  </section>
+  <section id="d05" class="day" style="background: #4db6ac; color: #1d2433" title="морось">
+    <article class="card">
+      <header>
+        <span class="date">05.10</span>
+        <span class="wd">пн</span>
+        
+      </header>
+      <div class="temps"><span><i>мин</i> <b>16</b></span><span><i>макс</i> <b>22</b></span></div>
+      <ul><li><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M8 19v1"/><path d="M8 14v1"/><path d="M16 19v1"/><path d="M16 14v1"/><path d="M12 21v1"/><path d="M12 16v1"/></svg>небольшой дождь</li><li class="sky"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="M20 12h2"/><path d="m19.07 4.93-1.41 1.41"/><path d="M15.947 12.65a4 4 0 0 0-5.925-4.128"/><path d="M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6Z"/></svg>переменная облачность, 9 ч</li><li title="качество воздуха: хороший" style="--icon: #1f9d55"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg>воздух</li></ul>
+    </article>
+    <div class="shots"><span class="noshots">кадров нет</span></div>
+  </section>
+  <section id="d06" class="day" style="background: #4db6ac; color: #1d2433" title="морось">
+    <article class="card">
+      <header>
+        <span class="date">06.10</span>
+        <span class="wd">вт</span>
+        
+      </header>
+      <div class="temps"><span><i>мин</i> <b>16</b></span><span><i>макс</i> <b>21</b></span></div>
+      <ul><li><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M8 19v1"/><path d="M8 14v1"/><path d="M16 19v1"/><path d="M16 14v1"/><path d="M12 21v1"/><path d="M12 16v1"/></svg>небольшой дождь</li><li class="sky"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.5 21H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/><path d="M22 10a3 3 0 0 0-3-3h-2.207a5.502 5.502 0 0 0-10.702.5"/></svg>пасмурно</li><li title="качество воздуха: хороший" style="--icon: #1f9d55"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg>воздух</li></ul>
+    </article>
+    <div class="shots"><span class="noshots">кадров нет</span></div>
+  </section>
+  <section id="d07" class="day" style="background: #1b2f8a; color: #ffffff" title="ливень">
+    <article class="card">
+      <header>
+        <span class="date">07.10</span>
+        <span class="wd">ср</span>
+        
+      </header>
+      <div class="temps"><span><i>мин</i> <b>13</b></span><span><i>макс</i> <b>18</b></span></div>
+      <ul><li><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M16 14v6"/><path d="M8 14v6"/><path d="M12 16v6"/></svg>сильный дождь</li><li class="sky"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>облачно</li><li title="качество воздуха: хороший" style="--icon: #1f9d55"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg>воздух</li></ul>
+    </article>
+    <div class="shots"><span class="noshots">кадров нет</span></div>
+  </section>
+  <section id="d08" class="day" style="background: #2f7fe0; color: #ffffff" title="дождь">
+    <article class="card">
+      <header>
+        <span class="date">08.10</span>
+        <span class="wd">чт</span>
+        
+      </header>
+      <div class="temps"><span><i>мин</i> <b>12</b></span><span><i>макс</i> <b>15</b></span></div>
+      <ul><li><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M16 14v6"/><path d="M8 14v6"/><path d="M12 16v6"/></svg>дождь</li><li class="sky"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>облачно</li><li title="качество воздуха: хороший" style="--icon: #1f9d55"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg>воздух</li><li><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>отопление: вечером</li></ul>
+    </article>
+    <div class="shots"><span class="noshots">кадров нет</span></div>
+  </section>
+  <section id="d09" class="day" style="background: #8ec9ee; color: #1d2433" title="переменная облачность">
+    <article class="card">
+      <header>
+        <span class="date">09.10</span>
+        <span class="wd">пт</span>
+        
+      </header>
+      <div class="temps"><span><i>мин</i> <b>10</b></span><span><i>макс</i> <b>19</b></span></div>
+      <ul><li><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M8 19v1"/><path d="M8 14v1"/><path d="M16 19v1"/><path d="M16 14v1"/><path d="M12 21v1"/><path d="M12 16v1"/></svg>покапало</li><li class="sky"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="M20 12h2"/><path d="m19.07 4.93-1.41 1.41"/><path d="M15.947 12.65a4 4 0 0 0-5.925-4.128"/><path d="M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6Z"/></svg>переменная облачность, 10 ч</li><li title="качество воздуха: хороший" style="--icon: #1f9d55"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg>воздух</li><li><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>отопление: вечером</li></ul>
+    </article>
+    <div class="shots"><span class="noshots">кадров нет</span></div>
+  </section>
+  <section id="d10" class="day" style="background: #8ec9ee; color: #1d2433" title="переменная облачность">
+    <article class="card">
+      <header>
+        <span class="date">10.10</span>
+        <span class="wd">сб</span>
+        
+      </header>
+      <div class="temps"><span><i>мин</i> <b>11</b></span><span><i>макс</i> <b>20</b></span></div>
+      <ul><li><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/><path d="m3 3 18 18"/></svg>без осадков</li><li class="sky"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="M20 12h2"/><path d="m19.07 4.93-1.41 1.41"/><path d="M15.947 12.65a4 4 0 0 0-5.925-4.128"/><path d="M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6Z"/></svg>переменная облачность, 10 ч</li><li title="качество воздуха: хороший" style="--icon: #1f9d55"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg>воздух</li></ul>
+    </article>
+    <div class="shots"><span class="noshots">кадров нет</span></div>
+  </section>
+  <section id="d11" class="day" style="background: #b4c2cf; color: #1d2433" title="облачно">
+    <article class="card">
+      <header>
+        <span class="date">11.10</span>
+        <span class="wd">вс</span>
+        
+      </header>
+      <div class="temps"><span><i>мин</i> <b>14</b></span><span><i>макс</i> <b>21</b></span></div>
+      <ul><li><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/><path d="m3 3 18 18"/></svg>без осадков</li><li class="sky"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>облачно</li><li title="качество воздуха: хороший" style="--icon: #1f9d55"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg>воздух</li></ul>
+    </article>
+    <div class="shots"><span class="noshots">кадров нет</span></div>
+  </section>
+  <section id="d12" class="day has-shots" style="background: #8ec9ee; color: #1d2433" title="переменная облачность">
+    <article class="card" data-more="кадры ▾" data-less="скрыть ▴">
+      <header>
+        <span class="date">12.10</span>
+        <span class="wd">пн</span>
+        
+      </header>
+      <div class="temps"><span><i>мин</i> <b>16</b></span><span><i>макс</i> <b>23</b></span></div>
+      <ul><li><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/><path d="m3 3 18 18"/></svg>без осадков</li><li class="sky"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="M20 12h2"/><path d="m19.07 4.93-1.41 1.41"/><path d="M15.947 12.65a4 4 0 0 0-5.925-4.128"/><path d="M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6Z"/></svg>переменная облачность, 10 ч</li><li><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"/><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"/></svg>душно</li><li title="качество воздуха: хороший" style="--icon: #1f9d55"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg>воздух</li></ul>
+    </article>
+    <div class="shots">
+      <figure>
+        <figcaption>19:12</figcaption>
+        <a href="../../../oviedo/2026-10/screenshots/2026-10-12_19-12_buenavista.jpg" target="_blank"><img src="../../../oviedo/2026-10/screenshots/2026-10-12_19-12_buenavista.jpg" loading="lazy" alt="2026-10-12_19-12_buenavista.jpg"></a>
+      </figure>
+    </div>
+  </section>
+  <section id="d13" class="day has-shots" style="background: #d9d6e4; color: #1d2433" title="туман">
+    <article class="card" data-more="кадры ▾" data-less="скрыть ▴">
+      <header>
+        <span class="date">13.10</span>
+        <span class="wd">вт</span>
+        <span class="badge">день идёт</span>
+      </header>
+      <div class="temps"><span><i>мин</i> <b>18</b></span><span><i>макс</i> <b>18</b></span></div>
+      <ul><li><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/><path d="m3 3 18 18"/></svg>без осадков</li><li class="sky"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>облачно</li><li><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"/><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"/></svg>душно</li><li><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M16 17H7"/><path d="M17 21H9"/></svg>утром туман</li><li title="качество воздуха: хороший" style="--icon: #1f9d55"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg>воздух</li></ul>
+    </article>
+    <div class="shots">
+      <figure>
+        <figcaption>11:55</figcaption>
+        <a href="../../../oviedo/2026-10/screenshots/2026-10-13_11-55_buenavista.jpg" target="_blank"><img src="../../../oviedo/2026-10/screenshots/2026-10-13_11-55_buenavista.jpg" loading="lazy" alt="2026-10-13_11-55_buenavista.jpg"></a>
+      </figure>
+    </div>
+  </section>
+<a class="totop" href="#" title="наверх" aria-label="наверх">↑</a>
+<script>
+document.querySelectorAll('.day.has-shots').forEach((d) =>
+  d.addEventListener('click', (e) => { if (!e.target.closest('.shots')) d.classList.toggle('open'); }));
+const totop = document.querySelector('.totop');
+addEventListener('scroll', () => totop.classList.toggle('show', scrollY > 400), { passive: true });
+</script>
+</body>
+</html>

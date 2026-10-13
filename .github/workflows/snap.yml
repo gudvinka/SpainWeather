@@ -1,0 +1,55 @@
+# SpainWeather: кадры камер, данные станций и Open-Meteo 3 раза в день, затем коммит данных в репозиторий.
+name: snap
+
+on:
+  schedule:
+    # Время в UTC. Мадрид зимой UTC+1 → 09:17 / 13:47 / 17:17, летом UTC+2 → на час позже.
+    # Минуты «некруглые»: в :00 очередь запусков на GitHub самая длинная.
+    - cron: '17 8 * * *'
+    - cron: '47 12 * * *'
+    - cron: '17 16 * * *'
+  workflow_dispatch: # кнопка «Run workflow» для ручного запуска
+
+permissions:
+  contents: write # бот коммитит новые данные
+
+concurrency:
+  group: snap # два запуска не пушат одновременно
+  cancel-in-progress: false
+
+jobs:
+  snap:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      TZ: Europe/Madrid # на серверах UTC — без этого поедут даты и проверка «станция отстаёт»
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run check
+
+      - name: Собрать данные
+        id: snap
+        run: node src/snap.ts
+        continue-on-error: true # что удалось собрать, сохраняем даже при ошибке одного источника
+
+      - name: Сохранить данные
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add site index.html
+          git diff --cached --quiet && exit 0
+          git commit -m "data: $(date +'%Y-%m-%d %H:%M')"
+          git pull --rebase
+          git push
+
+      - name: Отметить запуск красным, если были ошибки
+        if: steps.snap.outcome == 'failure'
+        run: exit 1
