@@ -1,6 +1,6 @@
-# Агент-дежурный: после каждого сбора snap Claude проверяет, всё ли собралось, и при проблемах пишет в issue.
-# Описание агента — .claude/agents/duty.md, разрешения — .claude/settings.json, правила проекта — CLAUDE.md.
-name: duty
+# Агент-сторож (watchdog): после каждого сбора snap Claude проверяет, всё ли собралось, и при проблемах пишет в issue.
+# Описание агента — .claude/agents/watchdog.md, разрешения — .claude/settings.json, правила проекта — CLAUDE.md.
+name: watchdog
 
 on:
   workflow_run:
@@ -14,11 +14,11 @@ permissions:
   issues: write # создавать issue и комментарии — больше ничего
 
 concurrency:
-  group: duty
+  group: watchdog
   cancel-in-progress: false
 
 jobs:
-  duty:
+  watchdog:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
@@ -31,20 +31,20 @@ jobs:
       - name: Установить Claude Code
         run: npm install -g @anthropic-ai/claude-code
 
-      - name: Дежурный проверяет сбор
+      - name: Сторож проверяет сбор
         env:
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }} # подписка владельца (claude setup-token)
           GH_TOKEN: ${{ github.token }} # для gh: права — из блока permissions выше
-          SNAP_RESULT: ${{ github.event.workflow_run.conclusion || 'ручной запуск дежурного' }}
-        # --agent duty — вся сессия идёт как агент из .claude/agents/duty.md (у него только Read, Grep, Glob, Bash);
+          SNAP_RESULT: ${{ github.event.workflow_run.conclusion || 'ручной запуск сторожа' }}
+        # --agent watchdog — вся сессия идёт как агент из .claude/agents/watchdog.md (у него только Read, Grep, Glob, Bash);
         # --permission-prompts none — спрашивать некого: всё, что не разрешено в .claude/settings.json, отклоняется;
         # --allowedTools — что можно без спроса. Разрешения из .claude/settings.json в `claude -p` на «недоверенной»
         #   папке не применяются (защита от чужих репозиториев), а на сервере GitHub папка всегда новая — поэтому здесь;
-        # --disallowedTools — явные запреты именно для дежурного (на сессии людей в проекте они не действуют).
+        # --disallowedTools — явные запреты именно для сторожа (на сессии людей в проекте они не действуют).
         # Задание стоит сразу после -p: оба списка принимают несколько значений и «съели» бы текст после себя.
         run: >
           claude -p "Сбор snap только что завершился, результат: $SNAP_RESULT. Проверь сбор по своей инструкции."
-          --agent duty --permission-prompts none --max-turns 30
+          --agent watchdog --permission-prompts none --max-turns 20
           --allowedTools "Bash(date *)" "Bash(git log *)" "Bash(gh run list *)" "Bash(gh run view *)"
           "Bash(gh issue list *)" "Bash(gh issue view *)" "Bash(gh issue create *)" "Bash(gh issue comment *)"
           --disallowedTools "Bash(git push *)" "Bash(git commit *)" "Bash(gh workflow *)" "Bash(gh issue close *)"
