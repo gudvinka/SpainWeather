@@ -13,6 +13,14 @@
       "Bash(gh issue view *)",
       "Bash(gh issue create *)",
       "Bash(gh issue comment *)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./**/*.pem)",
+      "Read(./**/*.key)",
+      "Read(./dist/**)",
+      "Read(./build/**)"
     ]
   }
 }
