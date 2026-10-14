@@ -89,5 +89,12 @@
     "aqiMax": 32,
     "sunrise": "08:20",
     "sunset": "19:40"
+  },
+  "2026-10-14": {
+    "cloud": 0,
+    "sunHours": 2.4,
+    "aqiMax": 29,
+    "sunrise": "08:21",
+    "sunset": "19:39"
   }
 }
