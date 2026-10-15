@@ -14,7 +14,7 @@
     --muted: #6b7280;
     --line: #e5e2dc;
     --icon: #4b5563;
-    --empty: #ece9e3;
+    --empty: #dcd8cf;
   }
   * { box-sizing: border-box; }
   html { min-height: 100%; background: var(--page); }
@@ -83,6 +83,7 @@
   .month .head span { color: var(--muted); font-size: 13px; }
   .strip { display: grid; grid-template-columns: repeat(31, 1fr); gap: 2px; margin-bottom: 16px; }
   .seg i { display: block; height: 22px; border-radius: 3px; }
+  .seg i.empty { box-shadow: inset 0 0 0 1.5px var(--empty); } /* дня нет — только рамка, чтобы не спутать с серым днём */
   .seg small { display: block; margin-top: 2px; text-align: center; font-size: 9px; color: var(--muted); }
   .avg { margin-bottom: 10px; }
   .avg span { color: var(--muted); }
@@ -196,7 +197,7 @@
   <div class="tiles"><div class="tile"><span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/></svg>днём в среднем</span><b>27°</b><small>обычно 25°</small></div><div class="tile"><span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M16 14v6"/><path d="M8 14v6"/><path d="M12 16v6"/></svg>дождливые дни</span><b>0 <em>из 4</em></b><small>обычно 8 из 31</small></div><div class="tile"><span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>серые дни (без солнца)</span><b>0 <em>из 4</em></b><small>обычно 1 из 31</small></div><div class="tile"><span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>пекло (35°+)</span><b>0 <em>из 4</em></b><small>обычно 0 из 31</small></div><div class="tile"><span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-2-4-2-4 2-4 2"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg>плохой воздух</span><b>0 <em>из 4</em></b><small>обычно 0 из 31</small></div><div class="tile"><span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>световой день</span><b>08:09–19:57</b><small>&nbsp;</small></div></div>
   <p class="src">«Обычно» — среднее за октябри 2022–2025 годов, модель Open-Meteo. Этот месяц: камера alhambra · станция UGR Albayzín · небо и воздух Open-Meteo.</p>
 </section>
-<div class="bar"><div class="legend"><span style="background: #ffc93c; color: #1d2433">солнечно</span><span style="background: #8ec9ee; color: #1d2433">переменная облачность</span><span style="background: #b4c2cf; color: #1d2433">облачно</span><span style="background: #9aa4ae; color: #1d2433">пасмурно</span><span style="background: #d9d6e4; color: #1d2433">туман</span><span style="background: #4db6ac; color: #1d2433">морось</span><span style="background: #2f7fe0; color: #ffffff">дождь</span><span style="background: #1b2f8a; color: #ffffff">ливень</span></div><a class="today" href="#d15">сегодня ↓</a></div>
+<div class="bar"><div class="legend"><span style="background: #ffc93c; color: #1d2433">солнечно</span><span style="background: #ffe39a; color: #1d2433">переменная облачность</span><span style="background: #e6e3dc; color: #1d2433">облачно</span><span style="background: #7f8a96; color: #1d2433">пасмурно</span><span style="background: #d6d3e2; color: #1d2433">туман</span><span style="background: #8cbbe8; color: #1d2433">морось</span><span style="background: #3a7bd5; color: #ffffff">дождь</span><span style="background: #1b2f8a; color: #ffffff">ливень</span></div><a class="today" href="#d15">сегодня ↓</a></div>
 
   <section id="d12" class="day has-shots" style="background: #ffc93c; color: #1d2433" title="солнечно">
     <article class="card" data-more="кадры ▾" data-less="скрыть ▴">
@@ -215,7 +216,7 @@
       </figure>
     </div>
   </section>
-  <section id="d13" class="day has-shots" style="background: #8ec9ee; color: #1d2433" title="переменная облачность">
+  <section id="d13" class="day has-shots" style="background: #ffe39a; color: #1d2433" title="переменная облачность">
     <article class="card" data-more="кадры ▾" data-less="скрыть ▴">
       <header>
         <span class="date">13.10</span>
@@ -252,7 +253,7 @@
       </figure>
     </div>
   </section>
-  <section id="d14" class="day has-shots" style="background: #8ec9ee; color: #1d2433" title="переменная облачность">
+  <section id="d14" class="day has-shots" style="background: #ffe39a; color: #1d2433" title="переменная облачность">
     <article class="card" data-more="кадры ▾" data-less="скрыть ▴">
       <header>
         <span class="date">14.10</span>

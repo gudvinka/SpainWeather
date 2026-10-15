@@ -14,7 +14,7 @@
     --muted: #6b7280;
     --line: #e5e2dc;
     --icon: #4b5563;
-    --empty: #ece9e3;
+    --empty: #dcd8cf;
   }
   * { box-sizing: border-box; }
   html { min-height: 100%; background: var(--page); }
@@ -83,6 +83,7 @@
   .month .head span { color: var(--muted); font-size: 13px; }
   .strip { display: grid; grid-template-columns: repeat(31, 1fr); gap: 2px; margin-bottom: 16px; }
   .seg i { display: block; height: 22px; border-radius: 3px; }
+  .seg i.empty { box-shadow: inset 0 0 0 1.5px var(--empty); } /* дня нет — только рамка, чтобы не спутать с серым днём */
   .seg small { display: block; margin-top: 2px; text-align: center; font-size: 9px; color: var(--muted); }
   .avg { margin-bottom: 10px; }
   .avg span { color: var(--muted); }
@@ -196,9 +197,9 @@
   <div class="tiles"><div class="tile"><span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/></svg>máxima media</span><b>21°</b><small>lo normal: 21°</small></div><div class="tile"><span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M16 14v6"/><path d="M8 14v6"/><path d="M12 16v6"/></svg>días de lluvia</span><b>6 <em>de 15</em></b><small>lo normal: 14 de 31</small></div><div class="tile"><span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>días grises (sin sol)</span><b>2 <em>de 15</em></b><small>lo normal: 3 de 31</small></div><div class="tile"><span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-2-4-2-4 2-4 2"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg>aire malo</span><b>0 <em>de 15</em></b><small>lo normal: 0 de 31</small></div><div class="tile"><span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>luz del día</span><b>08:20–20:04</b><small>&nbsp;</small></div></div>
   <p class="src">«Lo normal»: media de los octubres 2022–2025, modelo Open-Meteo. Este mes: cámara buenavista · estación MeteoBuenavista · cielo y aire Open-Meteo.</p>
 </section>
-<div class="bar"><div class="legend"><span style="background: #ffc93c; color: #1d2433">soleado</span><span style="background: #8ec9ee; color: #1d2433">parcialmente nublado</span><span style="background: #b4c2cf; color: #1d2433">nublado</span><span style="background: #9aa4ae; color: #1d2433">cubierto</span><span style="background: #d9d6e4; color: #1d2433">niebla</span><span style="background: #4db6ac; color: #1d2433">llovizna</span><span style="background: #2f7fe0; color: #ffffff">lluvia</span><span style="background: #1b2f8a; color: #ffffff">aguacero</span></div><a class="today" href="#d15">hoy ↓</a></div>
+<div class="bar"><div class="legend"><span style="background: #ffc93c; color: #1d2433">soleado</span><span style="background: #ffe39a; color: #1d2433">parcialmente nublado</span><span style="background: #e6e3dc; color: #1d2433">nublado</span><span style="background: #7f8a96; color: #1d2433">cubierto</span><span style="background: #d6d3e2; color: #1d2433">niebla</span><span style="background: #8cbbe8; color: #1d2433">llovizna</span><span style="background: #3a7bd5; color: #ffffff">lluvia</span><span style="background: #1b2f8a; color: #ffffff">aguacero</span></div><a class="today" href="#d15">hoy ↓</a></div>
 
-  <section id="d01" class="day" style="background: #8ec9ee; color: #1d2433" title="parcialmente nublado">
+  <section id="d01" class="day" style="background: #ffe39a; color: #1d2433" title="parcialmente nublado">
     <article class="card">
       <header>
         <span class="date">01.10</span>
@@ -210,7 +211,7 @@
     </article>
     <div class="shots"><span class="noshots">sin fotos</span></div>
   </section>
-  <section id="d02" class="day" style="background: #8ec9ee; color: #1d2433" title="parcialmente nublado">
+  <section id="d02" class="day" style="background: #ffe39a; color: #1d2433" title="parcialmente nublado">
     <article class="card">
       <header>
         <span class="date">02.10</span>
@@ -222,7 +223,7 @@
     </article>
     <div class="shots"><span class="noshots">sin fotos</span></div>
   </section>
-  <section id="d03" class="day" style="background: #2f7fe0; color: #ffffff" title="lluvia">
+  <section id="d03" class="day" style="background: #3a7bd5; color: #ffffff" title="lluvia">
     <article class="card">
       <header>
         <span class="date">03.10</span>
@@ -242,11 +243,11 @@
         
       </header>
       <div class="temps"><span><i>mín</i> <b>16</b></span><span><i>máx</i> <b>22</b></span></div>
-      <ul><li><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M16 14v6"/><path d="M8 14v6"/><path d="M12 16v6"/></svg>lluvia fuerte</li><li class="sky"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>nublado</li><li title="calidad del aire: buena" style="--icon: #1f9d55"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg>aire</li></ul>
+      <ul><li><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M16 14v6"/><path d="M8 14v6"/><path d="M12 16v6"/></svg>aguacero</li><li class="sky"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>nublado</li><li title="calidad del aire: buena" style="--icon: #1f9d55"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg>aire</li></ul>
     </article>
     <div class="shots"><span class="noshots">sin fotos</span></div>
   </section>
-  <section id="d05" class="day" style="background: #4db6ac; color: #1d2433" title="llovizna">
+  <section id="d05" class="day" style="background: #8cbbe8; color: #1d2433" title="llovizna">
     <article class="card">
       <header>
         <span class="date">05.10</span>
@@ -254,11 +255,11 @@
         
       </header>
       <div class="temps"><span><i>mín</i> <b>16</b></span><span><i>máx</i> <b>22</b></span></div>
-      <ul><li><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M8 19v1"/><path d="M8 14v1"/><path d="M16 19v1"/><path d="M16 14v1"/><path d="M12 21v1"/><path d="M12 16v1"/></svg>lluvia débil</li><li class="sky"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="M20 12h2"/><path d="m19.07 4.93-1.41 1.41"/><path d="M15.947 12.65a4 4 0 0 0-5.925-4.128"/><path d="M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6Z"/></svg>parcialmente nublado, 9 h</li><li title="calidad del aire: buena" style="--icon: #1f9d55"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg>aire</li></ul>
+      <ul><li><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M8 19v1"/><path d="M8 14v1"/><path d="M16 19v1"/><path d="M16 14v1"/><path d="M12 21v1"/><path d="M12 16v1"/></svg>llovizna</li><li class="sky"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="M20 12h2"/><path d="m19.07 4.93-1.41 1.41"/><path d="M15.947 12.65a4 4 0 0 0-5.925-4.128"/><path d="M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6Z"/></svg>parcialmente nublado, 9 h</li><li title="calidad del aire: buena" style="--icon: #1f9d55"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg>aire</li></ul>
     </article>
     <div class="shots"><span class="noshots">sin fotos</span></div>
   </section>
-  <section id="d06" class="day" style="background: #4db6ac; color: #1d2433" title="llovizna">
+  <section id="d06" class="day" style="background: #8cbbe8; color: #1d2433" title="llovizna">
     <article class="card">
       <header>
         <span class="date">06.10</span>
@@ -266,7 +267,7 @@
         
       </header>
       <div class="temps"><span><i>mín</i> <b>16</b></span><span><i>máx</i> <b>21</b></span></div>
-      <ul><li><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M8 19v1"/><path d="M8 14v1"/><path d="M16 19v1"/><path d="M16 14v1"/><path d="M12 21v1"/><path d="M12 16v1"/></svg>lluvia débil</li><li class="sky"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.5 21H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/><path d="M22 10a3 3 0 0 0-3-3h-2.207a5.502 5.502 0 0 0-10.702.5"/></svg>cubierto</li><li title="calidad del aire: buena" style="--icon: #1f9d55"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg>aire</li></ul>
+      <ul><li><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M8 19v1"/><path d="M8 14v1"/><path d="M16 19v1"/><path d="M16 14v1"/><path d="M12 21v1"/><path d="M12 16v1"/></svg>llovizna</li><li class="sky"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.5 21H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/><path d="M22 10a3 3 0 0 0-3-3h-2.207a5.502 5.502 0 0 0-10.702.5"/></svg>cubierto</li><li title="calidad del aire: buena" style="--icon: #1f9d55"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg>aire</li></ul>
     </article>
     <div class="shots"><span class="noshots">sin fotos</span></div>
   </section>
@@ -278,11 +279,11 @@
         
       </header>
       <div class="temps"><span><i>mín</i> <b>13</b></span><span><i>máx</i> <b>18</b></span></div>
-      <ul><li><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M16 14v6"/><path d="M8 14v6"/><path d="M12 16v6"/></svg>lluvia fuerte</li><li class="sky"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>nublado</li><li title="calidad del aire: buena" style="--icon: #1f9d55"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg>aire</li></ul>
+      <ul><li><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M16 14v6"/><path d="M8 14v6"/><path d="M12 16v6"/></svg>aguacero</li><li class="sky"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>nublado</li><li title="calidad del aire: buena" style="--icon: #1f9d55"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg>aire</li></ul>
     </article>
     <div class="shots"><span class="noshots">sin fotos</span></div>
   </section>
-  <section id="d08" class="day" style="background: #2f7fe0; color: #ffffff" title="lluvia">
+  <section id="d08" class="day" style="background: #3a7bd5; color: #ffffff" title="lluvia">
     <article class="card">
       <header>
         <span class="date">08.10</span>
@@ -294,7 +295,7 @@
     </article>
     <div class="shots"><span class="noshots">sin fotos</span></div>
   </section>
-  <section id="d09" class="day" style="background: #8ec9ee; color: #1d2433" title="parcialmente nublado">
+  <section id="d09" class="day" style="background: #ffe39a; color: #1d2433" title="parcialmente nublado">
     <article class="card">
       <header>
         <span class="date">09.10</span>
@@ -306,7 +307,7 @@
     </article>
     <div class="shots"><span class="noshots">sin fotos</span></div>
   </section>
-  <section id="d10" class="day" style="background: #8ec9ee; color: #1d2433" title="parcialmente nublado">
+  <section id="d10" class="day" style="background: #ffe39a; color: #1d2433" title="parcialmente nublado">
     <article class="card">
       <header>
         <span class="date">10.10</span>
@@ -318,7 +319,7 @@
     </article>
     <div class="shots"><span class="noshots">sin fotos</span></div>
   </section>
-  <section id="d11" class="day" style="background: #b4c2cf; color: #1d2433" title="nublado">
+  <section id="d11" class="day" style="background: #e6e3dc; color: #1d2433" title="nublado">
     <article class="card">
       <header>
         <span class="date">11.10</span>
@@ -330,7 +331,7 @@
     </article>
     <div class="shots"><span class="noshots">sin fotos</span></div>
   </section>
-  <section id="d12" class="day has-shots" style="background: #8ec9ee; color: #1d2433" title="parcialmente nublado">
+  <section id="d12" class="day has-shots" style="background: #ffe39a; color: #1d2433" title="parcialmente nublado">
     <article class="card" data-more="fotos ▾" data-less="ocultar ▴">
       <header>
         <span class="date">12.10</span>
@@ -347,7 +348,7 @@
       </figure>
     </div>
   </section>
-  <section id="d13" class="day has-shots" style="background: #d9d6e4; color: #1d2433" title="niebla">
+  <section id="d13" class="day has-shots" style="background: #d6d3e2; color: #1d2433" title="niebla">
     <article class="card" data-more="fotos ▾" data-less="ocultar ▴">
       <header>
         <span class="date">13.10</span>
