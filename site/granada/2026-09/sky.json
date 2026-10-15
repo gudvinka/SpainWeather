@@ -24,6 +24,8 @@
     "cloud": 0,
     "sunHours": 12.1,
     "aqiMax": 39,
+    "rain": 0,
+    "rainDay": 0,
     "sunrise": "07:55",
     "sunset": "20:23"
   },
@@ -31,6 +33,8 @@
     "cloud": 20,
     "sunHours": 12,
     "aqiMax": 38,
+    "rain": 0,
+    "rainDay": 0,
     "sunrise": "07:56",
     "sunset": "20:22"
   },
@@ -38,6 +42,8 @@
     "cloud": 11,
     "sunHours": 12,
     "aqiMax": 43,
+    "rain": 0.2,
+    "rainDay": 0.2,
     "sunrise": "07:57",
     "sunset": "20:20"
   },
@@ -45,6 +51,8 @@
     "cloud": 23,
     "sunHours": 10.6,
     "aqiMax": 37,
+    "rain": 0.2,
+    "rainDay": 0.2,
     "sunrise": "07:57",
     "sunset": "20:19"
   },
@@ -52,6 +60,8 @@
     "cloud": 34,
     "sunHours": 12,
     "aqiMax": 41,
+    "rain": 0,
+    "rainDay": 0,
     "sunrise": "07:58",
     "sunset": "20:17"
   },
@@ -59,6 +69,8 @@
     "cloud": 25,
     "sunHours": 11.9,
     "aqiMax": 33,
+    "rain": 0.1,
+    "rainDay": 0.1,
     "sunrise": "07:59",
     "sunset": "20:16"
   },
@@ -66,6 +78,8 @@
     "cloud": 17,
     "sunHours": 11.9,
     "aqiMax": 34,
+    "rain": 0,
+    "rainDay": 0,
     "sunrise": "08:00",
     "sunset": "20:14"
   },
@@ -73,6 +87,8 @@
     "cloud": 1,
     "sunHours": 11.9,
     "aqiMax": 37,
+    "rain": 0,
+    "rainDay": 0,
     "sunrise": "08:01",
     "sunset": "20:13"
   },
@@ -80,6 +96,8 @@
     "cloud": 0,
     "sunHours": 11.9,
     "aqiMax": 35,
+    "rain": 0,
+    "rainDay": 0,
     "sunrise": "08:02",
     "sunset": "20:11"
   },
@@ -87,6 +105,8 @@
     "cloud": 0,
     "sunHours": 11.9,
     "aqiMax": 36,
+    "rain": 0,
+    "rainDay": 0,
     "sunrise": "08:02",
     "sunset": "20:10"
   },
@@ -94,6 +114,8 @@
     "cloud": 2,
     "sunHours": 11.9,
     "aqiMax": 38,
+    "rain": 0,
+    "rainDay": 0,
     "sunrise": "08:03",
     "sunset": "20:08"
   },
@@ -101,6 +123,8 @@
     "cloud": 19,
     "sunHours": 11.9,
     "aqiMax": 39,
+    "rain": 0,
+    "rainDay": 0,
     "sunrise": "08:04",
     "sunset": "20:06"
   },
@@ -108,6 +132,8 @@
     "cloud": 15,
     "sunHours": 11.8,
     "aqiMax": 36,
+    "rain": 0,
+    "rainDay": 0,
     "sunrise": "08:05",
     "sunset": "20:05"
   },
@@ -115,6 +141,8 @@
     "cloud": 28,
     "sunHours": 10.6,
     "aqiMax": 33,
+    "rain": 0,
+    "rainDay": 0,
     "sunrise": "08:06",
     "sunset": "20:03"
   },
@@ -122,6 +150,8 @@
     "cloud": 97,
     "sunHours": 0,
     "aqiMax": 37,
+    "rain": 5.6,
+    "rainDay": 5.4,
     "sunrise": "08:07",
     "sunset": "20:02"
   },
@@ -129,6 +159,8 @@
     "cloud": 28,
     "sunHours": 11.5,
     "aqiMax": 31,
+    "rain": 1.1,
+    "rainDay": 0,
     "sunrise": "08:07",
     "sunset": "20:00"
   },
@@ -136,6 +168,8 @@
     "cloud": 62,
     "sunHours": 8,
     "aqiMax": 32,
+    "rain": 0,
+    "rainDay": 0,
     "sunrise": "08:08",
     "sunset": "19:59"
   }
