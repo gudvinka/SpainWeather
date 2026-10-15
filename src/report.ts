@@ -193,7 +193,7 @@ function page(lang: Lang, title: string, body: string) {
     --muted: #6b7280;
     --line: #e5e2dc;
     --icon: #4b5563;
-    --empty: #ece9e3;
+    --empty: #dcd8cf;
   }
   * { box-sizing: border-box; }
   html { min-height: 100%; background: var(--page); }
@@ -262,6 +262,7 @@ function page(lang: Lang, title: string, body: string) {
   .month .head span { color: var(--muted); font-size: 13px; }
   .strip { display: grid; grid-template-columns: repeat(31, 1fr); gap: 2px; margin-bottom: 16px; }
   .seg i { display: block; height: 22px; border-radius: 3px; }
+  .seg i.empty { box-shadow: inset 0 0 0 1.5px var(--empty); } /* дня нет — только рамка, чтобы не спутать с серым днём */
   .seg small { display: block; margin-top: 2px; text-align: center; font-size: 9px; color: var(--muted); }
   .avg { margin-bottom: 10px; }
   .avg span { color: var(--muted); }
@@ -597,8 +598,8 @@ function renderMonthCard(month: string, summaries: DaySummary[], t: Dict) {
     const title = s
       ? `${pad(i + 1)}.${pad(m)} ${weekday(date, t)} — ${t.kind[s.kind]}${s.partial ? ` (${t.inProgress})` : ''}`
       : `${pad(i + 1)}.${pad(m)} — ${t.kind.none}`;
-    const bg = s ? KIND_STYLE[s.kind].bg : 'var(--empty)';
-    return `<div class="seg" title="${title}"><i style="background: ${bg}"></i><small>${i + 1}</small></div>`;
+    const day = s ? `<i style="background: ${KIND_STYLE[s.kind].bg}"></i>` : '<i class="empty"></i>';
+    return `<div class="seg" title="${title}">${day}<small>${i + 1}</small></div>`;
   }).join('');
 
   const counts = COUNT_ROWS.map(

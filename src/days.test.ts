@@ -4,6 +4,7 @@ import {
   airOf,
   archiveDayKind,
   dayKind,
+  dayShare,
   feel,
   heating,
   monthBreakdown,
@@ -12,6 +13,7 @@ import {
   rainWhen,
   skyOf,
   summarizeDay,
+  whenByShare,
 } from './days.ts';
 import { T } from './i18n.ts';
 import type { Reading } from './store.ts';
@@ -58,7 +60,7 @@ test('осадки: количество и когда', () => {
   const allDay = [reading('2026-10-13T09:30', 1), reading('2026-10-13T14:00', 1.6), reading('2026-10-13T17:30', 2.2)];
   assert.equal(rainWhen(3, allDay), 'allDay');
   assert.equal(said(3, 'allDay'), 'моросит весь день');
-  assert.equal(said(18, 'allDay'), 'сильный дождь весь день');
+  assert.equal(said(18, 'allDay'), 'ливень весь день');
 
   const nightOnly = [reading('2026-10-14T09:30', 2), reading('2026-10-14T14:00', 2), reading('2026-10-14T17:30', 2)];
   assert.equal(rainWhen(6, nightOnly), 'night');
@@ -68,7 +70,7 @@ test('осадки: количество и когда', () => {
   assert.equal(said(0.6, rainWhen(0.6, dayOnly)), 'покапало днём');
 
   assert.equal(said(0), 'без осадков');
-  assert.equal(said(37.2), 'сильный дождь');
+  assert.equal(said(37.2), 'ливень');
 });
 
 test('небо по облачности', () => {
@@ -117,6 +119,37 @@ test('цвет дня: осадки → туман → небо', () => {
   assert.equal(ru.precip(day.precip!), 'покапало');
 });
 
+test('цвет — по дождю днём (9–21), подпись — за сутки и когда', () => {
+  const sky = (rain: number, rainDay: number) => ({ ...SUN, rain, rainDay });
+  assert.equal(dayShare(sky(4, 1)), 0.25);
+  assert.equal(dayShare(sky(0.3, 0)), undefined); // модель дождя почти не видела — когда, неизвестно
+  assert.equal(dayShare(SUN), undefined); // старые записи без дождя по часам
+  assert.equal(whenByShare(0.9), 'day');
+  assert.equal(whenByShare(0.1), 'night');
+  assert.equal(whenByShare(0.5), undefined);
+
+  const day = (rain: number, s: typeof SUN) =>
+    summarizeDay({ date: '2026-09-15', totals: { tMin: 14, tMax: 22, rain }, readings: [], isToday: false, sky: s });
+  const night = day(6, sky(2.3, 0)); // лило ночью, днём солнце
+  assert.equal(night.kind, 'clear');
+  assert.equal(ru.precip(night.precip!), 'дождь ночью');
+  assert.equal(ru.kind[night.kind], 'солнечно');
+
+  const mostlyNight = day(13, sky(0.8, 0.1)); // днём 12 % — «ночью», и цвет тоже не мокрый
+  assert.equal(ru.precip(mostlyNight.precip!), 'дождь ночью');
+  assert.equal(mostlyNight.kind, 'clear');
+
+  const daytime = day(20, sky(16, 15.7));
+  assert.equal(daytime.kind, 'downpour');
+  assert.equal(ru.precip(daytime.precip!), 'ливень днём');
+
+  const mixed = day(5.2, sky(3.6, 2.8)); // днём ~4 мм из 5,2 — цвет «морось», подпись за сутки без «когда»
+  assert.equal(mixed.kind, 'drizzle');
+  assert.equal(ru.precip(mixed.precip!), 'дождь');
+
+  assert.equal(day(2.8, SUN).kind, 'drizzle'); // когда — неизвестно: цвет по всей сумме
+});
+
 test('итоги месяца', () => {
   const day = (date: string, tMin: number, tMax: number, rain: number) =>
     summarizeDay({ date, totals: { tMin, tMax, rain }, readings: [], isToday: false, sky: SUN });
@@ -160,7 +193,7 @@ test('карточка дня целиком', () => {
     ],
     isToday: false,
   });
-  assert.equal(ru.precip(day.precip!), 'сильный дождь весь день');
+  assert.equal(ru.precip(day.precip!), 'ливень весь день');
   assert.equal(day.feel, 'dampCold');
   assert.equal(day.fog, true);
   assert.equal(day.heating, 'needed');

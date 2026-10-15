@@ -46,7 +46,33 @@ function rainAmount(mm: number): PrecipAmount {
   return 'heavy';
 }
 
-// Цвет дня. Осадки от 1 мм перекрашивают день; «покапало» — нет.
+// «День» для цвета и подписи «днём / ночью» — с 9 до 21 ч: важно, как было, пока человек на улице.
+export const DAY_FROM = 9;
+export const DAY_TO = 21;
+const MODEL_RAIN_MIN = 0.5; // если модель почти не видела дождя — когда он шёл, неизвестно
+
+// Какая доля дождя пришлась на день — по модели Open-Meteo (сколько выпало — по станции, когда — по модели).
+export function dayShare(sky?: SkyDay): number | undefined {
+  if (sky?.rain === undefined || sky.rainDay === undefined || sky.rain < MODEL_RAIN_MIN) return undefined;
+  return Math.min(1, sky.rainDay / sky.rain);
+}
+
+// «Днём» / «ночью» — если почти весь дождь (80 %) пришёлся на одно время; иначе не уточняем.
+export function whenByShare(share: number | undefined): RainWhen | undefined {
+  if (share === undefined) return undefined;
+  if (share >= 0.8) return 'day';
+  if (share <= 0.2) return 'night';
+  return undefined;
+}
+
+// Сколько дождя пришлось на день — чтобы цвет не спорил с подписью: «ночью» — днём сухо, «днём» — весь дождь днём.
+export function dayRainOf(rain: number, share: number | undefined): number {
+  if (share === undefined) return rain; // когда шёл — неизвестно, считаем всю сумму
+  const when = whenByShare(share);
+  return when === 'night' ? 0 : when === 'day' ? rain : rain * share;
+}
+
+// Цвет дня — по дождю днём (9–21 ч). Осадки от 1 мм перекрашивают день; «покапало» — нет.
 // Туман важнее неба, только если днём так и не прояснилось.
 export function dayKind(rain: number | undefined, sky: SkyKind | undefined, fog: boolean): DayKind {
   if (rain !== undefined && rain >= 15) return 'downpour';
@@ -154,6 +180,11 @@ export function summarizeDay(input: DayInput): DaySummary {
 
   const morning = readings.find((r) => hourOf(r) < 11);
   const sky = skyDay && skyOf(skyDay.cloud, skyDay.sunHours);
+  // Цвет — по дождю днём; если когда шёл дождь, неизвестно, — по всей сумме за сутки.
+  const share = dayShare(skyDay);
+  const dayRain = rain === undefined ? undefined : dayRainOf(rain, share);
+  // «Весь день» видно по замерам станции; «днём / ночью» — по модели, по тем же 9–21 ч, что и цвет.
+  const when = rain === undefined ? undefined : rainWhen(rain, readings) === 'allDay' ? 'allDay' : whenByShare(share);
   const fog = !!morning && morning.temp - morning.dew < 1;
 
   return {
@@ -162,13 +193,13 @@ export function summarizeDay(input: DayInput): DaySummary {
     tMin,
     tMax,
     rain,
-    precip: rain === undefined ? undefined : precipOf(rain, isToday ? undefined : rainWhen(rain, readings)),
+    precip: rain === undefined ? undefined : precipOf(rain, isToday ? undefined : when),
     sky,
     feel: midday && feel(midday.temp, midday.dew),
     fog,
     air: skyDay?.aqiMax === undefined ? undefined : airOf(skyDay.aqiMax),
     heating: tMin !== undefined && tMax !== undefined ? heating(tMin, tMax) : undefined,
-    kind: dayKind(rain, sky?.kind, fog),
+    kind: dayKind(dayRain, sky?.kind, fog),
     issues: [...new Set(issues)],
   };
 }
@@ -212,18 +243,18 @@ export function archiveDayKind(rainMm: number, daylightCloud: number): 'rainy' |
   return 'other';
 }
 
-// Палитра от тёплого к холодному: цвет строки дня и цвет текста на ней. Названия — в src/i18n.ts.
-// Гроза (фиолетовый #6b2fa0) — когда появятся данные о грозах.
+// Палитра по ощущению: тёплое — солнце, серое — серо, синее — мокро. Цвет строки дня и цвет текста на ней.
+// Названия — в src/i18n.ts. Гроза (фиолетовый #6b2fa0) — когда появятся данные о грозах.
 const INK = '#1d2433';
 const WHITE = '#ffffff';
 export const KIND_STYLE: Record<DayKind, { bg: string; fg: string }> = {
   clear: { bg: '#ffc93c', fg: INK },
-  partly: { bg: '#8ec9ee', fg: INK },
-  cloudy: { bg: '#b4c2cf', fg: INK },
-  overcast: { bg: '#9aa4ae', fg: INK },
-  fog: { bg: '#d9d6e4', fg: INK },
-  drizzle: { bg: '#4db6ac', fg: INK },
-  rain: { bg: '#2f7fe0', fg: WHITE },
+  partly: { bg: '#ffe39a', fg: INK }, // белые облачка, солнце выглядывает — день приятный
+  cloudy: { bg: '#e6e3dc', fg: INK }, // светлые облака — обычный день
+  overcast: { bg: '#7f8a96', fg: INK }, // свинцовое небо
+  fog: { bg: '#d6d3e2', fg: INK },
+  drizzle: { bg: '#8cbbe8', fg: INK },
+  rain: { bg: '#3a7bd5', fg: WHITE },
   downpour: { bg: '#1b2f8a', fg: WHITE },
   none: { bg: '#e5e7eb', fg: INK },
 };

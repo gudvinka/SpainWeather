@@ -75,7 +75,7 @@ const ru: Dict = {
     none: 'нет данных',
   },
   precip: ({ amount, when }) => {
-    const a = { none: 'без осадков', sprinkle: 'покапало', light: 'небольшой дождь', rain: 'дождь', heavy: 'сильный дождь', drizzleAllDay: 'моросит весь день' }[amount];
+    const a = { none: 'без осадков', sprinkle: 'покапало', light: 'морось', rain: 'дождь', heavy: 'ливень', drizzleAllDay: 'моросит весь день' }[amount];
     const w = when && { allDay: 'весь день', day: 'днём', night: 'ночью' }[when];
     return w ? `${a} ${w}` : a;
   },
@@ -140,7 +140,7 @@ const es: Dict = {
     none: 'sin datos',
   },
   precip: ({ amount, when }) => {
-    const a = { none: 'sin precipitación', sprinkle: 'chispeó', light: 'lluvia débil', rain: 'lluvia', heavy: 'lluvia fuerte', drizzleAllDay: 'llovizna todo el día' }[amount];
+    const a = { none: 'sin precipitación', sprinkle: 'chispeó', light: 'llovizna', rain: 'lluvia', heavy: 'aguacero', drizzleAllDay: 'llovizna todo el día' }[amount];
     const w = when && { allDay: 'todo el día', day: 'de día', night: 'de noche' }[when];
     return w ? `${a} ${w}` : a;
   },

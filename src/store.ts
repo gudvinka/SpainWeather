@@ -19,6 +19,8 @@ export type SkyDay = {
   cloud: number; // средняя облачность за светлые часы, %
   sunHours: number;
   aqiMax?: number; // худший европейский индекс качества воздуха за день
+  rain?: number; // осадки по модели за сутки, мм — только чтобы понять, когда шёл дождь (сколько — по станции)
+  rainDay?: number; // из них днём, 9–21 ч
   sunrise: string;
   sunset: string;
   issues?: Issue[];
