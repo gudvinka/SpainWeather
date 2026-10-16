@@ -46,7 +46,7 @@ TypeScript без лишних зависимостей (Playwright, sharp).
   коммитит `site/` и `index.html` → запуск красный, если были ERROR.
 - Запускает сбор **Cloudflare Worker** `spainweather-cron` (код `cloudflare/worker.js`, cron `0 9,13,16 * * *` UTC =
   Мадрид зимой 10/14/17, летом 11/15/18). Cron всегда по UTC; летнее время в Испании — до последнего воскресенья
-  октября. Старое расписание в `snap.yml` пока оставлено запасным.
+  октября. Своего расписания (`schedule`) у `snap.yml` нет — не добавлять: GitHub опаздывал и давал лишние сборы.
 - В коммитах — только noreply-почта владельца (`49454475+gudvinka@users.noreply.github.com`) или бота;
   npm registry — только `registry.npmjs.org` (файл `.npmrc`). Никаких других адресов почты и зеркал.
 

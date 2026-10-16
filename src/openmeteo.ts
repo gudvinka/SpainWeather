@@ -6,6 +6,7 @@ import { localIso } from './time.ts';
 // Open-Meteo: модельные данные по координатам города, без ключа.
 // Берём то, чего нет у станций: облачность, часы солнца, качество воздуха и в какие часы шёл дождь.
 const TIMEOUT = 20_000;
+const RETRY_DELAY = 10_000; // Open-Meteo изредка не отвечает пару минут — даём вторую попытку
 
 export type Coords = { lat: number; lon: number };
 
@@ -21,10 +22,20 @@ type WeatherResponse = {
 };
 type AirResponse = { hourly: { time: string[]; european_aqi: (number | null)[] } };
 
-async function getJson<T>(url: string): Promise<T> {
+async function getJsonOnce<T>(url: string): Promise<T> {
   const res = await fetch(url, { signal: AbortSignal.timeout(TIMEOUT) });
   if (!res.ok) throw new Error(`Open-Meteo: HTTP ${res.status}`);
   return res.json() as Promise<T>;
+}
+
+// Одна повторная попытка через 10 с: таймаут или ошибка сервера чаще всего разовые. Не вышло и со второй — ошибка.
+async function getJson<T>(url: string): Promise<T> {
+  try {
+    return await getJsonOnce<T>(url);
+  } catch {
+    await new Promise((r) => setTimeout(r, RETRY_DELAY));
+    return getJsonOnce<T>(url);
+  }
 }
 
 // Итоги по дням за последние 31 день + сегодня. Для сегодня берём только прошедшие часы, без прогноза.
