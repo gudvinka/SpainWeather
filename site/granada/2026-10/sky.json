@@ -144,11 +144,11 @@
     "sunset": "19:36"
   },
   "2026-10-17": {
-    "cloud": 68,
-    "sunHours": 5.4,
+    "cloud": 76,
+    "sunHours": 6.8,
     "aqiMax": 30,
-    "rain": 0,
-    "rainDay": 0,
+    "rain": 4.7,
+    "rainDay": 4.7,
     "sunrise": "08:24",
     "sunset": "19:34"
   }
