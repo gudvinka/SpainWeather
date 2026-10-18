@@ -1,1 +1,2 @@
 {"time":"2026-10-16T11:00","source":"небо и воздух","level":"error","message":"Open-Meteo недоступен: The operation was aborted due to timeout"}
+{"time":"2026-10-18T11:00","source":"небо и воздух","level":"error","message":"Open-Meteo недоступен: Unexpected token 'U', \"Unexpected\"... is not valid JSON"}
