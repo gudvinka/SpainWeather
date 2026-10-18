@@ -147,9 +147,18 @@
     "cloud": 100,
     "sunHours": 0,
     "aqiMax": 26,
-    "rain": 12.2,
-    "rainDay": 3,
+    "rain": 13.2,
+    "rainDay": 4,
     "sunrise": "08:39",
     "sunset": "19:37"
+  },
+  "2026-10-18": {
+    "cloud": 73,
+    "sunHours": 4.5,
+    "aqiMax": 28,
+    "rain": 0.6,
+    "rainDay": 0.5,
+    "sunrise": "08:40",
+    "sunset": "19:35"
   }
 }
