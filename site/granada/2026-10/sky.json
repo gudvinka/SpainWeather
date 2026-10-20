@@ -172,10 +172,10 @@
   },
   "2026-10-20": {
     "cloud": 69,
-    "sunHours": 1.2,
-    "aqiMax": 23,
-    "rain": 1.4,
-    "rainDay": 0.1,
+    "sunHours": 4.7,
+    "aqiMax": 28,
+    "rain": 1.7,
+    "rainDay": 0.2,
     "sunrise": "08:26",
     "sunset": "19:30"
   }
