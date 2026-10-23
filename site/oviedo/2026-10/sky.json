@@ -191,10 +191,19 @@
   "2026-10-22": {
     "cloud": 96,
     "sunHours": 7.7,
-    "aqiMax": 25,
-    "rain": 0,
-    "rainDay": 0,
+    "aqiMax": 27,
+    "rain": 0.8,
+    "rainDay": 0.2,
     "sunrise": "08:45",
     "sunset": "19:29"
+  },
+  "2026-10-23": {
+    "cloud": 45,
+    "sunHours": 2,
+    "aqiMax": 30,
+    "rain": 1.4,
+    "rainDay": 0,
+    "sunrise": "08:47",
+    "sunset": "19:27"
   }
 }
