@@ -5,8 +5,8 @@
     "aqiMax": 33,
     "rain": 0,
     "rainDay": 0,
-    "sunrise": "08:09",
-    "sunset": "19:57"
+    "sunrise": "07:09",
+    "sunset": "18:57"
   },
   "2026-10-02": {
     "cloud": 44,
@@ -14,8 +14,8 @@
     "aqiMax": 30,
     "rain": 3.7,
     "rainDay": 3.7,
-    "sunrise": "08:10",
-    "sunset": "19:56"
+    "sunrise": "07:10",
+    "sunset": "18:56"
   },
   "2026-10-03": {
     "cloud": 24,
@@ -23,17 +23,17 @@
     "aqiMax": 30,
     "rain": 0.3,
     "rainDay": 0.3,
-    "sunrise": "08:11",
-    "sunset": "19:54"
+    "sunrise": "07:11",
+    "sunset": "18:54"
   },
   "2026-10-04": {
     "cloud": 68,
     "sunHours": 6.9,
-    "aqiMax": 38,
+    "aqiMax": 40,
     "rain": 0.1,
     "rainDay": 0.1,
-    "sunrise": "08:12",
-    "sunset": "19:53"
+    "sunrise": "07:12",
+    "sunset": "18:53"
   },
   "2026-10-05": {
     "cloud": 83,
@@ -41,26 +41,26 @@
     "aqiMax": 42,
     "rain": 0.5,
     "rainDay": 0.5,
-    "sunrise": "08:13",
-    "sunset": "19:51"
+    "sunrise": "07:13",
+    "sunset": "18:51"
   },
   "2026-10-06": {
     "cloud": 93,
     "sunHours": 1.7,
     "aqiMax": 42,
     "rain": 1.9,
-    "rainDay": 1.7,
-    "sunrise": "08:14",
-    "sunset": "19:50"
+    "rainDay": 1.8,
+    "sunrise": "07:14",
+    "sunset": "18:50"
   },
   "2026-10-07": {
     "cloud": 63,
     "sunHours": 7.9,
     "aqiMax": 34,
     "rain": 0.2,
-    "rainDay": 0.2,
-    "sunrise": "08:14",
-    "sunset": "19:48"
+    "rainDay": 0.1,
+    "sunrise": "07:14",
+    "sunset": "18:48"
   },
   "2026-10-08": {
     "cloud": 3,
@@ -68,8 +68,8 @@
     "aqiMax": 34,
     "rain": 0,
     "rainDay": 0,
-    "sunrise": "08:15",
-    "sunset": "19:47"
+    "sunrise": "07:15",
+    "sunset": "18:47"
   },
   "2026-10-09": {
     "cloud": 8,
@@ -77,8 +77,8 @@
     "aqiMax": 36,
     "rain": 0,
     "rainDay": 0,
-    "sunrise": "08:16",
-    "sunset": "19:46"
+    "sunrise": "07:16",
+    "sunset": "18:46"
   },
   "2026-10-10": {
     "cloud": 18,
@@ -86,8 +86,8 @@
     "aqiMax": 36,
     "rain": 0,
     "rainDay": 0,
-    "sunrise": "08:17",
-    "sunset": "19:44"
+    "sunrise": "07:17",
+    "sunset": "18:44"
   },
   "2026-10-11": {
     "cloud": 40,
@@ -95,8 +95,8 @@
     "aqiMax": 32,
     "rain": 0,
     "rainDay": 0,
-    "sunrise": "08:18",
-    "sunset": "19:43"
+    "sunrise": "07:18",
+    "sunset": "18:43"
   },
   "2026-10-12": {
     "cloud": 4,
@@ -104,8 +104,8 @@
     "aqiMax": 34,
     "rain": 0,
     "rainDay": 0,
-    "sunrise": "08:19",
-    "sunset": "19:41"
+    "sunrise": "07:19",
+    "sunset": "18:41"
   },
   "2026-10-13": {
     "cloud": 30,
@@ -113,8 +113,8 @@
     "aqiMax": 32,
     "rain": 0,
     "rainDay": 0,
-    "sunrise": "08:20",
-    "sunset": "19:40"
+    "sunrise": "07:20",
+    "sunset": "18:40"
   },
   "2026-10-14": {
     "cloud": 35,
@@ -122,8 +122,8 @@
     "aqiMax": 30,
     "rain": 0,
     "rainDay": 0,
-    "sunrise": "08:21",
-    "sunset": "19:39"
+    "sunrise": "07:21",
+    "sunset": "18:39"
   },
   "2026-10-15": {
     "cloud": 22,
@@ -131,8 +131,8 @@
     "aqiMax": 28,
     "rain": 0,
     "rainDay": 0,
-    "sunrise": "08:22",
-    "sunset": "19:37"
+    "sunrise": "07:22",
+    "sunset": "18:37"
   },
   "2026-10-16": {
     "cloud": 65,
@@ -140,44 +140,44 @@
     "aqiMax": 30,
     "rain": 0,
     "rainDay": 0,
-    "sunrise": "08:23",
-    "sunset": "19:36"
+    "sunrise": "07:23",
+    "sunset": "18:36"
   },
   "2026-10-17": {
     "cloud": 76,
     "sunHours": 6.8,
     "aqiMax": 30,
-    "rain": 7.8,
+    "rain": 8,
     "rainDay": 7.8,
-    "sunrise": "08:24",
-    "sunset": "19:34"
+    "sunrise": "07:24",
+    "sunset": "18:34"
   },
   "2026-10-18": {
     "cloud": 60,
     "sunHours": 6.5,
     "aqiMax": 27,
-    "rain": 10.8,
-    "rainDay": 2.4,
-    "sunrise": "08:24",
-    "sunset": "19:33"
+    "rain": 11,
+    "rainDay": 3.3,
+    "sunrise": "07:24",
+    "sunset": "18:33"
   },
   "2026-10-19": {
     "cloud": 86,
     "sunHours": 4.1,
     "aqiMax": 38,
-    "rain": 20,
-    "rainDay": 19.1,
-    "sunrise": "08:25",
-    "sunset": "19:32"
+    "rain": 19.7,
+    "rainDay": 19.2,
+    "sunrise": "07:25",
+    "sunset": "18:32"
   },
   "2026-10-20": {
     "cloud": 66,
     "sunHours": 7.8,
     "aqiMax": 29,
-    "rain": 1.7,
-    "rainDay": 0.2,
-    "sunrise": "08:26",
-    "sunset": "19:30"
+    "rain": 1.6,
+    "rainDay": 0,
+    "sunrise": "07:26",
+    "sunset": "18:30"
   },
   "2026-10-21": {
     "cloud": 3,
@@ -185,8 +185,8 @@
     "aqiMax": 41,
     "rain": 0,
     "rainDay": 0,
-    "sunrise": "08:27",
-    "sunset": "19:29"
+    "sunrise": "07:27",
+    "sunset": "18:29"
   },
   "2026-10-22": {
     "cloud": 0,
@@ -194,8 +194,8 @@
     "aqiMax": 40,
     "rain": 0,
     "rainDay": 0,
-    "sunrise": "08:28",
-    "sunset": "19:28"
+    "sunrise": "07:28",
+    "sunset": "18:28"
   },
   "2026-10-23": {
     "cloud": 35,
@@ -203,16 +203,25 @@
     "aqiMax": 38,
     "rain": 0,
     "rainDay": 0,
-    "sunrise": "08:29",
-    "sunset": "19:27"
+    "sunrise": "07:29",
+    "sunset": "18:27"
   },
   "2026-10-24": {
     "cloud": 0,
-    "sunHours": 9.2,
-    "aqiMax": 33,
+    "sunHours": 10.3,
+    "aqiMax": 32,
     "rain": 0,
     "rainDay": 0,
-    "sunrise": "08:30",
-    "sunset": "19:25"
+    "sunrise": "07:30",
+    "sunset": "18:25"
+  },
+  "2026-10-25": {
+    "cloud": 0,
+    "sunHours": 2.1,
+    "aqiMax": 26,
+    "rain": 0,
+    "rainDay": 0,
+    "sunrise": "07:31",
+    "sunset": "18:24"
   }
 }
