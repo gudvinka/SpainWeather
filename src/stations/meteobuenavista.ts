@@ -1,5 +1,5 @@
 import type { DayTotals } from '../store.ts';
-import { dateOf } from '../time.ts';
+import { dateOf, localIso } from '../time.ts';
 import { TIMEOUT, type Station, type StationResult } from './station.ts';
 
 // Станция MeteoBuenavista, Овьедо (Davis + Weather Display). Форматы файлов:
@@ -7,12 +7,32 @@ import { TIMEOUT, type Station, type StationResult } from './station.ts';
 // clientrawdaily.txt — блоки по 31 значению за последние 31 день (от старого к новому, последний — вчера).
 const BASE = 'https://www.meteobuenavista.es';
 
+const RETRY_EMPTY_MS = 8_000;
+
+// Станция перезаливает файлы раз в несколько минут, и в этот миг файл бывает пустым — тогда один повтор.
+// Если файл пустой и после повтора — станция перестала отправлять данные; дата файла показывает, с какого времени.
 async function fetchFields(file: string) {
-  const res = await fetch(`${BASE}/${file}`, { signal: AbortSignal.timeout(TIMEOUT) });
-  if (!res.ok) throw new Error(`${file}: HTTP ${res.status}`);
-  const raw = (await res.text()).trim();
+  for (let attempt = 1; ; attempt++) {
+    const res = await fetch(`${BASE}/${file}`, { signal: AbortSignal.timeout(TIMEOUT) });
+    if (!res.ok) throw new Error(`${file}: HTTP ${res.status}`);
+    const text = await res.text();
+    if (text.trim() === '' && attempt === 1) {
+      await new Promise((r) => setTimeout(r, RETRY_EMPTY_MS));
+      continue;
+    }
+    return parseFields(file, text, res.headers.get('last-modified'));
+  }
+}
+
+export function parseFields(file: string, text: string, lastModified: string | null) {
+  const raw = text.trim();
+  if (raw === '') {
+    const since = lastModified ? new Date(lastModified) : null;
+    const when = since && !Number.isNaN(since.getTime()) ? `, файл не обновлялся с ${localIso(since).replace('T', ' ')}` : '';
+    throw new Error(`${file}: станция отдала пустой файл${when}`);
+  }
   const f = raw.split(/\s+/);
-  if (f[0] !== '12345') throw new Error(`${file}: не похоже на файл Weather Display`);
+  if (f[0] !== '12345') throw new Error(`${file}: не похоже на файл Weather Display (начало: ${raw.slice(0, 40)})`);
   return { raw, f };
 }
 
