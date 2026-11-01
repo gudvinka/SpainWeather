@@ -19,6 +19,16 @@
     "sunrise": "08:20",
     "sunset": "20:04"
   },
+  "2022-11": {
+    "days": 30,
+    "tMax": 15.4,
+    "rainy": 17,
+    "grey": 1,
+    "heat": 0,
+    "badAir": 0,
+    "sunrise": "07:58",
+    "sunset": "18:14"
+  },
   "2023-09": {
     "days": 30,
     "tMax": 24,
@@ -38,6 +48,16 @@
     "badAir": 0,
     "sunrise": "08:20",
     "sunset": "20:04"
+  },
+  "2023-11": {
+    "days": 30,
+    "tMax": 15.3,
+    "rainy": 19,
+    "grey": 1,
+    "heat": 0,
+    "badAir": 0,
+    "sunrise": "07:57",
+    "sunset": "18:15"
   },
   "2024-09": {
     "days": 30,
@@ -59,6 +79,16 @@
     "sunrise": "08:20",
     "sunset": "20:03"
   },
+  "2024-11": {
+    "days": 30,
+    "tMax": 17.5,
+    "rainy": 8,
+    "grey": 4,
+    "heat": 0,
+    "badAir": 0,
+    "sunrise": "07:58",
+    "sunset": "18:14"
+  },
   "2025-09": {
     "days": 30,
     "tMax": 21.4,
@@ -78,5 +108,15 @@
     "badAir": 0,
     "sunrise": "08:20",
     "sunset": "20:04"
+  },
+  "2025-11": {
+    "days": 30,
+    "tMax": 14.6,
+    "rainy": 17,
+    "grey": 3,
+    "heat": 0,
+    "badAir": 0,
+    "sunrise": "07:58",
+    "sunset": "18:14"
   }
 }
