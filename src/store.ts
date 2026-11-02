@@ -1,6 +1,6 @@
 import { appendFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import type { Issue, Level, StationValues } from './quality.ts';
+import { hasErrors, type Issue, type Level, type StationValues } from './quality.ts';
 
 // Данные города лежат по месяцам: site/<город>/<ГГГГ-ММ>/{weather.jsonl, daily.json, sky.json, log.jsonl}.
 // Храним только сырые данные и замечания проверок; итоги дней считаются при сборке страниц.
@@ -14,7 +14,14 @@ export type Reading = StationValues & {
   issues?: Issue[]; // нет у замеров, сохранённых до появления проверок
 };
 
-export type DayTotals = { tMax: number; tMin: number; rain: number; issues?: Issue[] };
+export type DayTotals = {
+  tMax: number;
+  tMin: number;
+  rain: number;
+  sun?: number; // часы солнца по прибору (есть у AEMET)
+  source?: string; // id станции, если итоги взяты с запасной
+  issues?: Issue[];
+};
 
 export type SkyDay = {
   cloud: number; // средняя облачность за светлые часы, %
@@ -118,3 +125,12 @@ export async function writeHistory(cityDir: string, history: Record<string, Mont
   await writeFile(path.join(cityDir, 'history.json'), JSON.stringify(sorted, null, 2) + '\n', 'utf8');
 }
 export const readSky = (monthDir: string) => readJson<Record<string, SkyDay>>(path.join(monthDir, 'sky.json'), {});
+
+// Дни, когда основная станция стояла: сбор в этот день был (есть замер с запасной или ошибка станции в журнале),
+// но ни одного нормального замера основной. Её итоги за такие дни — скорее всего нули или мусор, их не берём.
+export function primaryDownDates(readings: Reading[], log: LogEntry[]): Set<string> {
+  const day = (time: string) => time.slice(0, 10);
+  const ran = new Set([...readings.map((r) => day(r.time)), ...log.filter((e) => e.source === 'станция').map((e) => day(e.time))]);
+  const ok = new Set(readings.filter((r) => !r.station && !r.stale && !hasErrors(r.issues)).map((r) => day(r.time)));
+  return new Set([...ran].filter((d) => !ok.has(d)));
+}

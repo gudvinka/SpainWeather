@@ -16,6 +16,8 @@ export type Station = {
   staleMin?: number; // через сколько минут отставания замер считается устаревшим (по умолчанию 60)
   // earlierRaw — `raw` прошлых сегодняшних замеров этой же станции (AEMET склеивает из них часы с полуночи)
   fetch(now: Date, earlierRaw?: string[]): Promise<StationResult>;
+  // Итоги прошлых дней за период (у запасной станции — чтобы закрыть дни, когда основная молчала)
+  fetchDaily?(from: string, to: string): Promise<Record<string, DayTotals>>;
 };
 
 export const TIMEOUT = 15_000;

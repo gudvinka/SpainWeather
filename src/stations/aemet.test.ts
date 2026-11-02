@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { test } from 'node:test';
-import { parseHours, summarize, type AemetHour } from './aemet.ts';
+import { parseDaily, parseHours, summarize, type AemetHour } from './aemet.ts';
 
 // fixtures/aemet-1249X.json — сохранённый ответ AEMET по станции Овьедо: часы 12:00–24:00 (по Мадриду) 01.11.2026.
 const fixture = async () => parseHours(JSON.parse(await readFile('fixtures/aemet-1249X.json', 'utf8')));
@@ -49,4 +49,16 @@ test('AEMET: часы без нужных полей пропускаются', 
   const hours = parseHours([{ fint: '2026-11-01T12:00:00+0000', ta: 10 }, { idema: '1249X' }]);
   assert.equal(hours.length, 0);
   assert.throws(() => parseHours({ estado: 404 }), /не список/);
+});
+
+test('AEMET: итоги дней — числа с запятой, «Ip» = 0, дни без данных пропускаются', () => {
+  const rows = [
+    { fecha: '2026-10-28', tmax: '18,4', tmin: '11,5', prec: '0,0', sol: '6,6' },
+    { fecha: '2026-10-29', tmax: '18,4', tmin: '9,9', prec: 'Ip' },
+    { fecha: '2026-10-30', tmax: '17,0', tmin: '10,1', prec: 'Acum' },
+  ];
+  assert.deepEqual(parseDaily(rows, 'aemet-1249X'), {
+    '2026-10-28': { tMax: 18.4, tMin: 11.5, rain: 0, sun: 6.6, source: 'aemet-1249X' },
+    '2026-10-29': { tMax: 18.4, tMin: 9.9, rain: 0, source: 'aemet-1249X' },
+  });
 });

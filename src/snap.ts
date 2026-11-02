@@ -8,7 +8,18 @@ import { ensureHistory } from './history.ts';
 import { fetchSky } from './openmeteo.ts';
 import { checkDayTotals, checkReading, hasErrors, type Issue, type Level } from './quality.ts';
 import { buildSite, cityDir, SITE } from './report.ts';
-import { appendLog, appendReading, mergeDaily, mergeSky, readReadings, type DayTotals, type Reading } from './store.ts';
+import {
+  appendLog,
+  appendReading,
+  mergeDaily,
+  mergeSky,
+  primaryDownDates,
+  readDaily,
+  readLog,
+  readReadings,
+  type DayTotals,
+  type Reading,
+} from './store.ts';
 import { dateOf, fileStamp, localIso, monthOf } from './time.ts';
 
 const errorText = (e: unknown) => (e instanceof Error ? e.message.split('\n')[0] : String(e));
@@ -52,6 +63,11 @@ class CityRun {
 }
 
 async function collectStation(run: CityRun) {
+  await collectReading(run);
+  await fillDailyGaps(run);
+}
+
+async function collectReading(run: CityRun) {
   const { city, now } = run;
   const dir = cityDir(city);
   const today = dateOf(now);
@@ -103,8 +119,18 @@ async function collectStation(run: CityRun) {
   if (result.dailyError) await run.note('история станции', 'error', result.dailyError);
   if (!result.daily) return;
 
+  // Итоги основной станции за дни, когда она стояла, не берём (их закроет запасная — см. fillDailyGaps).
+  let entries = Object.entries(result.daily);
+  if (station === city.station) {
+    const months = [...new Set(entries.map(([date]) => date.slice(0, 7)))];
+    const readings = (await Promise.all(months.map((m) => readReadings(path.join(dir, m))))).flat();
+    const log = (await Promise.all(months.map((m) => readLog(path.join(dir, m))))).flat();
+    const down = primaryDownDates(readings, log);
+    entries = entries.filter(([date]) => !down.has(date));
+  }
+
   const daily: Record<string, DayTotals> = {};
-  for (const [date, t] of Object.entries(result.daily)) {
+  for (const [date, t] of entries) {
     const dayIssues = checkDayTotals(t);
     daily[date] = dayIssues.length ? { ...t, issues: dayIssues } : t;
     await run.notes(`история ${date}`, dayIssues, false);
@@ -124,6 +150,45 @@ async function collectStation(run: CityRun) {
       await run.note('история станции', 'warn', `сумма дождя по дням ${sum.toFixed(1)} мм ≠ счётчик месяца ${rainMonth} мм`);
     }
   }
+}
+
+// Дни без итогов за последние 10 дней (основная станция молчала) закрываем итогами запасной.
+// AEMET публикует итоги с опозданием дня на 3 — пока их нет, день просто остаётся пустым до следующего сбора.
+const GAP_DAYS = 10;
+
+async function fillDailyGaps(run: CityRun) {
+  const { city, now } = run;
+  const backup = city.backup;
+  if (!backup?.fetchDaily) return;
+  const dir = cityDir(city);
+  const dates = Array.from({ length: GAP_DAYS }, (_, i) =>
+    dateOf(new Date(now.getFullYear(), now.getMonth(), now.getDate() - GAP_DAYS + i)),
+  );
+  const months = [...new Set(dates.map((d) => d.slice(0, 7)))];
+  const have: Record<string, DayTotals> = Object.assign({}, ...(await Promise.all(months.map((m) => readDaily(path.join(dir, m))))));
+  const missing = dates.filter((d) => !have[d]);
+  if (!missing.length) return;
+
+  let got;
+  try {
+    got = await backup.fetchDaily(missing[0], missing.at(-1)!);
+  } catch (e) {
+    // Не ошибка дня: итоги дозаполнятся следующим сбором. Только печать, без записи в журнал.
+    return run.note('итоги дней', 'warn', `${backup.label}: ${errorText(e)}`, false);
+  }
+  const fill: Record<string, DayTotals> = {};
+  for (const date of missing.filter((d) => got[d])) {
+    const dayIssues = checkDayTotals(got[date]);
+    fill[date] = dayIssues.length ? { ...got[date], issues: dayIssues } : got[date];
+    await run.notes(`итоги ${date}`, dayIssues, false);
+  }
+  const filled = Object.keys(fill);
+  if (filled.length) for (const m of await mergeDaily(dir, fill)) run.months.add(m);
+  const waiting = missing.filter((d) => !fill[d]);
+  run.ok(
+    'итоги дней',
+    `${backup.label}: ${filled.length ? `закрыто ${filled.join(', ')}` : 'новых нет'}${waiting.length ? `; ждём ${waiting.join(', ')}` : ''}`,
+  );
 }
 
 async function collectSky(run: CityRun) {

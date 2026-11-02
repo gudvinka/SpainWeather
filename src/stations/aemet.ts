@@ -1,4 +1,5 @@
 import type { Issue } from '../quality.ts';
+import type { DayTotals } from '../store.ts';
 import { dateOf, localIso } from '../time.ts';
 import { TIMEOUT, type Station, type StationResult } from './station.ts';
 
@@ -7,7 +8,9 @@ import { TIMEOUT, type Station, type StationResult } from './station.ts';
 // Запрос в два шага: сначала API отвечает ссылкой `datos`, по ней — JSON-массив замеров по часам за последние 12 часов
 // (в ISO-8859-15). Замер приходит с опозданием около часа. Каждая строка — итог часа, который кончается в `fint` (UTC):
 // ta — температура, tamin/tamax — мин/макс за час, hr — влажность, tpr — точка росы, prec — дождь за час, мм.
+// Итоги по дням (мин, макс, дождь, часы солнца) — отдельный запрос, публикуются с опозданием дня на 3.
 const API = 'https://opendata.aemet.es/opendata/api/observacion/convencional/datos/estacion';
+const DAILY_API = 'https://opendata.aemet.es/opendata/api/valores/climatologicos/diarios/datos';
 
 export type AemetHour = { fint: string; ta: number; tamin: number; tamax: number; hr: number; tpr: number; prec: number };
 
@@ -73,6 +76,23 @@ export function summarize(fresh: AemetHour[], earlier: AemetHour[], now: Date): 
   };
 }
 
+// Числа в итогах — строками с запятой: «18,4». Дождь «Ip» — неизмеримо мало (меньше 0,1 мм), считаем 0.
+const decimal = (v: unknown) => (typeof v === 'string' ? Number(v.replace(',', '.')) : NaN);
+
+// День без мин/макс/дождя пропускаем (бывает «Acum» — дождь за несколько дней одной суммой).
+export function parseDaily(rows: unknown, source: string): Record<string, DayTotals> {
+  if (!Array.isArray(rows)) throw new Error('AEMET: итоги дней — не список');
+  const days: Record<string, DayTotals> = {};
+  for (const r of rows as Record<string, unknown>[]) {
+    const rain = r?.prec === 'Ip' ? 0 : decimal(r?.prec);
+    const t = { tMax: decimal(r?.tmax), tMin: decimal(r?.tmin), rain };
+    if (typeof r?.fecha !== 'string' || !Object.values(t).every(Number.isFinite)) continue;
+    const sun = decimal(r.sol);
+    days[r.fecha] = { ...t, ...(Number.isFinite(sun) ? { sun } : {}), source };
+  }
+  return days;
+}
+
 async function getJson(url: string, key?: string) {
   const res = await fetch(url, { headers: key ? { api_key: key } : {}, signal: AbortSignal.timeout(TIMEOUT) });
   if (!res.ok) throw new Error(`AEMET: HTTP ${res.status}`);
@@ -97,6 +117,14 @@ export function aemet(id: string, label: string): Station {
         }
       });
       return summarize(parseHours(await getJson(meta.datos)), earlier, now);
+    },
+    async fetchDaily(from, to) {
+      const key = process.env.AEMET_API_KEY;
+      if (!key) throw new Error('нет ключа AEMET_API_KEY');
+      const meta = await getJson(`${DAILY_API}/fechaini/${from}T00:00:00UTC/fechafin/${to}T23:59:59UTC/estacion/${id}`, key);
+      if (meta?.estado === 404) return {}; // «No hay datos» — итоги за эти дни ещё не опубликованы
+      if (typeof meta?.datos !== 'string') throw new Error(`AEMET: ${meta?.descripcion ?? 'нет ссылки на данные'}`);
+      return parseDaily(await getJson(meta.datos), `aemet-${id}`);
     },
   };
 }
