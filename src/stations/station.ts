@@ -1,4 +1,4 @@
-import type { StationValues } from '../quality.ts';
+import type { Issue, StationValues } from '../quality.ts';
 import type { DayTotals } from '../store.ts';
 
 export type StationResult = {
@@ -7,9 +7,16 @@ export type StationResult = {
   raw: string; // исходная строка/фрагмент — чтобы пересчитать что-то задним числом
   daily?: Record<string, DayTotals>; // итоги прошлых дней, если станция их отдаёт
   dailyError?: string; // итоги не получены (текущий замер при этом в порядке)
+  issues?: Issue[]; // замечания самой станции (например, AEMET: не хватает часов с полуночи)
 };
 
-export type Station = { id: string; label: string; fetch(now: Date): Promise<StationResult> };
+export type Station = {
+  id: string;
+  label: string;
+  staleMin?: number; // через сколько минут отставания замер считается устаревшим (по умолчанию 60)
+  // earlierRaw — `raw` прошлых сегодняшних замеров этой же станции (AEMET склеивает из них часы с полуночи)
+  fetch(now: Date, earlierRaw?: string[]): Promise<StationResult>;
+};
 
 export const TIMEOUT = 15_000;
 

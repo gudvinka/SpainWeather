@@ -54,25 +54,41 @@ class CityRun {
 async function collectStation(run: CityRun) {
   const { city, now } = run;
   const dir = cityDir(city);
+  const today = dateOf(now);
+  const todayReadings = (await readReadings(path.join(dir, monthOf(now)))).filter((r) => r.time.startsWith(today));
+
+  // Основная станция не ответила — берём запасную. Это предупреждение, а не ошибка: замер дня всё равно есть.
+  let station = city.station;
   let result;
   try {
-    result = await city.station.fetch(now);
+    result = await station.fetch(now);
   } catch (e) {
-    return run.note('станция', 'error', `${city.station.label} недоступна: ${errorText(e)}`);
+    const failed = `${station.label} недоступна: ${errorText(e)}`;
+    if (!city.backup) return run.note('станция', 'error', failed);
+    const backup = city.backup;
+    try {
+      result = await backup.fetch(now, todayReadings.filter((r) => r.station === backup.id).map((r) => r.raw));
+    } catch (e2) {
+      await run.note('станция', 'error', failed);
+      return run.note('станция', 'error', `запасная ${backup.label} тоже недоступна: ${errorText(e2)}`);
+    }
+    station = backup;
+    await run.note('станция', 'warn', `${failed}; замер взят с запасной станции ${backup.label}`);
   }
 
   // Предыдущий замер сегодняшнего дня — для проверки скачков температуры.
-  const today = dateOf(now);
-  const prev = (await readReadings(path.join(dir, monthOf(now))))
-    .filter((r) => r.time.startsWith(today) && !hasErrors(r.issues))
-    .at(-1);
+  const prev = todayReadings.filter((r) => !hasErrors(r.issues)).at(-1);
 
-  const issues = checkReading(result.values, { now, stationTime: result.stationTime, prev });
+  const issues = [
+    ...(result.issues ?? []),
+    ...checkReading(result.values, { now, stationTime: result.stationTime, staleMin: station.staleMin, prev }),
+  ];
   const reading: Reading = {
     ...result.values,
     time: localIso(now),
     stationTime: localIso(result.stationTime),
     stale: issues.some((i) => i.field === 'stationTime'),
+    ...(station !== city.station ? { station: station.id } : {}),
     raw: result.raw,
     ...(issues.length ? { issues } : {}),
   };

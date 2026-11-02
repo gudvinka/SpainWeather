@@ -1,6 +1,7 @@
 import type { Camera } from './camera.ts';
 import type { Lang } from './i18n.ts';
 import type { Coords } from './openmeteo.ts';
+import { aemet } from './stations/aemet.ts';
 import { meteobuenavista } from './stations/meteobuenavista.ts';
 import type { Station } from './stations/station.ts';
 import { ugr } from './stations/ugr.ts';
@@ -11,6 +12,7 @@ export type City = {
   coords: Coords; // для Open-Meteo
   camera: Camera;
   station: Station;
+  backup?: Station; // запасная станция — если основная не ответила
   showHeat?: boolean; // плитка «пекло (35°+)» в шапке месяца — для жаркого города
 };
 
@@ -22,6 +24,7 @@ export const CITIES: City[] = [
     // iframe-плеер со страницы https://www.hispacams.com/webcams/oviedo-buenavista/
     camera: { kind: 'rtspEmbed', name: 'buenavista', url: 'https://rtsp.me/embed/G2RB77AE/' },
     station: meteobuenavista,
+    backup: aemet('1249X', 'AEMET Oviedo'), // официальная станция AEMET, El Cristo, 334 м
   },
   {
     id: 'granada',

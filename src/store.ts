@@ -8,7 +8,8 @@ import type { Issue, Level, StationValues } from './quality.ts';
 export type Reading = StationValues & {
   time: string; // время запуска, 2026-10-12T14:40
   stationTime: string; // время данных станции
-  stale: boolean; // станция отстаёт больше чем на час
+  stale: boolean; // станция отстаёт больше допустимого (обычно час)
+  station?: string; // id станции, если замер взят с запасной (основная не ответила)
   raw: string;
   issues?: Issue[]; // нет у замеров, сохранённых до появления проверок
 };

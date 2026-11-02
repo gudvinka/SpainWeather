@@ -34,7 +34,7 @@ const TEMP_JUMP_WINDOW_MS = 2 * 60 * 60 * 1000;
 // Текущий замер станции. prev — предыдущий замер того же дня (для проверки скачков).
 export function checkReading(
   v: StationValues,
-  ctx: { now: Date; stationTime: Date; prev?: { temp: number; time: string } },
+  ctx: { now: Date; stationTime: Date; staleMin?: number; prev?: { temp: number; time: string } },
 ): Issue[] {
   const issues: Issue[] = [];
   range(issues, 'temp', 'температура', v.temp, -25, 50, '°');
@@ -59,7 +59,7 @@ export function checkReading(
     issues.push(warn('rainMonth', `дождь за месяц ${v.rainMonth} мм больше, чем за год ${v.rainYear} мм`));
   }
   const lagMin = Math.round((ctx.now.getTime() - ctx.stationTime.getTime()) / 60_000);
-  if (Math.abs(lagMin) * 60_000 > STALE_MS) {
+  if (Math.abs(lagMin) * 60_000 > (ctx.staleMin ? ctx.staleMin * 60_000 : STALE_MS)) {
     issues.push(warn('stationTime', `данные станции устарели: отстают на ${lagMin} мин`));
   }
   if (ctx.prev) {
