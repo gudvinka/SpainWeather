@@ -1,11 +1,20 @@
 {
   "2026-11-01": {
-    "cloud": 68,
-    "sunHours": 7.3,
+    "cloud": 70,
+    "sunHours": 8.3,
     "aqiMax": 41,
     "rain": 0,
     "rainDay": 0,
     "sunrise": "07:58",
     "sunset": "18:15"
+  },
+  "2026-11-02": {
+    "cloud": 99,
+    "sunHours": 1.7,
+    "aqiMax": 40,
+    "rain": 0,
+    "rainDay": 0,
+    "sunrise": "07:59",
+    "sunset": "18:13"
   }
 }
