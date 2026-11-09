@@ -63,12 +63,21 @@
     "sunset": "18:10"
   },
   "2026-11-08": {
-    "cloud": 94,
+    "cloud": 89,
     "sunHours": 2.8,
-    "aqiMax": 23,
-    "rain": 0,
+    "aqiMax": 26,
+    "rain": 0.3,
     "rainDay": 0,
     "sunrise": "07:45",
+    "sunset": "18:09"
+  },
+  "2026-11-09": {
+    "cloud": 61,
+    "sunHours": 0,
+    "aqiMax": 21,
+    "rain": 1.4,
+    "rainDay": 0.1,
+    "sunrise": "07:47",
     "sunset": "18:09"
   }
 }
