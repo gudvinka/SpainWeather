@@ -73,7 +73,7 @@
   },
   "2026-11-09": {
     "cloud": 100,
-    "sunHours": 0,
+    "sunHours": 0.6,
     "aqiMax": 20,
     "rain": 0,
     "rainDay": 0,
