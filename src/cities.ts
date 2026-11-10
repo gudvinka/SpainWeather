@@ -66,17 +66,77 @@ export const CITIES: City[] = [
 export const PLACES: Place[] = [
   {
     id: 'malaga',
-    names: { ru: 'Малага · порт', es: 'Málaga · puerto' },
+    names: { ru: 'Малага', es: 'Málaga' },
     coords: { lat: 36.71, lon: -4.42 },
-    // https://meteo365.es/livecams/malaga-muelle.php — причал с яхтами и лайнерами, набережная, горы за городом. С 10.11.2026.
-    cameras: [{ kind: 'image', name: 'malagaport', url: 'https://webcam.meteo365.es/livecams/puerto_drei/current.webp', source: 'meteo365' }],
+    cameras: [
+      // https://meteo365.es/livecams/malaga-muelle.php — причал с яхтами и лайнерами, набережная, горы за городом. С 10.11.2026.
+      {
+        kind: 'image',
+        name: 'malagaport',
+        url: 'https://webcam.meteo365.es/livecams/puerto_drei/current.webp',
+        source: 'meteo365',
+        title: { ru: 'порт', es: 'puerto' },
+      },
+      // https://meteo365.es/livecams/malaga-alameda.php — площадь в центре, цветные дома XIX века. С 10.11.2026.
+      {
+        kind: 'image',
+        name: 'malagaalameda',
+        url: 'https://webcam2.meteo365.es/livecams/alameda/current.webp',
+        source: 'meteo365',
+        title: { ru: 'Аламеда', es: 'Alameda' },
+      },
+    ],
   },
   {
     id: 'fuengirola',
-    names: { ru: 'Фуэнхирола · пляж', es: 'Fuengirola · playa' },
+    names: { ru: 'Фуэнхирола', es: 'Fuengirola' },
     coords: { lat: 36.54, lon: -4.62 },
-    // https://meteo365.es/livecams/fuengirola-puerto.php — большой пляж с набережной, 1920×1080. С 10.11.2026.
-    cameras: [{ kind: 'image', name: 'fuengirola', url: 'https://webcam.meteo365.es/livecams/fglpuerto/current.webp', source: 'meteo365' }],
+    cameras: [
+      // https://meteo365.es/livecams/fuengirola-puerto.php — пляж с набережной до порта, 1920×1080. С 10.11.2026.
+      {
+        kind: 'image',
+        name: 'fuengirola',
+        url: 'https://webcam.meteo365.es/livecams/fglpuerto/current.webp',
+        source: 'meteo365',
+        title: { ru: 'пляж у порта', es: 'playa del puerto' },
+      },
+      // https://meteo365.es/livecams/fuengirola-bahia.php — длинный пляж Лас-Гавиотас сверху, 1920×1080. С 10.11.2026.
+      {
+        kind: 'image',
+        name: 'fuengirolabahia',
+        url: 'https://webcam2.meteo365.es/livecams/fglgaviotas/current.webp',
+        source: 'meteo365',
+        title: { ru: 'бухта', es: 'bahía' },
+      },
+    ],
+  },
+  {
+    id: 'benalmadena',
+    names: { ru: 'Бенальмадена', es: 'Benalmádena' },
+    coords: { lat: 36.6, lon: -4.52 },
+    // https://meteo365.es/livecams/benalmadena-club.php — море и белые дома вдоль берега. С 10.11.2026.
+    cameras: [{ kind: 'image', name: 'benalmadena', url: 'https://webcam2.meteo365.es/livecams/benclub/current.webp', source: 'meteo365' }],
+  },
+  {
+    id: 'nerja',
+    names: { ru: 'Нерха · Балкон Европы', es: 'Nerja · Balcón de Europa' },
+    coords: { lat: 36.75, lon: -3.88 },
+    // https://meteo365.es/livecams/nerja-balcon-europa.php — смотровая над морем, пальмы, скалы, 1920×1080. С 10.11.2026.
+    cameras: [{ kind: 'image', name: 'nerja', url: 'https://webcam2.meteo365.es/livecams/nerjabalcon/current.webp', source: 'meteo365' }],
+  },
+  {
+    id: 'sierranevada',
+    names: { ru: 'Сьерра-Невада', es: 'Sierra Nevada' },
+    coords: { lat: 37.18, lon: -3.59 }, // камера в Гранаде, смотрит на горы — погода по Гранаде
+    // https://meteo365.es/livecams/granada-sierra-nevada.php — хребет издалека, сады на переднем плане. С 10.11.2026.
+    cameras: [{ kind: 'image', name: 'sierranevada', url: 'https://webcam.meteo365.es/livecams/granadasierra/current.webp', source: 'meteo365' }],
+  },
+  {
+    id: 'valencia',
+    names: { ru: 'Валенсия · пляж', es: 'Valencia · playa' },
+    coords: { lat: 39.47, lon: -0.32 },
+    // https://meteo365.es/livecams/valencia.php — пляж и море; кадр 1024×768 (4:3), без часов на картинке. С 10.11.2026.
+    cameras: [{ kind: 'image', name: 'valencia', url: 'https://webcam2.meteo365.es/livecams/playavlc/current.webp', source: 'meteo365' }],
   },
 ];
 

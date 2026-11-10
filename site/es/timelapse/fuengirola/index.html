@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Fuengirola · playa · timelapse</title>
+<title>Fuengirola · playa del puerto · timelapse</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -176,9 +176,12 @@
 
   /* Timelapse: кадр, подпись, ползунок поверх цветной полоски (кусочек на кадр, цвет дня), отметки месяцев, кнопки. */
   .tl { max-width: 1000px; padding: 18px; border-radius: 16px; background: #fff; border: 1px solid var(--line); }
-  .tl-shot { position: relative; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 10px; background: #222; }
-  .tl-shot.crop { aspect-ratio: 960 / 500; } /* у камеры-плеера (Овьедо) внизу кадра панель плеера — прячем */
-  .tl-shot img { position: absolute; top: 0; left: 0; width: 100%; height: auto; }
+  /* Рамка — по пропорциям кадра (у большинства 16:9, у Валенсии 4:3); у камеры-плеера (Овьедо) на старых кадрах
+     внизу панель плеера — рамка ниже, низ прячется у всех кадров этой камеры. */
+  .tl-shot { position: relative; overflow: hidden; border-radius: 10px; background: #222; }
+  .tl-shot img { display: block; width: 100%; height: auto; }
+  .tl-shot.crop { aspect-ratio: 960 / 500; }
+  .tl-shot.crop img { position: absolute; top: 0; left: 0; }
   .tl-cap { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin: 12px 0 6px; }
   .tl-cap b { font-size: 20px; }
   .tl-temp { font-size: 18px; font-weight: 700; }
@@ -269,8 +272,8 @@
 <body>
 
 <nav class="lang"><a href="../../../ru/timelapse/fuengirola/index.html" hreflang="ru">RU</a><b>ES</b></nav>
-<nav class="crumbs"><a href="../../index.html">SpainWeather</a><i>›</i><a href="../index.html">Timelapse</a><i>›</i><b>Fuengirola · playa</b></nav>
-<h1>Fuengirola · playa</h1>
+<nav class="crumbs"><a href="../../index.html">SpainWeather</a><i>›</i><a href="../index.html">Timelapse</a><i>›</i><b>Fuengirola · playa del puerto</b></nav>
+<h1>Fuengirola · playa del puerto</h1>
 <p class="empty">Aún no hay datos.</p>
 </body>
 </html>
