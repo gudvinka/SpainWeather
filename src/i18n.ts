@@ -43,6 +43,16 @@ export type Dict = {
   counts: Record<'clear' | 'partly' | 'cloudy' | 'overcast' | 'fog' | 'drizzle' | 'rain' | 'downpour', string>;
   totals: (rainMm: number, heatingDays: number) => string;
   credits: (camera: string, station: string) => string;
+  // Timelapse
+  timelapse: string; // кнопка на City overview и «хлебные крошки»
+  timelapseTitle: (city: string) => string;
+  timelapseSub: string;
+  longDate: (d: number, m: number, y: number, wd: string) => string; // «24 октября 2026, сб»
+  speed: string;
+  frameOf: (n: string, total: string) => string; // «кадр 41 из 91» (в странице — шаблон, числа подставляет скрипт)
+  prevFrame: string;
+  nextFrame: string;
+  playPause: string;
   // Month details: шапка
   fewData: (n: number) => string;
   soFar: (month: string) => string;
@@ -109,6 +119,16 @@ const ru: Dict = {
   counts: { clear: 'солнечных', partly: 'переменная', cloudy: 'облачно', overcast: 'пасмурно', fog: 'туман', drizzle: 'морось', rain: 'дождь', downpour: 'ливень' },
   totals: (mm, h) => `осадков <b>${mm} мм</b> · отопление <b>${h} дн.</b>`,
   credits: (cam, st) => `Камера ${cam} · станция ${st} · небо и воздух Open-Meteo`,
+  timelapse: 'Таймлапс',
+  timelapseTitle: (c) => `${c} · таймлапс`,
+  timelapseSub: 'Все кадры камеры подряд, до трёх в день. Крутите ползунок или запустите показ.',
+  longDate: (d, m, y, wd) =>
+    `${d} ${['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'][m - 1]} ${y}, ${wd}`,
+  speed: 'скорость',
+  frameOf: (n, total) => `кадр ${n} из ${total}`,
+  prevFrame: 'кадр назад',
+  nextFrame: 'кадр вперёд',
+  playPause: 'показ / пауза',
   fewData: (n) => `Пока мало данных для вывода — ${n} дн.`,
   soFar: (m) => `${m.replace(/^./, (c) => c.toUpperCase())} пока: `,
   tempNormal: 'по температуре как обычно',
@@ -174,6 +194,15 @@ const es: Dict = {
   counts: { clear: 'soleados', partly: 'parcialmente', cloudy: 'nublados', overcast: 'cubiertos', fog: 'niebla', drizzle: 'llovizna', rain: 'lluvia', downpour: 'aguacero' },
   totals: (mm, h) => `precipitación <b>${mm} mm</b> · calefacción <b>${h} días</b>`,
   credits: (cam, st) => `Cámara ${cam} · estación ${st} · cielo y aire Open-Meteo`,
+  timelapse: 'Timelapse',
+  timelapseTitle: (c) => `${c} · timelapse`,
+  timelapseSub: 'Todas las fotos de la cámara seguidas, hasta tres al día. Mueve el control o dale a reproducir.',
+  longDate: (d, m, y, wd) => `${d} de ${es.months[m - 1]} de ${y}, ${wd}`,
+  speed: 'velocidad',
+  frameOf: (n, total) => `foto ${n} de ${total}`,
+  prevFrame: 'foto anterior',
+  nextFrame: 'foto siguiente',
+  playPause: 'reproducir / pausa',
   fewData: (n) => `Aún pocos datos para conclusiones: ${n} días.`,
   soFar: (m) => `${m.replace(/^./, (c) => c.toUpperCase())} por ahora: `,
   tempNormal: 'temperatura normal',

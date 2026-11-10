@@ -12,6 +12,7 @@ import { dateOf, monthOf } from './time.ts';
 //   SpainWeather    site/<язык>/index.html                   — главная: карточки городов
 //   City overview   site/<язык>/<город>/index.html           — обзор города: карточки месяцев по годам
 //   Month details   site/<язык>/<город>/<ГГГГ-ММ>/index.html — детали месяца: шапка «этот месяц / обычно» + строки дней
+//   Timelapse       site/<язык>/<город>/timelapse/index.html — все кадры города подряд с ползунком (кнопка на City overview)
 // Языки: ru (по умолчанию) и es. Переключатель RU | ES ведёт на ту же страницу другого языка.
 // Данные и кадры общие для обоих языков и лежат отдельно: site/<город>/<ГГГГ-ММ>/{screenshots, *.json, *.jsonl}.
 // Наверху каждой страницы — «хлебные крошки» SpainWeather › Город › месяц.
@@ -97,6 +98,11 @@ const ICON_PATHS = {
   alert:
     '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
   thermometer: '<path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/>',
+  // кнопки таймлапса (▶ символом на iPhone превращается в цветной эмодзи — поэтому рисунком)
+  play: '<path d="M7 4.5v15l12-7.5z" fill="currentColor"/>',
+  pause: '<rect x="6" y="4.5" width="4" height="15" rx="1" fill="currentColor"/><rect x="14" y="4.5" width="4" height="15" rx="1" fill="currentColor"/>',
+  back: '<path d="m15 18-6-6 6-6"/>',
+  forward: '<path d="m9 18 6-6-6-6"/>',
 };
 
 // Знаковое место города — крупный тонкий рисунок фоном карточки на главной (холст 120×90).
@@ -316,6 +322,49 @@ function page(lang: Lang, title: string, body: string) {
     -webkit-tap-highlight-color: transparent; }
   .totop.show { opacity: 1; pointer-events: auto; }
 
+  /* City overview: кнопка «Таймлапс» рядом с заголовком. */
+  .htitle { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 6px; }
+  .htitle h1 { margin: 0; }
+  .tl-link { display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px 6px 7px; border-radius: 99px; background: #fff;
+    border: 1px solid var(--line); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06); color: var(--text); font-size: 14px; font-weight: 600; text-decoration: none; }
+  .tl-link:hover { border-color: var(--text); }
+  .tl-link i { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--text); color: #fff; }
+
+  /* Timelapse: кадр, подпись, ползунок поверх цветной полоски (кусочек на кадр, цвет дня), отметки месяцев, кнопки. */
+  .tl { max-width: 1000px; padding: 18px; border-radius: 16px; background: #fff; border: 1px solid var(--line); }
+  .tl-shot { position: relative; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 10px; background: #222; }
+  .tl-shot.crop { aspect-ratio: 960 / 500; } /* у камеры-плеера (Овьедо) внизу кадра панель плеера — прячем */
+  .tl-shot img { position: absolute; top: 0; left: 0; width: 100%; height: auto; }
+  .tl-cap { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin: 12px 0 6px; }
+  .tl-cap b { font-size: 20px; }
+  .tl-kind { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); }
+  .tl-kind i { width: 12px; height: 12px; border-radius: 3px; }
+  .tl-track { position: relative; height: 44px; }
+  .tl-bar { position: absolute; left: 0; right: 0; top: 12px; height: 20px; border-radius: 6px; }
+  .tl-month { position: absolute; top: 4px; bottom: 4px; width: 2px; background: var(--text); pointer-events: none; }
+  .tl-track input { position: absolute; inset: 0; width: 100%; height: 44px; margin: 0; background: none; -webkit-appearance: none; appearance: none; cursor: pointer; }
+  .tl-track input::-webkit-slider-runnable-track { height: 44px; background: none; }
+  .tl-track input::-webkit-slider-thumb { -webkit-appearance: none; width: 8px; height: 44px; border-radius: 4px; background: var(--text); box-shadow: 0 0 0 2px #fff; }
+  .tl-track input::-moz-range-track { height: 44px; background: none; }
+  .tl-track input::-moz-range-thumb { width: 8px; height: 44px; border: 0; border-radius: 4px; background: var(--text); box-shadow: 0 0 0 2px #fff; }
+  .tl-ticks { position: relative; height: 18px; font-size: 12px; color: var(--muted); }
+  .tl-ticks span { position: absolute; top: 0; padding-left: 4px; border-left: 1.5px solid var(--text); line-height: 14px; white-space: nowrap; }
+  .tl-row { display: flex; align-items: center; gap: 8px 12px; flex-wrap: wrap; margin-top: 12px; }
+  .tl-btns { display: flex; gap: 8px; }
+  .tl-btns button { display: grid; place-items: center; width: 40px; height: 40px; padding: 0; border-radius: 99px; border: 1px solid var(--line);
+    background: #fff; color: var(--text); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .tl-btns button:hover { border-color: var(--text); }
+  .tl-btns .play { width: 52px; background: var(--text); border-color: var(--text); color: #fff; }
+  .tl-btns .play span { display: grid; place-items: center; }
+  .tl-btns .play .pause, .tl-btns .play.on .go { display: none; }
+  .tl-btns .play.on .pause { display: grid; }
+  .tl-spd { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; }
+  .tl-speeds { display: inline-flex; gap: 2px; padding: 3px; border-radius: 99px; background: var(--page); border: 1px solid var(--line); }
+  .tl-speeds button { height: 32px; min-width: 44px; border: 0; border-radius: 99px; background: none; color: var(--muted);
+    font: 600 13px Inter, system-ui, sans-serif; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .tl-speeds button.on { background: var(--text); color: #fff; }
+  .tl-count { margin-left: auto; color: var(--muted); font-size: 13px; }
+
   /* Телефон (iPhone 17 Pro Max — 440 точек): поля уже, карточки на всю ширину. */
   @media (max-width: 600px) {
     body { padding: 20px 16px 80px; } /* снизу место под кнопку «↑» */
@@ -362,6 +411,10 @@ function page(lang: Lang, title: string, body: string) {
     .day.open .shots { display: flex; }
     .shots figure { width: 100%; }
     .shots img { width: 100%; }
+    /* Timelapse: панель уже, номер кадра — отдельной строкой. */
+    .tl { padding: 12px; }
+    .tl-cap b { font-size: 18px; }
+    .tl-count { width: 100%; margin-left: 0; }
   }
 </style>
 </head>
@@ -624,15 +677,29 @@ function renderMonthCard(month: string, summaries: DaySummary[], t: Dict) {
   </a>`;
 }
 
+// Все месяцы города: кадры и итоги дней — для City overview и Timelapse.
+type CityMonth = { month: string; shots: Shot[]; summaries: DaySummary[] };
+async function loadCity(city: City, now: Date): Promise<CityMonth[]> {
+  const out: CityMonth[] = [];
+  for (const month of await listMonths(cityDir(city))) {
+    const { shots, summaries } = await loadMonth(path.join(cityDir(city), month), now);
+    out.push({ month, shots, summaries });
+  }
+  return out;
+}
+
 // City overview: карточки месяцев по порядку (январь → декабрь), сгруппированы по годам.
-export async function buildCityOverview(city: City, now: Date, lang: Lang) {
+// Рядом с заголовком — кнопка «Таймлапс», если у города есть кадры.
+export async function buildCityOverview(city: City, months: CityMonth[], lang: Lang) {
   const t = T[lang];
   const cards: { year: string; html: string }[] = [];
-  for (const month of await listMonths(cityDir(city))) {
-    const { summaries } = await loadMonth(path.join(cityDir(city), month), now);
+  for (const { month, summaries } of months) {
     // Месяц, где есть только небо из Open-Meteo (без станции и кадров), не показываем.
     if (summaries.length) cards.push({ year: month.slice(0, 4), html: renderMonthCard(month, summaries, t) });
   }
+  const tlLink = months.some((m) => m.shots.length)
+    ? `<a class="tl-link" href="timelapse/index.html"><i>${icon('play').replace('width="18" height="18"', 'width="14" height="14"')}</i>${t.timelapse}</a>`
+    : '';
 
   const years = [...Map.groupBy(cards, (c) => c.year)].map(
     ([year, list]) => `
@@ -650,11 +717,120 @@ export async function buildCityOverview(city: City, now: Date, lang: Lang) {
     `
 ${langSwitch(lang, '../../', `${city.id}/index.html`)}
 ${crumbs([['SpainWeather', '../index.html'], [name]])}
-<h1>${esc(title)}</h1>
+<div class="htitle"><h1>${esc(title)}</h1>${tlLink}</div>
 <p class="sub">${credits(city, t)}</p>
 ${years.length ? years.join('') : `<p class="empty">${t.noMonths}</p>`}`,
   );
 }
+
+// Timelapse: все кадры города подряд (до трёх в день). Ползунок поверх полоски, где у каждого кадра — кусочек цвета
+// его дня; отметки начала месяцев; кнопки «кадр назад / показ / кадр вперёд» и скорость 2× / 5× / 10× (кадров в секунду).
+// Открывается на последнем кадре. Новые кадры попадают сюда при каждой сборке. Скрипт — TIMELAPSE_JS.
+export async function buildTimelapse(city: City, months: CityMonth[], lang: Lang) {
+  const t = T[lang];
+  const toSite = '../../../'; // site/<язык>/<город>/timelapse/ → site/
+  const kindOf = new Map(months.flatMap((m) => m.summaries.map((s) => [s.date, s.kind] as const)));
+  const frames = months.flatMap((m) => m.shots.map((s) => ({ ...s, src: `${toSite}${city.id}/${m.month}/screenshots/${encodeURIComponent(s.file)}` })));
+  const name = city.names[lang];
+  const title = t.timelapseTitle(name);
+  const top = `
+${langSwitch(lang, toSite, `${city.id}/timelapse/index.html`)}
+${crumbs([['SpainWeather', '../../index.html'], [name, '../index.html'], [t.timelapse]])}
+<h1>${esc(title)}</h1>`;
+  const file = path.join(pagesDir(lang), city.id, 'timelapse', 'index.html');
+  if (!frames.length) return write(file, lang, title, `${top}\n<p class="empty">${t.noData}</p>`);
+
+  // Дни — подпись, цвет и тип; кадр ссылается на свой день, чтобы не повторять подписи.
+  const dates = [...new Set(frames.map((f) => f.day))];
+  const days = dates.map((date) => {
+    const [y, m, d] = date.split('-').map(Number);
+    const kind = kindOf.get(date) ?? 'none';
+    return { l: t.longDate(d, m, y, weekday(date, t)), c: KIND_STYLE[kind].bg, k: t.kind[kind] };
+  });
+  const dayIdx = new Map(dates.map((d, i) => [d, i]));
+  const data = frames.map((f) => [dayIdx.get(f.day)!, f.time, f.src]);
+
+  const n = frames.length;
+  const pct = (i: number) => `${((i / n) * 100).toFixed(3)}%`;
+  const grad = frames.map((f, i) => { const c = days[dayIdx.get(f.day)!].c; return `${c} ${pct(i)},${c} ${pct(i + 1)}`; }).join(',');
+  const starts = frames.flatMap((f, i) => (i === 0 || f.day.slice(0, 7) !== frames[i - 1].day.slice(0, 7) ? [i] : []));
+  const ticks = starts.map((i) => {
+    const month = frames[i].day.slice(0, 7);
+    const label = i === 0 || month.endsWith('-01') ? monthTitle(month, t) : t.months[Number(month.slice(5)) - 1];
+    return `<span style="left: ${pct(i)}">${label}</span>`;
+  });
+  const lines = starts.filter((i) => i > 0).map((i) => `<div class="tl-month" style="left: ${pct(i)}"></div>`);
+
+  const last = frames[n - 1];
+  const lastDay = days[dayIdx.get(last.day)!];
+  const json = JSON.stringify({ days, frames: data, count: t.frameOf('%n', '%t') }).replace(/</g, '\\u003c');
+  return write(
+    file,
+    lang,
+    title,
+    `${top}
+<p class="sub">${t.timelapseSub}</p>
+<section class="tl">
+  <div class="tl-shot${city.camera.kind === 'rtspEmbed' ? ' crop' : ''}"><img id="tl-img" src="${last.src}" alt=""></div>
+  <div class="tl-cap"><b id="tl-date">${lastDay.l}</b><span id="tl-time">${last.time}</span><span class="tl-kind" id="tl-kind"><i style="background: ${lastDay.c}"></i>${lastDay.k}</span></div>
+  <div class="tl-track"><div class="tl-bar" style="background: linear-gradient(90deg,${grad})"></div>${lines.join('')}<input type="range" id="tl-range" min="0" max="${n - 1}" value="${n - 1}" step="1" aria-label="${t.timelapse}"></div>
+  <div class="tl-ticks">${ticks.join('')}</div>
+  <div class="tl-row">
+    <div class="tl-btns"><button id="tl-prev" title="${t.prevFrame}" aria-label="${t.prevFrame}">${icon('back')}</button><button id="tl-play" class="play" title="${t.playPause}" aria-label="${t.playPause}"><span class="go">${icon('play')}</span><span class="pause">${icon('pause')}</span></button><button id="tl-next" title="${t.nextFrame}" aria-label="${t.nextFrame}">${icon('forward')}</button></div>
+    <div class="tl-spd">${t.speed}<span class="tl-speeds"><button data-fps="2">2×</button><button data-fps="5" class="on">5×</button><button data-fps="10">10×</button></span></div>
+    <span class="tl-count" id="tl-count">${t.frameOf(String(n), String(n))}</span>
+  </div>
+</section>
+<script>const TL = ${json};</script>
+${TIMELAPSE_JS}`,
+  );
+}
+
+// Ползунок, показ с выбранной скоростью, стрелки ← → и пробел на клавиатуре; следующие кадры подгружаются заранее.
+const TIMELAPSE_JS = `<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const img = $('tl-img'), range = $('tl-range'), playBtn = $('tl-play');
+  const last = TL.frames.length - 1;
+  let i = last, fps = 5, timer = null;
+  const cache = {};
+  const preload = (k) => { const f = TL.frames[k]; if (f && !cache[k]) { cache[k] = new Image(); cache[k].src = f[2]; } };
+  function show(k) {
+    i = Math.max(0, Math.min(last, k));
+    const [d, time, src] = TL.frames[i], day = TL.days[d];
+    img.src = src; range.value = i;
+    $('tl-date').textContent = day.l; $('tl-time').textContent = time;
+    $('tl-kind').innerHTML = '<i style="background: ' + day.c + '"></i>';
+    $('tl-kind').append(day.k);
+    $('tl-count').textContent = TL.count.replace('%n', i + 1).replace('%t', last + 1);
+    for (let n = 1; n <= 10; n++) preload(i + n);
+  }
+  function play(on) {
+    clearInterval(timer); timer = null;
+    if (on) {
+      if (i >= last) show(0);
+      timer = setInterval(() => (i >= last ? play(false) : show(i + 1)), 1000 / fps);
+    }
+    playBtn.classList.toggle('on', !!timer);
+  }
+  range.addEventListener('input', () => { play(false); show(+range.value); });
+  playBtn.onclick = () => play(!timer);
+  $('tl-prev').onclick = () => { play(false); show(i - 1); };
+  $('tl-next').onclick = () => { play(false); show(i + 1); };
+  document.querySelectorAll('.tl-speeds button').forEach((b) => b.onclick = () => {
+    fps = +b.dataset.fps;
+    document.querySelectorAll('.tl-speeds button').forEach((x) => x.classList.toggle('on', x === b));
+    if (timer) play(true);
+  });
+  addEventListener('keydown', (e) => {
+    if (e.target.closest('button, input')) return; // у кнопок и ползунка свои клавиши
+    if (e.key === 'ArrowLeft') $('tl-prev').click();
+    else if (e.key === 'ArrowRight') $('tl-next').click();
+    else if (e.key === ' ') { e.preventDefault(); playBtn.click(); }
+  });
+  show(last);
+})();
+</script>`;
 
 // Карточка города на главной: цвет и итоги сегодняшнего дня, последний замер станции.
 async function renderCityCard(city: City, now: Date, lang: Lang) {
@@ -742,7 +918,11 @@ export async function buildSite(now: Date, only?: Map<string, Set<string>>) {
       if (has) built.push(month);
     }
     cityMonths.set(city, built);
-    for (const lang of LANGS) written.push(await buildCityOverview(city, now, lang));
+    const all = await loadCity(city, now);
+    for (const lang of LANGS) {
+      written.push(await buildCityOverview(city, all, lang));
+      written.push(await buildTimelapse(city, all, lang));
+    }
   }
   for (const lang of LANGS) written.push(await buildSpainWeather(now, lang));
   await writeRedirects(cityMonths);
