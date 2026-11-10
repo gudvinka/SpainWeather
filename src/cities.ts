@@ -68,8 +68,8 @@ export const PLACES: Place[] = [
     id: 'malaga',
     names: { ru: 'Малага · порт', es: 'Málaga · puerto' },
     coords: { lat: 36.71, lon: -4.42 },
-    // https://meteo365.es/livecams/puerto-malaga.php — порт близко: паромы, мегаяхты, город за ними. С 10.11.2026.
-    cameras: [{ kind: 'image', name: 'malagaport', url: 'https://webcam.meteo365.es/livecams/puerto_zwei/current.webp', source: 'meteo365' }],
+    // https://meteo365.es/livecams/malaga-muelle.php — причал с яхтами и лайнерами, набережная, горы за городом. С 10.11.2026.
+    cameras: [{ kind: 'image', name: 'malagaport', url: 'https://webcam.meteo365.es/livecams/puerto_drei/current.webp', source: 'meteo365' }],
   },
   {
     id: 'fuengirola',
