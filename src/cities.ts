@@ -138,6 +138,36 @@ export const PLACES: Place[] = [
     // https://meteo365.es/livecams/valencia.php — пляж и море; кадр 1024×768 (4:3), без часов на картинке. С 10.11.2026.
     cameras: [{ kind: 'image', name: 'valencia', url: 'https://webcam2.meteo365.es/livecams/playavlc/current.webp', source: 'meteo365' }],
   },
+  // Пляжи Астурии — камеры Tablas Surf Shop (https://www.tablassurfshop.com/en/webcam_xago и соседние страницы).
+  // Плеер rtsp.me с «замком»: показ только на сайтах владельца — снимаем со страницы магазина (rtspPage). С 10.11.2026.
+  {
+    id: 'gijon',
+    names: { ru: 'Хихон · Сан-Лоренсо', es: 'Gijón · San Lorenzo' },
+    coords: { lat: 43.54, lon: -5.65 },
+    // набережная и бухта Сан-Лоренсо до мыса; поток 1920×1080
+    cameras: [{ kind: 'rtspPage', name: 'gijon', url: 'https://www.tablassurfshop.com/en/webcam_bahia', source: 'Tablas Surf Shop' }],
+  },
+  {
+    id: 'xago',
+    names: { ru: 'Хаго', es: 'Xagó' },
+    coords: { lat: 43.6, lon: -5.92 },
+    // дикий пляж в Госоне: песок, прибой, скалистый мыс; поток 1920×1080
+    cameras: [{ kind: 'rtspPage', name: 'xago', url: 'https://www.tablassurfshop.com/en/webcam_xago', source: 'Tablas Surf Shop' }],
+  },
+  {
+    id: 'rodiles',
+    names: { ru: 'Родилес', es: 'Rodiles' },
+    coords: { lat: 43.53, lon: -5.38 },
+    // широкий пляж у устья в Вильявисьосе, лесистая скала; поток 1280×720
+    cameras: [{ kind: 'rtspPage', name: 'rodiles', url: 'https://www.tablassurfshop.com/en/webcam_rodiles', source: 'Tablas Surf Shop' }],
+  },
+  {
+    id: 'nora',
+    names: { ru: 'Ла-Ньора', es: 'La Ñora' },
+    coords: { lat: 43.55, lon: -5.57 },
+    // пляж у скалы между Хихоном и Вильявисьосой; поток 2560×1440
+    cameras: [{ kind: 'rtspPage', name: 'nora', url: 'https://www.tablassurfshop.com/en/webcam_nora', source: 'Tablas Surf Shop' }],
+  },
 ];
 
 // Все камеры сайта (имена уникальны — проверяет тест).

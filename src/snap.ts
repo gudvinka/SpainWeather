@@ -213,7 +213,7 @@ async function collectFrame(run: CityRun<Place>, cam: Camera, browser?: Browser)
   const source = city.cameras.length > 1 ? `камера ${cam.name}` : 'камера';
   let context: BrowserContext | undefined;
   try {
-    if (cam.kind === 'rtspEmbed') {
+    if (cam.kind !== 'image') {
       if (!browser) throw new Error('браузер не запустился');
       context = await browser.newContext({ viewport: { width: 1600, height: 900 } });
     }
@@ -241,7 +241,7 @@ async function guarded(run: CityRun<Place>, source: string, task: () => Promise<
 
 const now = new Date();
 let browser: Browser | undefined;
-if (ALL_PLACES.some((c) => c.cameras.some((cam) => cam.kind === 'rtspEmbed'))) {
+if (ALL_PLACES.some((c) => c.cameras.some((cam) => cam.kind !== 'image'))) {
   try {
     browser = await chromium.launch({ args: ['--autoplay-policy=no-user-gesture-required'] });
   } catch (e) {
