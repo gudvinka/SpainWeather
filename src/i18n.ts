@@ -42,7 +42,7 @@ export type Dict = {
   average: string;
   counts: Record<'clear' | 'partly' | 'cloudy' | 'overcast' | 'fog' | 'drizzle' | 'rain' | 'downpour', string>;
   totals: (rainMm: number, heatingDays: number) => string;
-  credits: (camera: string, station: string) => string;
+  credits: (cameras: string[], station: string) => string;
   // Timelapse
   timelapse: string; // кнопка на City overview и «хлебные крошки»
   timelapseTitle: (city: string) => string;
@@ -118,7 +118,7 @@ const ru: Dict = {
   average: 'в среднем',
   counts: { clear: 'солнечных', partly: 'переменная', cloudy: 'облачно', overcast: 'пасмурно', fog: 'туман', drizzle: 'морось', rain: 'дождь', downpour: 'ливень' },
   totals: (mm, h) => `осадков <b>${mm} мм</b> · отопление <b>${h} дн.</b>`,
-  credits: (cam, st) => `Камера ${cam} · станция ${st} · небо и воздух Open-Meteo`,
+  credits: (cams, st) => `${cams.length > 1 ? 'Камеры' : 'Камера'} ${cams.join(', ')} · станция ${st} · небо и воздух Open-Meteo`,
   timelapse: 'Таймлапс',
   timelapseTitle: (c) => `${c} · таймлапс`,
   timelapseSub: 'Все кадры камеры подряд, до трёх в день. Крутите ползунок или запустите показ.',
@@ -193,7 +193,7 @@ const es: Dict = {
   average: 'de media',
   counts: { clear: 'soleados', partly: 'parcialmente', cloudy: 'nublados', overcast: 'cubiertos', fog: 'niebla', drizzle: 'llovizna', rain: 'lluvia', downpour: 'aguacero' },
   totals: (mm, h) => `precipitación <b>${mm} mm</b> · calefacción <b>${h} días</b>`,
-  credits: (cam, st) => `Cámara ${cam} · estación ${st} · cielo y aire Open-Meteo`,
+  credits: (cams, st) => `${cams.length > 1 ? 'Cámaras' : 'Cámara'} ${cams.join(', ')} · estación ${st} · cielo y aire Open-Meteo`,
   timelapse: 'Timelapse',
   timelapseTitle: (c) => `${c} · timelapse`,
   timelapseSub: 'Todas las fotos de la cámara seguidas, hasta tres al día. Mueve el control o dale a reproducir.',

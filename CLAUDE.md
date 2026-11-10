@@ -14,8 +14,9 @@ TypeScript без лишних зависимостей (Playwright, sharp).
 - **City overview** — `site/<язык>/<город>/index.html`, карточки месяцев (`buildCityOverview`, `renderMonthCard`).
 - **Month details** — `site/<язык>/<город>/<ГГГГ-ММ>/index.html`, шапка месяца + строки дней (`buildMonthDetails`,
   `renderMonthHeader`).
-- **Timelapse** — `site/<язык>/<город>/timelapse/index.html`, все кадры города подряд с ползунком (`buildTimelapse`);
-  на City overview — кнопка «Таймлапс».
+- **Timelapse** — `site/<язык>/<город>/timelapse/index.html`, все кадры камеры подряд с ползунком (`buildTimelapse`);
+  на City overview — кнопка «Таймлапс». У города может быть несколько камер (`cameras` в `cities.ts`, у Гранады две):
+  у каждой свой таймлапс (`timelapse/<камера>.html`, вкладки), в Month details — строка кадров на камеру.
 - На каждой странице «хлебные крошки» SpainWeather › Город › месяц (`crumbs()`).
 - Два языка: `site/ru/…` и `site/es/…`, переключатель RU | ES (`langSwitch()`), тексты в `src/i18n.ts`. Новый текст
   на странице — всегда через словарь в обоих языках (тест сверяет ключи). Испанский — черновой.

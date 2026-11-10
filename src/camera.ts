@@ -2,12 +2,15 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { BrowserContext, Page } from 'playwright';
 import sharp from 'sharp';
+import type { Lang } from './i18n.ts';
 import { checkFrame, type Issue } from './quality.ts';
 
 // Два вида камер:
 // rtspEmbed — видеоплеер rtsp.me на странице: открываем браузером, запускаем видео, скриним кадр;
 // image     — прямая ссылка на текущий кадр: просто скачиваем.
-export type Camera = { kind: 'rtspEmbed' | 'image'; name: string; url: string };
+// name — в имени файла кадра (<stamp>_<name>.jpg), по нему кадры разных камер города не смешиваются;
+// label — подпись группы кадров и вкладки таймлапса, когда у города несколько камер.
+export type Camera = { kind: 'rtspEmbed' | 'image'; name: string; url: string; label?: Record<Lang, string> };
 
 export type Frame = { file: string; bytes: number; issues: Issue[] };
 type Raw = { image: Uint8Array; issues: Issue[] };

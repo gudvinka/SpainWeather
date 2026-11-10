@@ -2,7 +2,7 @@
 // Запуск: node src/snap.ts
 import path from 'node:path';
 import { chromium, type Browser, type BrowserContext } from 'playwright';
-import { capture } from './camera.ts';
+import { capture, type Camera } from './camera.ts';
 import { CITIES, type City } from './cities.ts';
 import { ensureHistory } from './history.ts';
 import { fetchSky } from './openmeteo.ts';
@@ -202,21 +202,23 @@ async function collectSky(run: CityRun) {
   }
 }
 
-async function collectFrame(run: CityRun, browser?: Browser) {
+// Кадр одной камеры. У города с несколькими камерами в журнале источник — «камера <имя>».
+async function collectFrame(run: CityRun, cam: Camera, browser?: Browser) {
   const { city, now } = run;
+  const source = city.cameras.length > 1 ? `камера ${cam.name}` : 'камера';
   let context: BrowserContext | undefined;
   try {
-    if (city.camera.kind === 'rtspEmbed') {
+    if (cam.kind === 'rtspEmbed') {
       if (!browser) throw new Error('браузер не запустился');
       context = await browser.newContext({ viewport: { width: 1600, height: 900 } });
     }
     const dir = path.join(cityDir(city), monthOf(now), 'screenshots');
-    const frame = await capture(city.camera, dir, fileStamp(now), now, context);
+    const frame = await capture(cam, dir, fileStamp(now), now, context);
     run.months.add(monthOf(now));
-    await run.notes('камера', frame.issues, true);
-    if (!hasErrors(frame.issues)) run.ok('камера', `${path.relative(SITE, frame.file)} (${Math.round(frame.bytes / 1024)} КБ)`);
+    await run.notes(source, frame.issues, true);
+    if (!hasErrors(frame.issues)) run.ok(source, `${path.relative(SITE, frame.file)} (${Math.round(frame.bytes / 1024)} КБ)`);
   } catch (e) {
-    await run.note('камера', 'error', `кадр не получен: ${errorText(e)}`);
+    await run.note(source, 'error', `кадр не получен: ${errorText(e)}`);
   } finally {
     await context?.close();
   }
@@ -234,7 +236,7 @@ async function guarded(run: CityRun, source: string, task: () => Promise<unknown
 
 const now = new Date();
 let browser: Browser | undefined;
-if (CITIES.some((c) => c.camera.kind === 'rtspEmbed')) {
+if (CITIES.some((c) => c.cameras.some((cam) => cam.kind === 'rtspEmbed'))) {
   try {
     browser = await chromium.launch({ args: ['--autoplay-policy=no-user-gesture-required'] });
   } catch (e) {
@@ -250,7 +252,7 @@ try {
       Promise.all([
         guarded(run, 'станция', () => collectStation(run)),
         guarded(run, 'небо и воздух', () => collectSky(run)),
-        guarded(run, 'камера', () => collectFrame(run, browser)),
+        ...run.city.cameras.map((cam) => guarded(run, 'камера', () => collectFrame(run, cam, browser))),
       ]),
     ),
   );

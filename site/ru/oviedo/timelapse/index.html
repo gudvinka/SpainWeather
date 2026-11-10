@@ -73,6 +73,12 @@
   figcaption { margin-bottom: 4px; font-weight: 600; font-variant-numeric: tabular-nums; }
   .shots img { display: block; width: 400px; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 8px; background: rgba(0, 0, 0, 0.12); }
   .noshots { align-self: center; font-weight: 600; opacity: 0.75; }
+  /* Кадры нескольких камер: строка на камеру, над ней подпись белой плашкой — видно, что это другое место. */
+  .shots.many { flex-direction: column; flex-wrap: nowrap; }
+  .shots .cam { display: flex; flex-wrap: wrap; gap: 6px 12px; }
+  .shots .camname { flex: 0 0 100%; margin: 0; }
+  .shots .camname b { display: inline-block; padding: 2px 10px; border-radius: 99px; background: rgba(255, 255, 255, 0.8);
+    color: var(--text); font-size: 13px; font-weight: 600; }
 
   h2 { margin: 28px 0 12px; font-size: 22px; font-weight: 700; }
   .months { display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start; }
@@ -146,6 +152,12 @@
   .tl-link i { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--text); color: #fff; }
 
   /* Timelapse: кадр, подпись, ползунок поверх цветной полоски (кусочек на кадр, цвет дня), отметки месяцев, кнопки. */
+  .tl-cams { display: inline-flex; flex-wrap: wrap; gap: 2px; margin-bottom: 12px; padding: 3px; border-radius: 99px;
+    background: #fff; border: 1px solid var(--line); font-size: 14px; font-weight: 600; }
+  .tl-cams a, .tl-cams b { padding: 6px 14px; border-radius: 99px; text-decoration: none; }
+  .tl-cams a { color: var(--muted); }
+  .tl-cams a:hover { color: var(--text); }
+  .tl-cams b { background: var(--text); color: #fff; }
   .tl { max-width: 1000px; padding: 18px; border-radius: 16px; background: #fff; border: 1px solid var(--line); }
   .tl-shot { position: relative; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 10px; background: #222; }
   .tl-shot.crop { aspect-ratio: 960 / 500; } /* у камеры-плеера (Овьедо) внизу кадра панель плеера — прячем */
@@ -230,6 +242,8 @@
     .tl { padding: 12px; }
     .tl-cap b { font-size: 18px; }
     .tl-count { width: 100%; margin-left: 0; }
+    .tl-cams { display: flex; border-radius: 14px; }
+    .tl-cams a, .tl-cams b { flex: 1 1 0; text-align: center; border-radius: 11px; }
   }
 </style>
 </head>
@@ -239,6 +253,7 @@
 <nav class="crumbs"><a href="../../index.html">SpainWeather</a><i>›</i><a href="../index.html">Овьедо</a><i>›</i><b>Таймлапс</b></nav>
 <h1>Овьедо · таймлапс</h1>
 <p class="sub">Все кадры камеры подряд, до трёх в день. Крутите ползунок или запустите показ.</p>
+
 <section class="tl">
   <div class="tl-shot crop"><img id="tl-img" src="../../../oviedo/2026-11/screenshots/2026-11-10_10-01_buenavista.jpg" alt=""></div>
   <div class="tl-cap"><b id="tl-date">10 ноября 2026, вт</b><span id="tl-time">10:01</span><span class="tl-kind" id="tl-kind"><i style="background: #ffe39a"></i>переменная облачность</span></div>
