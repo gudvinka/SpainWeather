@@ -53,6 +53,23 @@ async function startVideo(page: Page) {
   }
 }
 
+// Кадр берём прямо из видео (canvas): полный размер потока и без кнопок плеера поверх картинки.
+// Обрезаем по центру до 16:9 — так же, как плеер показывает видео в окне 16:9 (у Овьедо поток 2304×1536, 3:2),
+// чтобы новые кадры совпадали по рамке со старыми (до 10.11.2026 — скриншот плеера с его кнопками).
+async function grabVideoFrame(page: Page): Promise<Uint8Array> {
+  const dataUrl = await page.evaluate(() => {
+    const v = document.querySelector('video')!;
+    const w = v.videoWidth, h = v.videoHeight;
+    const [cw, ch] = w / h > 16 / 9 ? [Math.round((h * 16) / 9), h] : [w, Math.round((w * 9) / 16)];
+    const c = document.createElement('canvas');
+    c.width = cw;
+    c.height = ch;
+    c.getContext('2d')!.drawImage(v, (w - cw) / 2, (h - ch) / 2, cw, ch, 0, 0, cw, ch);
+    return c.toDataURL('image/jpeg', 0.95);
+  });
+  return Buffer.from(dataUrl.slice(dataUrl.indexOf(',') + 1), 'base64');
+}
+
 async function captureEmbed(context: BrowserContext, url: string): Promise<Raw> {
   const page = await context.newPage();
   try {
@@ -60,7 +77,8 @@ async function captureEmbed(context: BrowserContext, url: string): Promise<Raw> 
     const video = page.locator('video').first();
     await video.waitFor({ state: 'visible', timeout: PLAY_TIMEOUT });
     await startVideo(page);
-    const image = await video.screenshot({ type: 'png' });
+    // Если видео не даётся в canvas (например, поток с другого сайта без разрешения) — скриншот плеера, как раньше.
+    const image = await grabVideoFrame(page).catch(() => video.screenshot({ type: 'png' }));
     return { image, issues: checkFrame({ bytes: image.length }) };
   } finally {
     await page.close();
