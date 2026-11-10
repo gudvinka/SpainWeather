@@ -15,9 +15,10 @@ export type Camera = { kind: 'rtspEmbed' | 'image'; name: string; url: string; l
 export type Frame = { file: string; bytes: number; issues: Issue[] };
 type Raw = { image: Uint8Array; issues: Issue[] };
 
-// Кадр нужен, чтобы видеть небо, а показывается шириной 400px — полный размер не нужен.
-// 960px оставляет запас для чётких экранов и просмотра крупно; JPEG 75 — облака различимы, файл втрое легче.
-const FRAME_WIDTH = 960;
+// На сайте кадр показывается шириной 400px (день) и ~960px (таймлапс) — полный размер не нужен.
+// 1080px — ширина вертикального ролика (Reels), чтобы из кадров можно было собрать видео без растяжения;
+// меньшие кадры не растягиваются. До 10.11.2026 кадры сохранялись шириной 960px. JPEG 75 — облака различимы, файл легче.
+const FRAME_WIDTH = 1080;
 const FRAME_QUALITY = 75;
 
 export const shrink = (image: Uint8Array) =>
