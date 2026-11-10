@@ -5,17 +5,19 @@ import sharp from 'sharp';
 import type { Lang } from './i18n.ts';
 import { checkFrame, type Issue } from './quality.ts';
 
-// Три вида камер:
+// Четыре вида камер:
 // rtspEmbed — видеоплеер rtsp.me по прямой ссылке (url — адрес плеера): открываем браузером, запускаем видео, берём кадр;
 // rtspPage  — тот же плеер, но владелец разрешил показывать его только на своих сайтах (прямая ссылка пишет «доступен
 //             только на указанных сайтах»): url — страница такого сайта, открываем её как посетитель, кадр — из плеера
 //             во фрейме страницы. Замок не обходим (адрес не подделываем) — смотрим там, где показ разрешён;
+// pageImage — снимок (не видео), который показывает страница владельца камеры, а по прямой ссылке картинку не отдают:
+//             url — эта страница; открываем её как посетитель и берём самую крупную картинку, которую она загрузила;
 // image     — прямая ссылка на текущий кадр: просто скачиваем.
 // name   — уникальное имя камеры на весь сайт: в имени файла кадра (<stamp>_<name>.jpg) и в адресе таймлапса
 //          (site/<язык>/timelapse/<name>/); по нему кадры разных камер не смешиваются;
 // title  — что видно, коротко («Альгамбра»), если у города несколько камер; без него камеру зовут по городу/месту;
 // source — чья камера («meteo365»), для подписей.
-export type Camera = { kind: 'rtspEmbed' | 'rtspPage' | 'image'; name: string; url: string; source: string; title?: Record<Lang, string> };
+export type Camera = { kind: 'rtspEmbed' | 'rtspPage' | 'pageImage' | 'image'; name: string; url: string; source: string; title?: Record<Lang, string> };
 
 export type Frame = { file: string; bytes: number; issues: Issue[] };
 type Raw = { image: Uint8Array; issues: Issue[] };
@@ -101,6 +103,36 @@ async function captureEmbed(context: BrowserContext, url: string, onPage = false
   }
 }
 
+// Снимок со страницы владельца: из картинок страницы не меньше 320 точек в ширину берём самую тяжёлую по весу —
+// поверх снимка часто лежит прозрачная рамка с логотипом того же размера, но она весит пару килобайт.
+const MIN_SNAPSHOT_BYTES = 10_000;
+async function capturePageImage(context: BrowserContext, url: string): Promise<Raw> {
+  const page = await context.newPage();
+  const bodies = new Map<string, Promise<Buffer | null>>();
+  page.on('response', (r) => {
+    if ((r.headers()['content-type'] ?? '').startsWith('image/')) bodies.set(r.url(), r.body().catch(() => null));
+  });
+  try {
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60_000 });
+    const deadline = Date.now() + PLAY_TIMEOUT;
+    let best: Buffer | null = null;
+    while (!best || best.length < MIN_SNAPSHOT_BYTES) {
+      if (Date.now() > deadline) break;
+      await page.waitForTimeout(1000);
+      const srcs = await page.evaluate(() => [...document.images].filter((i) => i.complete && i.naturalWidth >= 320).map((i) => i.currentSrc));
+      for (const src of srcs) {
+        const body = await bodies.get(src);
+        if (body && (!best || body.length > best.length)) best = body;
+      }
+    }
+    if (!best) throw new Error('снимок на странице не найден');
+    const image = new Uint8Array(best);
+    return { image, issues: checkFrame({ bytes: image.length }) };
+  } finally {
+    await page.close();
+  }
+}
+
 async function downloadImage(url: string, now: Date): Promise<Raw> {
   const res = await fetch(url, { signal: AbortSignal.timeout(20_000) });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -111,7 +143,7 @@ async function downloadImage(url: string, now: Date): Promise<Raw> {
   return { image, issues: checkFrame({ bytes: image.length, ageMs: Number.isNaN(modified) ? undefined : now.getTime() - modified }) };
 }
 
-// Сохраняет уменьшенный кадр в dir/<stamp>_<name>.jpg. context (браузер) нужен камерам-плеерам (rtspEmbed, rtspPage).
+// Сохраняет уменьшенный кадр в dir/<stamp>_<name>.jpg. context (браузер) нужен всем, кроме image.
 export async function capture(
   cam: Camera,
   dir: string,
@@ -122,6 +154,7 @@ export async function capture(
   let raw: Raw;
   if (cam.kind === 'image') raw = await downloadImage(cam.url, now);
   else if (!context) throw new Error('для видеокамеры нужен браузер');
+  else if (cam.kind === 'pageImage') raw = await capturePageImage(context, cam.url);
   else raw = await captureEmbed(context, cam.url, cam.kind === 'rtspPage');
 
   const jpeg = await shrink(raw.image); // проверки качества — по исходной картинке, сохраняем уменьшенную

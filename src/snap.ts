@@ -1,6 +1,7 @@
 // SpainWeather: один запуск — для каждого города кадры камер, замер станции, небо и воздух; для других мест
 // (PLACES) — кадры камер и небо с температурой по модели; затем пересборка сайта.
-// Запуск: node src/snap.ts
+// Запуск: node src/snap.ts — все города и места; node src/snap.ts gijon enol — только указанные (id из cities.ts),
+// например чтобы снять первый кадр только что добавленной камеры, не делая лишний сбор по остальным.
 import path from 'node:path';
 import { chromium, type Browser, type BrowserContext } from 'playwright';
 import { capture, type Camera } from './camera.ts';
@@ -240,8 +241,12 @@ async function guarded(run: CityRun<Place>, source: string, task: () => Promise<
 }
 
 const now = new Date();
+const only = process.argv.slice(2);
+const wanted = (p: Place) => !only.length || only.includes(p.id);
+const unknown = only.filter((id) => !ALL_PLACES.some((p) => p.id === id));
+if (unknown.length) throw new Error(`нет таких городов или мест: ${unknown.join(', ')}`);
 let browser: Browser | undefined;
-if (ALL_PLACES.some((c) => c.cameras.some((cam) => cam.kind !== 'image'))) {
+if (ALL_PLACES.filter(wanted).some((c) => c.cameras.some((cam) => cam.kind !== 'image'))) {
   try {
     browser = await chromium.launch({ args: ['--autoplay-policy=no-user-gesture-required'] });
   } catch (e) {
@@ -250,8 +255,8 @@ if (ALL_PLACES.some((c) => c.cameras.some((cam) => cam.kind !== 'image'))) {
   }
 }
 
-const runs = CITIES.map((city) => new CityRun(city, now));
-const placeRuns = PLACES.map((place) => new CityRun<Place>(place, now, true));
+const runs = CITIES.filter(wanted).map((city) => new CityRun(city, now));
+const placeRuns = PLACES.filter(wanted).map((place) => new CityRun<Place>(place, now, true));
 const frames = (run: CityRun<Place>) => run.city.cameras.map((cam) => guarded(run, 'камера', () => collectFrame(run, cam, browser)));
 try {
   await Promise.all([

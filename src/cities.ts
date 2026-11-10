@@ -168,6 +168,15 @@ export const PLACES: Place[] = [
     // пляж у скалы между Хихоном и Вильявисьосой; поток 2560×1440
     cameras: [{ kind: 'rtspPage', name: 'nora', url: 'https://www.tablassurfshop.com/en/webcam_nora', source: 'Tablas Surf Shop' }],
   },
+  {
+    id: 'enol',
+    names: { ru: 'Озеро Эноль', es: 'Lago Enol' },
+    coords: { lat: 43.27, lon: -4.99 }, // Лагос-де-Ковадонга, Пикос-де-Эуропа, ~1070 м
+    // https://www.hispacams.com/cam_embedded.php?id=000239 — камера ресторана у озера на солнечной батарее: снимок
+    // раз в 15 минут (видео — только когда ресторан открыт), 640×480 (4:3). По прямой ссылке снимок не отдают —
+    // берём со страницы hispacams (pageImage). С 10.11.2026.
+    cameras: [{ kind: 'pageImage', name: 'enol', url: 'https://www.hispacams.com/cam_embedded.php?id=000239', source: 'hispacams' }],
+  },
 ];
 
 // Все камеры сайта (имена уникальны — проверяет тест).
