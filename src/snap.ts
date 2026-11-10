@@ -1,9 +1,10 @@
-// SpainWeather: один запуск — для каждого города кадр камеры, замер станции, небо и воздух, затем пересборка сайта.
+// SpainWeather: один запуск — для каждого города кадры камер, замер станции, небо и воздух; для других мест
+// (PLACES) — кадры камер и небо с температурой по модели; затем пересборка сайта.
 // Запуск: node src/snap.ts
 import path from 'node:path';
 import { chromium, type Browser, type BrowserContext } from 'playwright';
 import { capture, type Camera } from './camera.ts';
-import { CITIES, type City } from './cities.ts';
+import { ALL_PLACES, CITIES, PLACES, type City, type Place } from './cities.ts';
 import { ensureHistory } from './history.ts';
 import { fetchSky } from './openmeteo.ts';
 import { checkDayTotals, checkReading, hasErrors, type Issue, type Level } from './quality.ts';
@@ -24,16 +25,19 @@ import { dateOf, fileStamp, localIso, monthOf } from './time.ts';
 
 const errorText = (e: unknown) => (e instanceof Error ? e.message.split('\n')[0] : String(e));
 
-// Счётчики и вывод замечаний одного города.
-class CityRun {
+// Счётчики и вывод замечаний одного города (или другого места — тогда optional: ошибки считаются предупреждениями,
+// запуск из-за необязательных мест не краснеет).
+class CityRun<P extends Place = City> {
   errors = 0;
   warnings = 0;
   months = new Set<string>();
-  readonly city: City;
+  readonly city: P;
   readonly now: Date;
-  constructor(city: City, now: Date) {
+  readonly optional: boolean;
+  constructor(city: P, now: Date, optional = false) {
     this.city = city;
     this.now = now;
+    this.optional = optional;
   }
 
   ok(source: string, text: string) {
@@ -42,7 +46,8 @@ class CityRun {
 
   // Печатает замечание; замечания без своей записи (камера, сверки, недоступный источник) пишет в log.jsonl,
   // чтобы они появились в карточке дня как «данные под вопросом».
-  async note(source: string, level: Level, message: string, toLog = true) {
+  async note(source: string, given: Level, message: string, toLog = true) {
+    const level: Level = this.optional ? 'warn' : given;
     if (level === 'error') this.errors++;
     else this.warnings++;
     console.log(`${level === 'error' ? 'ERROR' : 'WARN '} ${this.city.id} ${source}: ${message}`);
@@ -191,7 +196,7 @@ async function fillDailyGaps(run: CityRun) {
   );
 }
 
-async function collectSky(run: CityRun) {
+async function collectSky(run: CityRun<Place>) {
   try {
     const sky = await fetchSky(run.city.coords, run.now);
     for (const [date, day] of Object.entries(sky)) await run.notes(`небо ${date}`, day.issues ?? [], false);
@@ -203,7 +208,7 @@ async function collectSky(run: CityRun) {
 }
 
 // Кадр одной камеры. У города с несколькими камерами в журнале источник — «камера <имя>».
-async function collectFrame(run: CityRun, cam: Camera, browser?: Browser) {
+async function collectFrame(run: CityRun<Place>, cam: Camera, browser?: Browser) {
   const { city, now } = run;
   const source = city.cameras.length > 1 ? `камера ${cam.name}` : 'камера';
   let context: BrowserContext | undefined;
@@ -226,7 +231,7 @@ async function collectFrame(run: CityRun, cam: Camera, browser?: Browser) {
 
 // Непредвиденная ошибка источника (например, испорченный файл данных) записывается как ошибка этого источника
 // и не прерывает остальные источники и города.
-async function guarded(run: CityRun, source: string, task: () => Promise<unknown>) {
+async function guarded(run: CityRun<Place>, source: string, task: () => Promise<unknown>) {
   try {
     await task();
   } catch (e) {
@@ -236,7 +241,7 @@ async function guarded(run: CityRun, source: string, task: () => Promise<unknown
 
 const now = new Date();
 let browser: Browser | undefined;
-if (CITIES.some((c) => c.cameras.some((cam) => cam.kind === 'rtspEmbed'))) {
+if (ALL_PLACES.some((c) => c.cameras.some((cam) => cam.kind === 'rtspEmbed'))) {
   try {
     browser = await chromium.launch({ args: ['--autoplay-policy=no-user-gesture-required'] });
   } catch (e) {
@@ -246,16 +251,15 @@ if (CITIES.some((c) => c.cameras.some((cam) => cam.kind === 'rtspEmbed'))) {
 }
 
 const runs = CITIES.map((city) => new CityRun(city, now));
+const placeRuns = PLACES.map((place) => new CityRun<Place>(place, now, true));
+const frames = (run: CityRun<Place>) => run.city.cameras.map((cam) => guarded(run, 'камера', () => collectFrame(run, cam, browser)));
 try {
-  await Promise.all(
-    runs.map((run) =>
-      Promise.all([
-        guarded(run, 'станция', () => collectStation(run)),
-        guarded(run, 'небо и воздух', () => collectSky(run)),
-        ...run.city.cameras.map((cam) => guarded(run, 'камера', () => collectFrame(run, cam, browser))),
-      ]),
+  await Promise.all([
+    ...runs.map((run) =>
+      Promise.all([guarded(run, 'станция', () => collectStation(run)), guarded(run, 'небо и воздух', () => collectSky(run)), ...frames(run)]),
     ),
-  );
+    ...placeRuns.map((run) => Promise.all([guarded(run, 'небо и воздух', () => collectSky(run)), ...frames(run)])),
+  ]);
 } finally {
   await browser?.close();
 }
@@ -275,6 +279,6 @@ for (const run of runs) {
 const touched = new Map(runs.map((r) => [r.city.id, r.months]));
 for (const file of await buildSite(now, touched)) console.log(`PAGE  ${path.relative(SITE, file)}`);
 
-console.log(`\nИтог: ${runs.map((r) => r.summary()).join(' · ')}`);
+console.log(`\nИтог: ${[...runs, ...placeRuns].map((r) => r.summary()).join(' · ')}`);
 console.log(`Сайт: ${path.join(SITE, 'index.html')}`);
 process.exitCode = runs.some((r) => r.errors) ? 1 : 0;

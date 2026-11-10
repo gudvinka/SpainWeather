@@ -31,6 +31,7 @@ export type SkyDay = {
   rainDay?: number; // из них днём, 9–21 ч
   sunrise: string;
   sunset: string;
+  temps?: (number | null)[]; // температура по модели по часам 0…23 (прошедшие часы), °C — под кадрами таймлапса
   issues?: Issue[];
 };
 

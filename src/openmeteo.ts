@@ -4,7 +4,8 @@ import type { SkyDay } from './store.ts';
 import { localIso } from './time.ts';
 
 // Open-Meteo: модельные данные по координатам города, без ключа.
-// Берём то, чего нет у станций: облачность, часы солнца, качество воздуха и в какие часы шёл дождь.
+// Берём то, чего нет у станций: облачность, часы солнца, качество воздуха и в какие часы шёл дождь;
+// и температуру по часам — для «других мест» без станции и как запасную под кадрами таймлапса.
 const TIMEOUT = 20_000;
 const RETRY_DELAY = 10_000; // Open-Meteo изредка не отвечает пару минут — даём вторую попытку
 
@@ -17,7 +18,15 @@ export const VISIBLE_CLOUD_PARAMS = 'cloud_cover_low,cloud_cover_mid';
 export const visibleCloud = (low: number, mid: number) => Math.max(low ?? 0, mid ?? 0);
 
 type WeatherResponse = {
-  hourly: { time: string[]; cloud_cover_low: number[]; cloud_cover_mid: number[]; sunshine_duration: number[]; is_day: number[]; precipitation: number[] };
+  hourly: {
+    time: string[];
+    cloud_cover_low: number[];
+    cloud_cover_mid: number[];
+    sunshine_duration: number[];
+    is_day: number[];
+    precipitation: number[];
+    temperature_2m?: (number | null)[];
+  };
   daily: { time: string[]; sunrise: string[]; sunset: string[] };
 };
 type AirResponse = { hourly: { time: string[]; european_aqi: (number | null)[] } };
@@ -43,7 +52,7 @@ export async function fetchSky(coords: Coords, now: Date): Promise<Record<string
   const q = `latitude=${coords.lat}&longitude=${coords.lon}&timezone=Europe%2FMadrid&past_days=31&forecast_days=1`;
   const [w, a] = await Promise.all([
     getJson<WeatherResponse>(
-      `https://api.open-meteo.com/v1/forecast?${q}&hourly=${VISIBLE_CLOUD_PARAMS},sunshine_duration,is_day,precipitation&daily=sunrise,sunset`,
+      `https://api.open-meteo.com/v1/forecast?${q}&hourly=${VISIBLE_CLOUD_PARAMS},sunshine_duration,is_day,precipitation,temperature_2m&daily=sunrise,sunset`,
     ),
     getJson<AirResponse>(`https://air-quality-api.open-meteo.com/v1/air-quality?${q}&hourly=european_aqi`),
   ]);
@@ -73,6 +82,7 @@ export async function fetchSky(coords: Coords, now: Date): Promise<Record<string
       rainDay: rain(hours.filter(({ t }) => +t.slice(11, 13) > DAY_FROM && +t.slice(11, 13) <= DAY_TO)),
       sunrise: w.daily.sunrise[d].slice(11),
       sunset: w.daily.sunset[d].slice(11),
+      temps: hours.map(({ i }) => w.hourly.temperature_2m?.[i] ?? null),
     };
     const issues = checkSky(day);
     days[date] = issues.length ? { ...day, issues } : day;

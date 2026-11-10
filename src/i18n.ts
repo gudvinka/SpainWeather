@@ -44,7 +44,15 @@ export type Dict = {
   totals: (rainMm: number, heatingDays: number) => string;
   credits: (cameras: string[], station: string) => string;
   // Timelapse
-  timelapse: string; // кнопка на City overview и «хлебные крошки»
+  timelapse: string; // раздел «Таймлапс»: карточка на главной, каталог, «хлебные крошки»
+  tlCatalogSub: string;
+  tlOurCities: string;
+  tlOtherPlaces: string;
+  tlNoteStations: string; // откуда погода у городов
+  tlNoteModel: string; // и у других мест
+  tlCardCount: (cameras: number) => string; // «5 камер · новые кадры 3 раза в день»
+  tlInfo: (source: string, d: number, m: number, frames: number) => string; // «meteo365 · с 12 октября · 91 кадр»
+  tlSource: (camera: string, station?: string) => string; // подпись под таймлапсом: чья камера и откуда погода
   timelapseTitle: (city: string) => string;
   timelapseSub: string;
   longDate: (d: number, m: number, y: number, wd: string) => string; // «24 октября 2026, сб»
@@ -67,6 +75,14 @@ export type Dict = {
   usual: (text: string) => string;
   source: (monthsPlural: string, years: string, credits: string) => string;
   noArchive: (credits: string) => string;
+};
+
+// Родительный падеж месяцев: «24 октября», «с 12 октября».
+const RU_MONTHS_GEN = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+// 1 кадр, 2 кадра, 5 кадров, 11 кадров, 21 кадр.
+const plural = (n: number, one: string, few: string, many: string) => {
+  const d = n % 10, h = n % 100;
+  return d === 1 && h !== 11 ? one : d >= 2 && d <= 4 && (h < 12 || h > 14) ? few : many;
 };
 
 const ru: Dict = {
@@ -120,10 +136,18 @@ const ru: Dict = {
   totals: (mm, h) => `осадков <b>${mm} мм</b> · отопление <b>${h} дн.</b>`,
   credits: (cams, st) => `${cams.length > 1 ? 'Камеры' : 'Камера'} ${cams.join(', ')} · станция ${st} · небо и воздух Open-Meteo`,
   timelapse: 'Таймлапс',
+  tlCatalogSub: 'Кадры камер подряд, до трёх в день. Выберите камеру.',
+  tlOurCities: 'Наши города',
+  tlOtherPlaces: 'Другие места',
+  tlNoteStations: 'погода — метеостанции',
+  tlNoteModel: 'погода — модель Open-Meteo',
+  tlCardCount: (n) => `${n} ${plural(n, 'камера', 'камеры', 'камер')} · новые кадры 3 раза в день`,
+  tlInfo: (src, d, m, n) => `${src} · с ${d} ${RU_MONTHS_GEN[m - 1]} · ${n} ${plural(n, 'кадр', 'кадра', 'кадров')}`,
+  tlSource: (cam, st) =>
+    `Камера ${cam}. ${st ? `Температура — станция ${st} в момент кадра (если замера нет — модель Open-Meteo)` : 'Погода — модель Open-Meteo по координатам камеры, не станция'}.`,
   timelapseTitle: (c) => `${c} · таймлапс`,
   timelapseSub: 'Все кадры камеры подряд, до трёх в день. Крутите ползунок или запустите показ.',
-  longDate: (d, m, y, wd) =>
-    `${d} ${['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'][m - 1]} ${y}, ${wd}`,
+  longDate: (d, m, y, wd) => `${d} ${RU_MONTHS_GEN[m - 1]} ${y}, ${wd}`,
   speed: 'скорость',
   frameOf: (n, total) => `кадр ${n} из ${total}`,
   prevFrame: 'кадр назад',
@@ -195,6 +219,15 @@ const es: Dict = {
   totals: (mm, h) => `precipitación <b>${mm} mm</b> · calefacción <b>${h} días</b>`,
   credits: (cams, st) => `${cams.length > 1 ? 'Cámaras' : 'Cámara'} ${cams.join(', ')} · estación ${st} · cielo y aire Open-Meteo`,
   timelapse: 'Timelapse',
+  tlCatalogSub: 'Fotos de las cámaras seguidas, hasta tres al día. Elige una cámara.',
+  tlOurCities: 'Nuestras ciudades',
+  tlOtherPlaces: 'Otros lugares',
+  tlNoteStations: 'tiempo — estaciones meteorológicas',
+  tlNoteModel: 'tiempo — modelo Open-Meteo',
+  tlCardCount: (n) => `${n} ${n === 1 ? 'cámara' : 'cámaras'} · fotos nuevas 3 veces al día`,
+  tlInfo: (src, d, m, n) => `${src} · desde el ${d} de ${es.months[m - 1]} · ${n} ${n === 1 ? 'foto' : 'fotos'}`,
+  tlSource: (cam, st) =>
+    `Cámara ${cam}. ${st ? `Temperatura — estación ${st} en el momento de la foto (si no hay dato — modelo Open-Meteo)` : 'Tiempo — modelo Open-Meteo según las coordenadas de la cámara, no una estación'}.`,
   timelapseTitle: (c) => `${c} · timelapse`,
   timelapseSub: 'Todas las fotos de la cámara seguidas, hasta tres al día. Mueve el control o dale a reproducir.',
   longDate: (d, m, y, wd) => `${d} de ${es.months[m - 1]} de ${y}, ${wd}`,

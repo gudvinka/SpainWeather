@@ -8,9 +8,11 @@ import { checkFrame, type Issue } from './quality.ts';
 // Два вида камер:
 // rtspEmbed — видеоплеер rtsp.me на странице: открываем браузером, запускаем видео, скриним кадр;
 // image     — прямая ссылка на текущий кадр: просто скачиваем.
-// name — в имени файла кадра (<stamp>_<name>.jpg), по нему кадры разных камер города не смешиваются;
-// label — подпись группы кадров и вкладки таймлапса, когда у города несколько камер.
-export type Camera = { kind: 'rtspEmbed' | 'image'; name: string; url: string; label?: Record<Lang, string> };
+// name   — уникальное имя камеры на весь сайт: в имени файла кадра (<stamp>_<name>.jpg) и в адресе таймлапса
+//          (site/<язык>/timelapse/<name>/); по нему кадры разных камер не смешиваются;
+// title  — что видно, коротко («Альгамбра»), если у города несколько камер; без него камеру зовут по городу/месту;
+// source — чья камера («meteo365»), для подписей.
+export type Camera = { kind: 'rtspEmbed' | 'image'; name: string; url: string; source: string; title?: Record<Lang, string> };
 
 export type Frame = { file: string; bytes: number; issues: Issue[] };
 type Raw = { image: Uint8Array; issues: Issue[] };

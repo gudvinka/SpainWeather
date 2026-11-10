@@ -1,12 +1,12 @@
 import { mkdir, readdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { Camera } from './camera.ts';
-import { CITIES, type City } from './cities.ts';
+import { CITIES, PLACES, type City, type Place } from './cities.ts';
 import { pastMonths } from './history.ts';
 import { feel, KIND_STYLE, monthBreakdown, monthStats, summarizeDay, type AirKind, type DayKind, type DaySummary, type SkyKind } from './days.ts';
 import { DEFAULT_LANG, LANGS, T, type Dict, type Lang } from './i18n.ts';
 import { hasErrors } from './quality.ts';
-import { readDaily, readHistory, readLog, readReadings, readSky, type MonthClimate } from './store.ts';
+import { readDaily, readHistory, readLog, readReadings, readSky, type DayTotals, type MonthClimate, type Reading, type SkyDay } from './store.ts';
 import { dateOf, monthOf } from './time.ts';
 
 // Сайт — три уровня страниц, каждая на двух языках (названия используем везде: в коде, README, разговоре):
@@ -18,7 +18,7 @@ import { dateOf, monthOf } from './time.ts';
 // Данные и кадры общие для обоих языков и лежат отдельно: site/<город>/<ГГГГ-ММ>/{screenshots, *.json, *.jsonl}.
 // Наверху каждой страницы — «хлебные крошки» SpainWeather › Город › месяц.
 export const SITE = path.join(import.meta.dirname, '..', 'site');
-export const cityDir = (city: City) => path.join(SITE, city.id);
+export const cityDir = (place: Place) => path.join(SITE, place.id);
 const pagesDir = (lang: Lang) => path.join(SITE, lang);
 
 // Страница, которая сразу перекидывает на другую (корень проекта, site/index.html, старые адреса страниц).
@@ -329,27 +329,46 @@ function page(lang: Lang, title: string, body: string) {
     -webkit-tap-highlight-color: transparent; }
   .totop.show { opacity: 1; pointer-events: auto; }
 
-  /* City overview: кнопка «Таймлапс» рядом с заголовком. */
+  /* City overview: круглый значок ▶ рядом с заголовком — таймлапс основной камеры города. */
   .htitle { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 6px; }
   .htitle h1 { margin: 0; }
-  .tl-link { display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px 6px 7px; border-radius: 99px; background: #fff;
-    border: 1px solid var(--line); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06); color: var(--text); font-size: 14px; font-weight: 600; text-decoration: none; }
-  .tl-link:hover { border-color: var(--text); }
-  .tl-link i { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--text); color: #fff; }
+  .tl-round { flex: none; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: #fff;
+    border: 1px solid var(--line); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06); color: var(--text); }
+  .tl-round:hover { border-color: var(--text); }
+  .tl-round svg { width: 16px; height: 16px; margin-left: 3px; }
+
+  /* SpainWeather: карточка «Таймлапс» — фон из свежего кадра, белый текст поверх затемнения. */
+  .city.tl-card { color: #fff; background: #222 center / cover; min-height: 250px; display: flex; flex-direction: column; justify-content: flex-end; }
+  .city.tl-card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(rgba(0, 0, 0, 0.05) 30%, rgba(0, 0, 0, 0.65)); }
+  .tl-card .play { position: absolute; top: 20px; right: 22px; width: 44px; height: 44px; border-radius: 50%;
+    background: rgba(255, 255, 255, 0.92); color: var(--text); display: grid; place-items: center; }
+  .tl-card .play svg { margin-left: 3px; }
+
+  /* Каталог таймлапсов: группы «Наши города» / «Другие места», карточка камеры — кадр, ▶, температура, подпись. */
+  .tl-group { margin: 26px 0 12px; font-size: 20px; }
+  .tl-group small { margin-left: 8px; color: var(--muted); font-size: 14px; font-weight: 400; }
+  .tl-list { display: flex; flex-wrap: wrap; gap: 18px; }
+  .tl-item { width: 340px; border-radius: 14px; overflow: hidden; background: #fff; border: 1px solid var(--line); color: var(--text); text-decoration: none; }
+  .tl-item:hover { border-color: var(--text); }
+  .tl-item .pic { position: relative; aspect-ratio: 16 / 9; background: #222 center / cover; }
+  .tl-item .pic i { position: absolute; left: 10px; bottom: 10px; width: 34px; height: 34px; border-radius: 50%;
+    background: rgba(255, 255, 255, 0.92); display: grid; place-items: center; }
+  .tl-item .pic i svg { width: 14px; height: 14px; margin-left: 2px; }
+  .tl-item .pic em { position: absolute; right: 10px; bottom: 10px; padding: 3px 9px; border-radius: 99px;
+    background: rgba(0, 0, 0, 0.55); color: #fff; font-style: normal; font-size: 13px; font-weight: 600; }
+  .tl-item .txt { padding: 10px 14px 12px; }
+  .tl-item b { display: block; font-size: 17px; }
+  .tl-item span { color: var(--muted); font-size: 13px; }
 
   /* Timelapse: кадр, подпись, ползунок поверх цветной полоски (кусочек на кадр, цвет дня), отметки месяцев, кнопки. */
-  .tl-cams { display: inline-flex; flex-wrap: wrap; gap: 2px; margin-bottom: 12px; padding: 3px; border-radius: 99px;
-    background: #fff; border: 1px solid var(--line); font-size: 14px; font-weight: 600; }
-  .tl-cams a, .tl-cams b { padding: 6px 14px; border-radius: 99px; text-decoration: none; }
-  .tl-cams a { color: var(--muted); }
-  .tl-cams a:hover { color: var(--text); }
-  .tl-cams b { background: var(--text); color: #fff; }
   .tl { max-width: 1000px; padding: 18px; border-radius: 16px; background: #fff; border: 1px solid var(--line); }
   .tl-shot { position: relative; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 10px; background: #222; }
   .tl-shot.crop { aspect-ratio: 960 / 500; } /* у камеры-плеера (Овьедо) внизу кадра панель плеера — прячем */
   .tl-shot img { position: absolute; top: 0; left: 0; width: 100%; height: auto; }
   .tl-cap { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin: 12px 0 6px; }
   .tl-cap b { font-size: 20px; }
+  .tl-temp { font-size: 18px; font-weight: 700; }
+  .tl-src { margin: 12px 0 0; color: #9aa0a8; font-size: 12px; }
   .tl-kind { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); }
   .tl-kind i { width: 12px; height: 12px; border-radius: 3px; }
   .tl-track { position: relative; height: 44px; }
@@ -428,8 +447,8 @@ function page(lang: Lang, title: string, body: string) {
     .tl { padding: 12px; }
     .tl-cap b { font-size: 18px; }
     .tl-count { width: 100%; margin-left: 0; }
-    .tl-cams { display: flex; border-radius: 14px; }
-    .tl-cams a, .tl-cams b { flex: 1 1 0; text-align: center; border-radius: 11px; }
+    .tl-item { width: 100%; }
+    .city.tl-card { min-height: 220px; }
   }
 </style>
 </head>
@@ -472,8 +491,11 @@ function renderCard(s: DaySummary, t: Dict, withShots = false) {
     </article>`;
 }
 
-// Подпись камеры: label на языке страницы, иначе имя из файла.
-const cameraLabel = (city: City, name: string, lang: Lang) => city.cameras.find((c) => c.name === name)?.label?.[lang] ?? name;
+// Подпись камеры: «что видно · чья камера», иначе имя из файла.
+const cameraLabel = (city: City, name: string, lang: Lang) => {
+  const cam = city.cameras.find((c) => c.name === name);
+  return cam ? [cam.title?.[lang], cam.source].filter(Boolean).join(' · ') : name;
+};
 
 // shotsUrl — путь от страницы до папки с кадрами этого месяца.
 // Если в дне кадры нескольких камер — каждая камера отдельной строкой с подписью-плашкой (порядок — как в city.cameras).
@@ -504,7 +526,8 @@ function renderShots(city: City, shots: Shot[], shotsUrl: string, t: Dict, lang:
 
 // Всё о месяце: кадры и итоги каждого дня, у которого есть кадры, данные станции или замечания в журнале.
 // Дни, где есть только небо из Open-Meteo (31 день назад), не показываем — без станции и кадров там пусто.
-async function loadMonth(monthDir: string, now: Date) {
+// model — у места нет станции: итоги дня (мин/макс, осадки) берутся из модели Open-Meteo.
+async function loadMonth(monthDir: string, now: Date, model = false) {
   const [shots, daily, readings, sky, log] = await Promise.all([
     readShots(path.join(monthDir, 'screenshots')),
     readDaily(monthDir),
@@ -523,14 +546,21 @@ async function loadMonth(monthDir: string, now: Date) {
   const summaries = days.map((date) =>
     summarizeDay({
       date,
-      totals: daily[date],
+      totals: model ? modelTotals(sky[date]) : daily[date],
       readings: readingsByDay.get(date) ?? [],
       isToday: date === today,
       sky: sky[date],
       log: logByDay.get(date),
     }),
   );
-  return { shots, shotsByDay, summaries, readings };
+  return { shots, shotsByDay, summaries, readings, sky };
+}
+
+// Итоги дня по модели — для мест без станции: мин/макс из температур по часам, осадки за сутки.
+function modelTotals(sky?: SkyDay): DayTotals | undefined {
+  const temps = (sky?.temps ?? []).filter((v): v is number => typeof v === 'number');
+  if (!sky || !temps.length) return undefined;
+  return { tMin: Math.min(...temps), tMax: Math.max(...temps), rain: sky.rain ?? 0 };
 }
 
 const credits = (city: City, t: Dict) => t.credits(city.cameras.map((c) => esc(c.name)), esc(city.station.label));
@@ -706,19 +736,19 @@ function renderMonthCard(month: string, summaries: DaySummary[], t: Dict) {
   </a>`;
 }
 
-// Все месяцы города: кадры и итоги дней — для City overview и Timelapse.
-type CityMonth = { month: string; shots: Shot[]; summaries: DaySummary[] };
-async function loadCity(city: City, now: Date): Promise<CityMonth[]> {
+// Все месяцы города или места: кадры, итоги дней, замеры и небо — для City overview и таймлапса.
+type CityMonth = { month: string; shots: Shot[]; summaries: DaySummary[]; readings: Reading[]; sky: Record<string, SkyDay> };
+async function loadCity(place: Place, now: Date, model = false): Promise<CityMonth[]> {
   const out: CityMonth[] = [];
-  for (const month of await listMonths(cityDir(city))) {
-    const { shots, summaries } = await loadMonth(path.join(cityDir(city), month), now);
-    out.push({ month, shots, summaries });
+  for (const month of await listMonths(cityDir(place))) {
+    const { shots, summaries, readings, sky } = await loadMonth(path.join(cityDir(place), month), now, model);
+    out.push({ month, shots, summaries, readings, sky });
   }
   return out;
 }
 
 // City overview: карточки месяцев по порядку (январь → декабрь), сгруппированы по годам.
-// Рядом с заголовком — кнопка «Таймлапс», если у города есть кадры.
+// Рядом с заголовком — круглый значок ▶: таймлапс основной камеры города (раздел «Таймлапс»), если есть кадры.
 export async function buildCityOverview(city: City, months: CityMonth[], lang: Lang) {
   const t = T[lang];
   const cards: { year: string; html: string }[] = [];
@@ -727,7 +757,7 @@ export async function buildCityOverview(city: City, months: CityMonth[], lang: L
     if (summaries.length) cards.push({ year: month.slice(0, 4), html: renderMonthCard(month, summaries, t) });
   }
   const tlLink = months.some((m) => m.shots.length)
-    ? `<a class="tl-link" href="timelapse/index.html"><i>${icon('play').replace('width="18" height="18"', 'width="14" height="14"')}</i>${t.timelapse}</a>`
+    ? `<a class="tl-round" href="../timelapse/${city.cameras[0].name}/index.html" title="${t.timelapse}" aria-label="${t.timelapse}">${icon('play')}</a>`
     : '';
 
   const years = [...Map.groupBy(cards, (c) => c.year)].map(
@@ -752,50 +782,89 @@ ${years.length ? years.join('') : `<p class="empty">${t.noMonths}</p>`}`,
   );
 }
 
-// Timelapse: все кадры города подряд (до трёх в день). Ползунок поверх полоски, где у каждого кадра — кусочек цвета
-// его дня; отметки начала месяцев; кнопки «кадр назад / показ / кадр вперёд» и скорость 2× / 5× / 10× (кадров в секунду).
-// Открывается на последнем кадре. Новые кадры попадают сюда при каждой сборке. Скрипт — TIMELAPSE_JS.
-// У каждой камеры свой таймлапс: первая камера — timelapse/index.html, остальные — timelapse/<камера>.html;
-// если камер несколько, над таймлапсом вкладки-переключатель.
-export async function buildTimelapse(city: City, months: CityMonth[], lang: Lang) {
-  const pageOf = (i: number) => (i === 0 ? 'index.html' : `${city.cameras[i].name}.html`);
-  const label = (c: Camera) => esc(c.label?.[lang] ?? c.name);
-  const tabs = (cur: number) =>
-    city.cameras.length > 1
-      ? `<nav class="tl-cams">${city.cameras.map((c, i) => (i === cur ? `<b>${label(c)}</b>` : `<a href="${pageOf(i)}">${label(c)}</a>`)).join('')}</nav>`
-      : '';
-  const files: string[] = [];
-  for (const [i, cam] of city.cameras.entries()) files.push(await buildCameraTimelapse(city, cam, months, lang, pageOf(i), tabs(i)));
-  return files;
+// Таймлапс — отдельный раздел сайта (карточка на главной):
+//   site/<язык>/timelapse/index.html         — каталог: «Наши города» и «Другие места», у камеры последний кадр и температура
+//   site/<язык>/timelapse/<камера>/index.html — таймлапс камеры: все её кадры подряд (до трёх в день), ползунок поверх
+//     полоски, где у каждого кадра кусочек цвета его дня; отметки начала месяцев; кнопки «кадр назад / показ / кадр вперёд»,
+//     скорость 2× / 5× / 10× (кадров в секунду); под кадром дата, время, температура в момент кадра и тип дня.
+// Температура: у города — замер станции этого же сбора, если его нет — модель Open-Meteo за этот час; у других мест — модель.
+// Открывается на последнем кадре, новые кадры попадают сюда при каждой сборке. Скрипт — TIMELAPSE_JS.
+type TlCamera = { place: Place; cam: Camera; city?: City; months: CityMonth[] };
+type TlFrame = Shot & { month: string; temp?: number; kind: DayKind };
+
+const tlTitle = (e: TlCamera, lang: Lang) =>
+  e.place.cameras.length > 1 && e.cam.title ? `${e.place.names[lang]} · ${e.cam.title[lang]}` : e.place.names[lang];
+const frameSrc = (e: TlCamera, f: TlFrame, toSite: string) => `${toSite}${e.place.id}/${f.month}/screenshots/${encodeURIComponent(f.file)}`;
+const tempText = (v?: number) => (v === undefined ? '' : `${Math.round(v)}°`);
+
+// Кадры камеры по порядку, с температурой в момент кадра и типом его дня.
+function tlFrames(e: TlCamera): TlFrame[] {
+  return e.months.flatMap((m) => {
+    const kindOf = new Map(m.summaries.map((s) => [s.date, s.kind]));
+    const good = m.readings.filter((r) => !r.stale && !hasErrors(r.issues));
+    return m.shots
+      .filter((s) => s.camera === e.cam.name)
+      .map((s) => {
+        // Кадр и замер делаются в один сбор — время совпадает; допускаем расхождение до 15 минут.
+        const at = Date.parse(`${s.day}T${s.time}`);
+        const reading = good.find((r) => r.time.startsWith(s.day) && Math.abs(Date.parse(r.time) - at) <= 15 * 60_000);
+        const model = m.sky[s.day]?.temps?.[Number(s.time.slice(0, 2))];
+        return { ...s, month: m.month, temp: reading?.temp ?? model ?? undefined, kind: kindOf.get(s.day) ?? 'none' };
+      });
+  });
 }
 
-async function buildCameraTimelapse(city: City, cam: Camera, months: CityMonth[], lang: Lang, fileName: string, tabs: string) {
+// Каталог таймлапсов: карточка на камеру — последний кадр, температура, источник, с какого дня и сколько кадров.
+async function buildTimelapseCatalog(entries: TlCamera[], lang: Lang) {
   const t = T[lang];
-  const toSite = '../../../'; // site/<язык>/<город>/timelapse/ → site/
-  const kindOf = new Map(months.flatMap((m) => m.summaries.map((s) => [s.date, s.kind] as const)));
-  const frames = months.flatMap((m) =>
-    m.shots
-      .filter((s) => s.camera === cam.name)
-      .map((s) => ({ ...s, src: `${toSite}${city.id}/${m.month}/screenshots/${encodeURIComponent(s.file)}` })),
+  const toSite = '../../'; // site/<язык>/timelapse/ → site/
+  const card = (e: TlCamera) => {
+    const frames = tlFrames(e);
+    const last = frames.at(-1);
+    if (!last) return '';
+    const [, m, d] = frames[0].day.split('-').map(Number);
+    return `
+  <a class="tl-item" href="${e.cam.name}/index.html"><div class="pic" style="background-image: url('${frameSrc(e, last, toSite)}')"><i>${icon('play')}</i>${last.temp === undefined ? '' : `<em>${tempText(last.temp)}</em>`}</div>
+    <div class="txt"><b>${esc(tlTitle(e, lang))}</b><span>${esc(t.tlInfo(e.cam.source, d, m, frames.length))}</span></div></a>`;
+  };
+  const group = (title: string, note: string, list: TlCamera[]) => {
+    const cards = list.map(card).filter(Boolean);
+    return cards.length ? `\n<h2 class="tl-group">${title}<small>${note}</small></h2>\n<div class="tl-list">${cards.join('')}\n</div>` : '';
+  };
+  return write(
+    path.join(pagesDir(lang), 'timelapse', 'index.html'),
+    lang,
+    t.timelapse,
+    `
+${langSwitch(lang, toSite, 'timelapse/index.html')}
+${crumbs([['SpainWeather', '../index.html'], [t.timelapse]])}
+<h1>${t.timelapse}</h1>
+<p class="sub">${t.tlCatalogSub}</p>${group(t.tlOurCities, t.tlNoteStations, entries.filter((e) => e.city))}${group(t.tlOtherPlaces, t.tlNoteModel, entries.filter((e) => !e.city))}`,
   );
-  const name = city.names[lang];
+}
+
+async function buildCameraTimelapse(e: TlCamera, lang: Lang) {
+  const t = T[lang];
+  const toSite = '../../../'; // site/<язык>/timelapse/<камера>/ → site/
+  const frames = tlFrames(e);
+  const name = tlTitle(e, lang);
   const title = t.timelapseTitle(name);
   const top = `
-${langSwitch(lang, toSite, `${city.id}/timelapse/${fileName}`)}
-${crumbs([['SpainWeather', '../../index.html'], [name, '../index.html'], [t.timelapse]])}
-<h1>${esc(title)}</h1>`;
-  const file = path.join(pagesDir(lang), city.id, 'timelapse', fileName);
-  if (!frames.length) return write(file, lang, title, `${top}\n${tabs}\n<p class="empty">${t.noData}</p>`);
+${langSwitch(lang, toSite, `timelapse/${e.cam.name}/index.html`)}
+${crumbs([['SpainWeather', '../../index.html'], [t.timelapse, '../index.html'], [name]])}
+<h1>${esc(name)}</h1>`;
+  const file = path.join(pagesDir(lang), 'timelapse', e.cam.name, 'index.html');
+  if (!frames.length) return write(file, lang, title, `${top}\n<p class="empty">${t.noData}</p>`);
 
   // Дни — подпись, цвет и тип; кадр ссылается на свой день, чтобы не повторять подписи.
   const dates = [...new Set(frames.map((f) => f.day))];
+  const dayIdx = new Map(dates.map((d, i) => [d, i]));
   const days = dates.map((date) => {
     const [y, m, d] = date.split('-').map(Number);
-    const kind = kindOf.get(date) ?? 'none';
+    const kind = frames.find((f) => f.day === date)!.kind;
     return { l: t.longDate(d, m, y, weekday(date, t)), c: KIND_STYLE[kind].bg, k: t.kind[kind] };
   });
-  const dayIdx = new Map(dates.map((d, i) => [d, i]));
-  const data = frames.map((f) => [dayIdx.get(f.day)!, f.time, f.src]);
+  const data = frames.map((f) => [dayIdx.get(f.day)!, f.time, frameSrc(e, f, toSite), tempText(f.temp)]);
 
   const n = frames.length;
   const pct = (i: number) => `${((i / n) * 100).toFixed(3)}%`;
@@ -817,10 +886,9 @@ ${crumbs([['SpainWeather', '../../index.html'], [name, '../index.html'], [t.time
     title,
     `${top}
 <p class="sub">${t.timelapseSub}</p>
-${tabs}
 <section class="tl">
-  <div class="tl-shot${cam.kind === 'rtspEmbed' ? ' crop' : ''}"><img id="tl-img" src="${last.src}" alt=""></div>
-  <div class="tl-cap"><b id="tl-date">${lastDay.l}</b><span id="tl-time">${last.time}</span><span class="tl-kind" id="tl-kind"><i style="background: ${lastDay.c}"></i>${lastDay.k}</span></div>
+  <div class="tl-shot${e.cam.kind === 'rtspEmbed' ? ' crop' : ''}"><img id="tl-img" src="${frameSrc(e, last, toSite)}" alt=""></div>
+  <div class="tl-cap"><b id="tl-date">${lastDay.l}</b><span id="tl-time">${last.time}</span><span class="tl-temp" id="tl-temp">${tempText(last.temp)}</span><span class="tl-kind" id="tl-kind"><i style="background: ${lastDay.c}"></i>${lastDay.k}</span></div>
   <div class="tl-track"><div class="tl-bar" style="background: linear-gradient(90deg,${grad})"></div>${lines.join('')}<input type="range" id="tl-range" min="0" max="${n - 1}" value="${n - 1}" step="1" aria-label="${t.timelapse}"></div>
   <div class="tl-ticks">${ticks.join('')}</div>
   <div class="tl-row">
@@ -828,10 +896,34 @@ ${tabs}
     <div class="tl-spd">${t.speed}<span class="tl-speeds"><button data-fps="2">2×</button><button data-fps="5" class="on">5×</button><button data-fps="10">10×</button></span></div>
     <span class="tl-count" id="tl-count">${t.frameOf(String(n), String(n))}</span>
   </div>
+  <p class="tl-src">${esc(t.tlSource(e.cam.source, e.city?.station.label))}</p>
 </section>
 <script>const TL = ${json};</script>
 ${TIMELAPSE_JS}`,
   );
+}
+
+// Весь раздел на одном языке: каталог и страница каждой камеры.
+export async function buildTimelapse(entries: TlCamera[], lang: Lang) {
+  const files = [await buildTimelapseCatalog(entries, lang)];
+  for (const e of entries) files.push(await buildCameraTimelapse(e, lang));
+  return files;
+}
+
+// Карточка «Таймлапс» на главной: фон — последний кадр (сначала камеры других мест — они красивее), сверху значок ▶.
+function renderTimelapseCard(entries: TlCamera[], lang: Lang) {
+  const t = T[lang];
+  const withFrames = entries.map((e) => ({ e, last: tlFrames(e).at(-1) })).filter((x) => x.last);
+  if (!withFrames.length) return '';
+  const cover = withFrames.find((x) => !x.e.city) ?? withFrames[0];
+  const names = [...new Set(withFrames.map((x) => x.e.place.names[lang].split(' · ')[0]))];
+  return `
+  <a class="city tl-card" href="timelapse/index.html" style="background-image: url('${frameSrc(cover.e, cover.last!, '../')}')">
+    <span class="play">${icon('play')}</span>
+    <h2>${t.timelapse}</h2>
+    <div class="line">${esc(names.join(', '))}</div>
+    <div class="line">${t.tlCardCount(withFrames.length)}</div>
+  </a>`;
 }
 
 // Ползунок, показ с выбранной скоростью, стрелки ← → и пробел на клавиатуре; следующие кадры подгружаются заранее.
@@ -845,9 +937,9 @@ const TIMELAPSE_JS = `<script>
   const preload = (k) => { const f = TL.frames[k]; if (f && !cache[k]) { cache[k] = new Image(); cache[k].src = f[2]; } };
   function show(k) {
     i = Math.max(0, Math.min(last, k));
-    const [d, time, src] = TL.frames[i], day = TL.days[d];
+    const [d, time, src, temp] = TL.frames[i], day = TL.days[d];
     img.src = src; range.value = i;
-    $('tl-date').textContent = day.l; $('tl-time').textContent = time;
+    $('tl-date').textContent = day.l; $('tl-time').textContent = time; $('tl-temp').textContent = temp;
     $('tl-kind').innerHTML = '<i style="background: ' + day.c + '"></i>';
     $('tl-kind').append(day.k);
     $('tl-count').textContent = TL.count.replace('%n', i + 1).replace('%t', last + 1);
@@ -914,10 +1006,11 @@ async function renderCityCard(city: City, now: Date, lang: Lang) {
   </a>`;
 }
 
-// SpainWeather (главная): карточки городов.
-export async function buildSpainWeather(now: Date, lang: Lang) {
+// SpainWeather (главная): карточки городов и карточка раздела «Таймлапс».
+export async function buildSpainWeather(now: Date, lang: Lang, timelapse: TlCamera[] = []) {
   const t = T[lang];
   const cards = await Promise.all(CITIES.map((city) => renderCityCard(city, now, lang)));
+  cards.push(renderTimelapseCard(timelapse, lang));
   return write(
     path.join(pagesDir(lang), 'index.html'),
     lang,
@@ -932,8 +1025,18 @@ ${langSwitch(lang, '../', 'index.html')}
 }
 
 // Перенаправления: корень проекта и site/index.html → главная на языке по умолчанию;
-// старые адреса страниц (до появления языков) → те же страницы на языке по умолчанию.
+// старые адреса страниц (до появления языков) → те же страницы на языке по умолчанию;
+// старые адреса таймлапса (site/<язык>/<город>/timelapse/…, до раздела «Таймлапс») → страницы камер в разделе.
 async function writeRedirects(cityMonths: Map<City, string[]>) {
+  for (const lang of LANGS) {
+    for (const city of CITIES) {
+      for (const [i, cam] of city.cameras.entries()) {
+        const file = path.join(pagesDir(lang), city.id, 'timelapse', i === 0 ? 'index.html' : `${cam.name}.html`);
+        await mkdir(path.dirname(file), { recursive: true });
+        await writeFile(file, redirect(`../../timelapse/${cam.name}/index.html`), 'utf8');
+      }
+    }
+  }
   await writeFile(ROOT_INDEX, redirect(`site/${DEFAULT_LANG}/index.html`), 'utf8');
   await writeFile(path.join(SITE, 'index.html'), redirect(`${DEFAULT_LANG}/index.html`), 'utf8');
   for (const [city, months] of cityMonths) {
@@ -951,6 +1054,7 @@ async function writeRedirects(cityMonths: Map<City, string[]>) {
 export async function buildSite(now: Date, only?: Map<string, Set<string>>) {
   const written: string[] = [];
   const cityMonths = new Map<City, string[]>();
+  const timelapse: TlCamera[] = [];
   for (const city of CITIES) {
     const months = only ? [...(only.get(city.id) ?? [])] : await listMonths(cityDir(city));
     const built: string[] = [];
@@ -967,12 +1071,17 @@ export async function buildSite(now: Date, only?: Map<string, Set<string>>) {
     }
     cityMonths.set(city, built);
     const all = await loadCity(city, now);
-    for (const lang of LANGS) {
-      written.push(await buildCityOverview(city, all, lang));
-      written.push(...(await buildTimelapse(city, all, lang)));
-    }
+    for (const lang of LANGS) written.push(await buildCityOverview(city, all, lang));
+    timelapse.push(...city.cameras.map((cam) => ({ place: city, cam, city, months: all })));
   }
-  for (const lang of LANGS) written.push(await buildSpainWeather(now, lang));
+  for (const place of PLACES) {
+    const all = await loadCity(place, now, true);
+    timelapse.push(...place.cameras.map((cam) => ({ place, cam, months: all })));
+  }
+  for (const lang of LANGS) {
+    written.push(...(await buildTimelapse(timelapse, lang)));
+    written.push(await buildSpainWeather(now, lang, timelapse));
+  }
   await writeRedirects(cityMonths);
   return written;
 }

@@ -143,27 +143,46 @@
     -webkit-tap-highlight-color: transparent; }
   .totop.show { opacity: 1; pointer-events: auto; }
 
-  /* City overview: кнопка «Таймлапс» рядом с заголовком. */
+  /* City overview: круглый значок ▶ рядом с заголовком — таймлапс основной камеры города. */
   .htitle { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 6px; }
   .htitle h1 { margin: 0; }
-  .tl-link { display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px 6px 7px; border-radius: 99px; background: #fff;
-    border: 1px solid var(--line); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06); color: var(--text); font-size: 14px; font-weight: 600; text-decoration: none; }
-  .tl-link:hover { border-color: var(--text); }
-  .tl-link i { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--text); color: #fff; }
+  .tl-round { flex: none; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: #fff;
+    border: 1px solid var(--line); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06); color: var(--text); }
+  .tl-round:hover { border-color: var(--text); }
+  .tl-round svg { width: 16px; height: 16px; margin-left: 3px; }
+
+  /* SpainWeather: карточка «Таймлапс» — фон из свежего кадра, белый текст поверх затемнения. */
+  .city.tl-card { color: #fff; background: #222 center / cover; min-height: 250px; display: flex; flex-direction: column; justify-content: flex-end; }
+  .city.tl-card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(rgba(0, 0, 0, 0.05) 30%, rgba(0, 0, 0, 0.65)); }
+  .tl-card .play { position: absolute; top: 20px; right: 22px; width: 44px; height: 44px; border-radius: 50%;
+    background: rgba(255, 255, 255, 0.92); color: var(--text); display: grid; place-items: center; }
+  .tl-card .play svg { margin-left: 3px; }
+
+  /* Каталог таймлапсов: группы «Наши города» / «Другие места», карточка камеры — кадр, ▶, температура, подпись. */
+  .tl-group { margin: 26px 0 12px; font-size: 20px; }
+  .tl-group small { margin-left: 8px; color: var(--muted); font-size: 14px; font-weight: 400; }
+  .tl-list { display: flex; flex-wrap: wrap; gap: 18px; }
+  .tl-item { width: 340px; border-radius: 14px; overflow: hidden; background: #fff; border: 1px solid var(--line); color: var(--text); text-decoration: none; }
+  .tl-item:hover { border-color: var(--text); }
+  .tl-item .pic { position: relative; aspect-ratio: 16 / 9; background: #222 center / cover; }
+  .tl-item .pic i { position: absolute; left: 10px; bottom: 10px; width: 34px; height: 34px; border-radius: 50%;
+    background: rgba(255, 255, 255, 0.92); display: grid; place-items: center; }
+  .tl-item .pic i svg { width: 14px; height: 14px; margin-left: 2px; }
+  .tl-item .pic em { position: absolute; right: 10px; bottom: 10px; padding: 3px 9px; border-radius: 99px;
+    background: rgba(0, 0, 0, 0.55); color: #fff; font-style: normal; font-size: 13px; font-weight: 600; }
+  .tl-item .txt { padding: 10px 14px 12px; }
+  .tl-item b { display: block; font-size: 17px; }
+  .tl-item span { color: var(--muted); font-size: 13px; }
 
   /* Timelapse: кадр, подпись, ползунок поверх цветной полоски (кусочек на кадр, цвет дня), отметки месяцев, кнопки. */
-  .tl-cams { display: inline-flex; flex-wrap: wrap; gap: 2px; margin-bottom: 12px; padding: 3px; border-radius: 99px;
-    background: #fff; border: 1px solid var(--line); font-size: 14px; font-weight: 600; }
-  .tl-cams a, .tl-cams b { padding: 6px 14px; border-radius: 99px; text-decoration: none; }
-  .tl-cams a { color: var(--muted); }
-  .tl-cams a:hover { color: var(--text); }
-  .tl-cams b { background: var(--text); color: #fff; }
   .tl { max-width: 1000px; padding: 18px; border-radius: 16px; background: #fff; border: 1px solid var(--line); }
   .tl-shot { position: relative; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 10px; background: #222; }
   .tl-shot.crop { aspect-ratio: 960 / 500; } /* у камеры-плеера (Овьедо) внизу кадра панель плеера — прячем */
   .tl-shot img { position: absolute; top: 0; left: 0; width: 100%; height: auto; }
   .tl-cap { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin: 12px 0 6px; }
   .tl-cap b { font-size: 20px; }
+  .tl-temp { font-size: 18px; font-weight: 700; }
+  .tl-src { margin: 12px 0 0; color: #9aa0a8; font-size: 12px; }
   .tl-kind { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); }
   .tl-kind i { width: 12px; height: 12px; border-radius: 3px; }
   .tl-track { position: relative; height: 44px; }
@@ -242,8 +261,8 @@
     .tl { padding: 12px; }
     .tl-cap b { font-size: 18px; }
     .tl-count { width: 100%; margin-left: 0; }
-    .tl-cams { display: flex; border-radius: 14px; }
-    .tl-cams a, .tl-cams b { flex: 1 1 0; text-align: center; border-radius: 11px; }
+    .tl-item { width: 100%; }
+    .city.tl-card { min-height: 220px; }
   }
 </style>
 </head>
@@ -270,6 +289,12 @@
     <ul><li><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/><path d="m3 3 18 18"/></svg>sin precipitación</li><li><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"/><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"/></svg>sensación: agradable</li></ul>
     <div class="line">actualizado 10:01</div>
     
+  </a>
+  <a class="city tl-card" href="timelapse/index.html" style="background-image: url('../oviedo/2026-11/screenshots/2026-11-10_10-01_buenavista.jpg')">
+    <span class="play"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4.5v15l12-7.5z" fill="currentColor"/></svg></span>
+    <h2>Timelapse</h2>
+    <div class="line">Oviedo, Granada</div>
+    <div class="line">2 cámaras · fotos nuevas 3 veces al día</div>
   </a>
 </div>
 </body>
