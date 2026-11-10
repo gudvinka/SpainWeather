@@ -274,6 +274,63 @@
 <nav class="lang"><b>RU</b><a href="../../../es/timelapse/malagaalameda/index.html" hreflang="es">ES</a></nav>
 <nav class="crumbs"><a href="../../index.html">SpainWeather</a><i>›</i><a href="../index.html">Таймлапс</a><i>›</i><b>Малага · Аламеда</b></nav>
 <h1>Малага · Аламеда</h1>
-<p class="empty">Данных пока нет.</p>
+<p class="sub">Все кадры камеры подряд, до трёх в день. Крутите ползунок или запустите показ.</p>
+<section class="tl">
+  <div class="tl-shot"><img id="tl-img" src="../../../malaga/2026-11/screenshots/2026-11-10_14-05_malagaalameda.jpg" alt=""></div>
+  <div class="tl-cap"><b id="tl-date">10 ноября 2026, вт</b><span id="tl-time">14:05</span><span class="tl-temp" id="tl-temp">22°</span><span class="tl-kind" id="tl-kind"><i style="background: #ffe39a"></i>переменная облачность</span></div>
+  <div class="tl-track"><div class="tl-bar" style="background: linear-gradient(90deg,#ffe39a 0.000%,#ffe39a 100.000%)"></div><input type="range" id="tl-range" min="0" max="0" value="0" step="1" aria-label="Таймлапс"></div>
+  <div class="tl-ticks"><span style="left: 0.000%">ноябрь 2026</span></div>
+  <div class="tl-row">
+    <div class="tl-btns"><button id="tl-prev" title="кадр назад" aria-label="кадр назад"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button><button id="tl-play" class="play" title="показ / пауза" aria-label="показ / пауза"><span class="go"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4.5v15l12-7.5z" fill="currentColor"/></svg></span><span class="pause"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="4.5" width="4" height="15" rx="1" fill="currentColor"/><rect x="14" y="4.5" width="4" height="15" rx="1" fill="currentColor"/></svg></span></button><button id="tl-next" title="кадр вперёд" aria-label="кадр вперёд"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button></div>
+    <div class="tl-spd">скорость<span class="tl-speeds"><button data-fps="2">2×</button><button data-fps="5" class="on">5×</button><button data-fps="10">10×</button></span></div>
+    <span class="tl-count" id="tl-count">кадр 1 из 1</span>
+  </div>
+  <p class="tl-src">Камера meteo365. Погода — модель Open-Meteo по координатам камеры, не станция.</p>
+</section>
+<script>const TL = {"days":[{"l":"10 ноября 2026, вт","c":"#ffe39a","k":"переменная облачность"}],"frames":[[0,"14:05","../../../malaga/2026-11/screenshots/2026-11-10_14-05_malagaalameda.jpg","22°"]],"count":"кадр %n из %t"};</script>
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const img = $('tl-img'), range = $('tl-range'), playBtn = $('tl-play');
+  const last = TL.frames.length - 1;
+  let i = last, fps = 5, timer = null;
+  const cache = {};
+  const preload = (k) => { const f = TL.frames[k]; if (f && !cache[k]) { cache[k] = new Image(); cache[k].src = f[2]; } };
+  function show(k) {
+    i = Math.max(0, Math.min(last, k));
+    const [d, time, src, temp] = TL.frames[i], day = TL.days[d];
+    img.src = src; range.value = i;
+    $('tl-date').textContent = day.l; $('tl-time').textContent = time; $('tl-temp').textContent = temp;
+    $('tl-kind').innerHTML = '<i style="background: ' + day.c + '"></i>';
+    $('tl-kind').append(day.k);
+    $('tl-count').textContent = TL.count.replace('%n', i + 1).replace('%t', last + 1);
+    for (let n = 1; n <= 10; n++) preload(i + n);
+  }
+  function play(on) {
+    clearInterval(timer); timer = null;
+    if (on) {
+      if (i >= last) show(0);
+      timer = setInterval(() => (i >= last ? play(false) : show(i + 1)), 1000 / fps);
+    }
+    playBtn.classList.toggle('on', !!timer);
+  }
+  range.addEventListener('input', () => { play(false); show(+range.value); });
+  playBtn.onclick = () => play(!timer);
+  $('tl-prev').onclick = () => { play(false); show(i - 1); };
+  $('tl-next').onclick = () => { play(false); show(i + 1); };
+  document.querySelectorAll('.tl-speeds button').forEach((b) => b.onclick = () => {
+    fps = +b.dataset.fps;
+    document.querySelectorAll('.tl-speeds button').forEach((x) => x.classList.toggle('on', x === b));
+    if (timer) play(true);
+  });
+  addEventListener('keydown', (e) => {
+    if (e.target.closest('button, input')) return; // у кнопок и ползунка свои клавиши
+    if (e.key === 'ArrowLeft') $('tl-prev').click();
+    else if (e.key === 'ArrowRight') $('tl-next').click();
+    else if (e.key === ' ') { e.preventDefault(); playBtn.click(); }
+  });
+  show(last);
+})();
+</script>
 </body>
 </html>
