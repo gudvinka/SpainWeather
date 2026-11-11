@@ -47,5 +47,12 @@
     "rain": 0,
     "sun": 5,
     "source": "aemet-1249X"
+  },
+  "2026-11-08": {
+    "tMax": 20.1,
+    "tMin": 12.1,
+    "rain": 0.2,
+    "sun": 0,
+    "source": "aemet-1249X"
   }
 }
