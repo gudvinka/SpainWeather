@@ -1,0 +1,2 @@
+{"time":"2026-11-12T10:01","source":"небо и воздух","level":"warn","message":"Open-Meteo недоступен: fetch failed"}
+{"time":"2026-11-12T10:01","source":"камера","level":"warn","message":"кадр не получен: frame.waitForFunction: Timeout 3000ms exceeded."}
