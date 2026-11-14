@@ -40,3 +40,4 @@
 {"time":"2026-11-13T14:01","source":"небо и воздух","level":"error","message":"Open-Meteo недоступен: fetch failed"}
 {"time":"2026-11-13T17:01","source":"станция","level":"warn","message":"MeteoBuenavista недоступна: clientraw.txt: станция отдала пустой файл, файл не обновлялся с 2026-10-31 03:06; замер взят с запасной станции AEMET Oviedo"}
 {"time":"2026-11-14T10:00","source":"станция","level":"warn","message":"MeteoBuenavista недоступна: clientraw.txt: станция отдала пустой файл, файл не обновлялся с 2026-10-31 03:06; замер взят с запасной станции AEMET Oviedo"}
+{"time":"2026-11-14T14:01","source":"станция","level":"warn","message":"MeteoBuenavista недоступна: clientraw.txt: станция отдала пустой файл, файл не обновлялся с 2026-10-31 03:06; замер взят с запасной станции AEMET Oviedo"}
