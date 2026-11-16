@@ -15,10 +15,10 @@ import {
   appendReading,
   mergeDaily,
   mergeSky,
-  primaryDownDates,
   readDaily,
-  readLog,
   readReadings,
+  readWatch,
+  writeWatch,
   type DayTotals,
   type Reading,
 } from './store.ts';
@@ -71,6 +71,7 @@ class CityRun<P extends Place = City> {
 async function collectStation(run: CityRun) {
   await collectReading(run);
   await fillDailyGaps(run);
+  await checkWatched(run);
 }
 
 async function collectReading(run: CityRun) {
@@ -79,23 +80,13 @@ async function collectReading(run: CityRun) {
   const today = dateOf(now);
   const todayReadings = (await readReadings(path.join(dir, monthOf(now)))).filter((r) => r.time.startsWith(today));
 
-  // Основная станция не ответила — берём запасную. Это предупреждение, а не ошибка: замер дня всё равно есть.
-  let station = city.station;
+  const station = city.station;
   let result;
   try {
-    result = await station.fetch(now);
+    const earlierRaw = todayReadings.filter((r) => (r.station ?? station.id) === station.id).map((r) => r.raw);
+    result = await station.fetch(now, earlierRaw);
   } catch (e) {
-    const failed = `${station.label} недоступна: ${errorText(e)}`;
-    if (!city.backup) return run.note('станция', 'error', failed);
-    const backup = city.backup;
-    try {
-      result = await backup.fetch(now, todayReadings.filter((r) => r.station === backup.id).map((r) => r.raw));
-    } catch (e2) {
-      await run.note('станция', 'error', failed);
-      return run.note('станция', 'error', `запасная ${backup.label} тоже недоступна: ${errorText(e2)}`);
-    }
-    station = backup;
-    await run.note('станция', 'warn', `${failed}; замер взят с запасной станции ${backup.label}`);
+    return run.note('станция', 'error', `${station.label} недоступна: ${errorText(e)}`);
   }
 
   // Предыдущий замер сегодняшнего дня — для проверки скачков температуры.
@@ -110,7 +101,7 @@ async function collectReading(run: CityRun) {
     time: localIso(now),
     stationTime: localIso(result.stationTime),
     stale: issues.some((i) => i.field === 'stationTime'),
-    ...(station !== city.station ? { station: station.id } : {}),
+    station: station.id,
     raw: result.raw,
     ...(issues.length ? { issues } : {}),
   };
@@ -125,18 +116,8 @@ async function collectReading(run: CityRun) {
   if (result.dailyError) await run.note('история станции', 'error', result.dailyError);
   if (!result.daily) return;
 
-  // Итоги основной станции за дни, когда она стояла, не берём (их закроет запасная — см. fillDailyGaps).
-  let entries = Object.entries(result.daily);
-  if (station === city.station) {
-    const months = [...new Set(entries.map(([date]) => date.slice(0, 7)))];
-    const readings = (await Promise.all(months.map((m) => readReadings(path.join(dir, m))))).flat();
-    const log = (await Promise.all(months.map((m) => readLog(path.join(dir, m))))).flat();
-    const down = primaryDownDates(readings, log);
-    entries = entries.filter(([date]) => !down.has(date));
-  }
-
   const daily: Record<string, DayTotals> = {};
-  for (const [date, t] of entries) {
+  for (const [date, t] of Object.entries(result.daily)) {
     const dayIssues = checkDayTotals(t);
     daily[date] = dayIssues.length ? { ...t, issues: dayIssues } : t;
     await run.notes(`история ${date}`, dayIssues, false);
@@ -158,14 +139,14 @@ async function collectReading(run: CityRun) {
   }
 }
 
-// Дни без итогов за последние 10 дней (основная станция молчала) закрываем итогами запасной.
+// Итоги дней у станций, которые отдают их отдельно (AEMET): закрываем дни без итогов за последние 10 дней.
 // AEMET публикует итоги с опозданием дня на 3 — пока их нет, день просто остаётся пустым до следующего сбора.
 const GAP_DAYS = 10;
 
 async function fillDailyGaps(run: CityRun) {
   const { city, now } = run;
-  const backup = city.backup;
-  if (!backup?.fetchDaily) return;
+  const station = city.station;
+  if (!station.fetchDaily) return;
   const dir = cityDir(city);
   const dates = Array.from({ length: GAP_DAYS }, (_, i) =>
     dateOf(new Date(now.getFullYear(), now.getMonth(), now.getDate() - GAP_DAYS + i)),
@@ -177,10 +158,10 @@ async function fillDailyGaps(run: CityRun) {
 
   let got;
   try {
-    got = await backup.fetchDaily(missing[0], missing.at(-1)!);
+    got = await station.fetchDaily(missing[0], missing.at(-1)!);
   } catch (e) {
     // Не ошибка дня: итоги дозаполнятся следующим сбором. Только печать, без записи в журнал.
-    return run.note('итоги дней', 'warn', `${backup.label}: ${errorText(e)}`, false);
+    return run.note('итоги дней', 'warn', `${station.label}: ${errorText(e)}`, false);
   }
   const fill: Record<string, DayTotals> = {};
   for (const date of missing.filter((d) => got[d])) {
@@ -193,8 +174,34 @@ async function fillDailyGaps(run: CityRun) {
   const waiting = missing.filter((d) => !fill[d]);
   run.ok(
     'итоги дней',
-    `${backup.label}: ${filled.length ? `закрыто ${filled.join(', ')}` : 'новых нет'}${waiting.length ? `; ждём ${waiting.join(', ')}` : ''}`,
+    `${station.label}: ${filled.length ? `закрыто ${filled.join(', ')}` : 'новых нет'}${waiting.length ? `; ждём ${waiting.join(', ')}` : ''}`,
   );
+}
+
+// Станции, за которыми только следим (`watch` в cities.ts): ожили ли. Данные с них не берём, в журнал дня не пишем —
+// только site/<город>/watch.json, его читает сторож. «Жива» — ответила и данные не старше её допустимого отставания.
+async function checkWatched(run: CityRun) {
+  const { city, now } = run;
+  if (!city.watch?.length) return;
+  const dir = cityDir(city);
+  const watch = await readWatch(dir);
+  for (const s of city.watch) {
+    let alive = false;
+    let message: string;
+    try {
+      const r = await s.fetch(now);
+      const lagMin = Math.round((now.getTime() - r.stationTime.getTime()) / 60_000);
+      alive = lagMin <= (s.staleMin ?? 60);
+      message = `${alive ? 'отвечает' : `отвечает, но данные старые (${lagMin} мин)`}: ${r.values.temp}°, влажность ${r.values.humidity}%`;
+    } catch (e) {
+      message = errorText(e);
+    }
+    const before = watch[s.id];
+    const since = before && before.alive === alive ? before.since : localIso(now);
+    watch[s.id] = { label: s.label, alive, since, checked: localIso(now), message };
+    console.log(`${alive ? 'OK   ' : '     '} ${city.id} наблюдение ${s.label}: ${message}`);
+  }
+  await writeWatch(dir, watch);
 }
 
 async function collectSky(run: CityRun<Place>) {

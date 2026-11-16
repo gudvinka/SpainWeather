@@ -224,3 +224,35 @@ test('данные с ошибками не участвуют в расчёте
   assert.match(day.issues.join('\n'), /влажность 150%/);
   assert.match(day.issues.join('\n'), /кадр камеры старый/);
 });
+
+test('замер с запасной станции — не «данные под вопросом», а настоящий сбой — да', () => {
+  const day = summarizeDay({
+    date: '2026-11-05',
+    readings: [reading('2026-11-05T14:01', 14, 70, 8)],
+    isToday: false,
+    log: [
+      {
+        time: '2026-11-05T14:01',
+        source: 'станция',
+        level: 'warn',
+        message: 'MeteoBuenavista недоступна: пустой файл; замер взят с запасной станции AEMET Oviedo',
+      },
+      { time: '2026-11-05T17:01', source: 'станция', level: 'error', message: 'MeteoBuenavista недоступна: пустой файл' },
+    ],
+  });
+  assert.deepEqual(day.issues, ['17:01 станция: MeteoBuenavista недоступна: пустой файл']);
+});
+
+test('сбой станции в день с итогами AEMET — не «данные под вопросом»', () => {
+  const day = summarizeDay({
+    date: '2026-11-01',
+    totals: { tMax: 16, tMin: 8, rain: 0, sun: 6, source: 'aemet-1249X' },
+    readings: [],
+    isToday: false,
+    log: [
+      { time: '2026-11-01T10:01', source: 'станция', level: 'error', message: 'MeteoBuenavista недоступна: пустой файл' },
+      { time: '2026-11-01T14:01', source: 'небо и воздух', level: 'error', message: 'Open-Meteo недоступен' },
+    ],
+  });
+  assert.deepEqual(day.issues, ['14:01 небо и воздух: Open-Meteo недоступен']);
+});

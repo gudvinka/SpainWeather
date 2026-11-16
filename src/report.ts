@@ -556,7 +556,7 @@ async function loadMonth(monthDir: string, now: Date, model = false) {
       log: logByDay.get(date),
     }),
   );
-  return { shots, shotsByDay, summaries, readings, sky };
+  return { shots, shotsByDay, summaries, readings, daily, sky };
 }
 
 // Итоги дня по модели — для мест без станции: мин/макс из температур по часам, осадки за сутки.
@@ -566,7 +566,23 @@ function modelTotals(sky?: SkyDay): DayTotals | undefined {
   return { tMin: Math.min(...temps), tMax: Math.max(...temps), rain: sky.rain ?? 0 };
 }
 
-const credits = (city: City, t: Dict) => t.credits(city.cameras.map((c) => esc(c.name)), esc(city.station.label));
+// Какие станции дали данные — по самим замерам и итогам дней, по порядку дат (у Овьедо станция сменилась:
+// «MeteoBuenavista, AEMET Oviedo»). У старых записей без поля station / source — formerStation города.
+// Данных нет — станция города.
+type StationData = { readings: Reading[]; daily: Record<string, DayTotals> };
+export function stationLabels(city: City, months: StationData[]) {
+  const known = [city.station, ...(city.watch ?? []), ...(city.formerStation ? [city.formerStation] : [])];
+  const former = (city.formerStation ?? city.station).id;
+  const dated = months.flatMap((m) => [
+    ...m.readings.map((r) => [r.time, r.station ?? former]),
+    ...Object.entries(m.daily).map(([date, d]) => [date, d.source ?? former]),
+  ]);
+  const ids = [...new Set(dated.sort(([a], [b]) => a.localeCompare(b)).map(([, id]) => id))];
+  return ids.length ? ids.map((id) => known.find((s) => s.id === id)?.label ?? id).join(', ') : city.station.label;
+}
+
+const credits = (city: City, t: Dict, months: StationData[]) =>
+  t.credits(city.cameras.map((c) => esc(c.name)), esc(stationLabels(city, months)));
 
 async function write(file: string, lang: Lang, title: string, body: string) {
   await mkdir(path.dirname(file), { recursive: true });
@@ -578,7 +594,7 @@ async function write(file: string, lang: Lang, title: string, body: string) {
 // Месяц без дней (только небо из Open-Meteo) страницы не получает.
 export async function buildMonthDetails(city: City, month: string, now: Date, lang: Lang) {
   const t = T[lang];
-  const { shotsByDay, summaries } = await loadMonth(path.join(cityDir(city), month), now);
+  const { shotsByDay, summaries, readings, daily } = await loadMonth(path.join(cityDir(city), month), now);
   if (!summaries.length) return undefined;
   const toSite = '../../../'; // site/<язык>/<город>/<месяц>/ → site/
   const shotsUrl = `${toSite}${city.id}/${month}/screenshots/`;
@@ -606,7 +622,7 @@ export async function buildMonthDetails(city: City, month: string, now: Date, la
     `
 ${langSwitch(lang, toSite, `${city.id}/${month}/index.html`)}
 ${crumbs([['SpainWeather', '../../index.html'], [name, '../index.html'], [monthTitle(month, t)]])}
-${renderMonthHeader(city, month, title, summaries, history, t)}
+${renderMonthHeader(city, month, title, summaries, { readings, daily }, history, t)}
 <div class="bar">${legend(t)}${todayId ? `<a class="today" href="#${todayId}">${t.toToday}</a>` : ''}</div>
 ${rows.length ? rows.join('') : `<p class="empty">${t.noData}</p>`}
 <a class="totop" href="#" title="${t.toTop}" aria-label="${t.toTop}">↑</a>
@@ -633,6 +649,7 @@ function renderMonthHeader(
   month: string,
   title: string,
   summaries: DaySummary[],
+  data: StationData,
   history: Record<string, MonthClimate>,
   t: Dict,
 ) {
@@ -675,7 +692,7 @@ function renderMonthHeader(
   ].join('');
 
   const years = past.length ? `${pastMonths(month)[0].slice(0, 4)}–${pastMonths(month).at(-1)!.slice(0, 4)}` : '';
-  const source = past.length ? t.source(t.monthsPlural[m - 1], years, credits(city, t)) : t.noArchive(credits(city, t));
+  const source = past.length ? t.source(t.monthsPlural[m - 1], years, credits(city, t, [data])) : t.noArchive(credits(city, t, [data]));
 
   return `
 <section class="mhdr">
@@ -740,12 +757,12 @@ function renderMonthCard(month: string, summaries: DaySummary[], t: Dict) {
 }
 
 // Все месяцы города или места: кадры, итоги дней, замеры и небо — для City overview и таймлапса.
-type CityMonth = { month: string; shots: Shot[]; summaries: DaySummary[]; readings: Reading[]; sky: Record<string, SkyDay> };
+type CityMonth = StationData & { month: string; shots: Shot[]; summaries: DaySummary[]; sky: Record<string, SkyDay> };
 async function loadCity(place: Place, now: Date, model = false): Promise<CityMonth[]> {
   const out: CityMonth[] = [];
   for (const month of await listMonths(cityDir(place))) {
-    const { shots, summaries, readings, sky } = await loadMonth(path.join(cityDir(place), month), now, model);
-    out.push({ month, shots, summaries, readings, sky });
+    const { shots, summaries, readings, daily, sky } = await loadMonth(path.join(cityDir(place), month), now, model);
+    out.push({ month, shots, summaries, readings, daily, sky });
   }
   return out;
 }
@@ -780,7 +797,7 @@ export async function buildCityOverview(city: City, months: CityMonth[], lang: L
 ${langSwitch(lang, '../../', `${city.id}/index.html`)}
 ${crumbs([['SpainWeather', '../index.html'], [name]])}
 <div class="htitle"><h1>${esc(title)}</h1>${tlLink}</div>
-<p class="sub">${credits(city, t)}</p>
+<p class="sub">${credits(city, t, months)}</p>
 ${years.length ? years.join('') : `<p class="empty">${t.noMonths}</p>`}`,
   );
 }
@@ -899,7 +916,7 @@ ${crumbs([['SpainWeather', '../../index.html'], [t.timelapse, '../index.html'], 
     <div class="tl-spd">${t.speed}<span class="tl-speeds"><button data-fps="2">2×</button><button data-fps="5" class="on">5×</button><button data-fps="10">10×</button></span></div>
     <span class="tl-count" id="tl-count">${t.frameOf(String(n), String(n))}</span>
   </div>
-  <p class="tl-src">${esc(t.tlSource(e.cam.source, e.city?.station.label))}</p>
+  <p class="tl-src">${esc(t.tlSource(e.cam.source, e.city && stationLabels(e.city, e.months)))}</p>
 </section>
 <script>const TL = ${json};</script>
 ${TIMELAPSE_JS}`,

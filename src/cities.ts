@@ -17,7 +17,11 @@ export type Place = {
 // Город сравнения: место + метеостанция; у него свои страницы (City overview, Month details).
 export type City = Place & {
   station: Station;
-  backup?: Station; // запасная станция — если основная не ответила
+  // Станции, которые только проверяем — не ожили ли (данные с них не берём). Итог проверки — в site/<город>/watch.json,
+  // за ним следит сторож.
+  watch?: Station[];
+  // Станция замеров без поля station (до 16.11.2026 поле писалось только у запасной); по умолчанию — station.
+  formerStation?: Station;
   showHeat?: boolean; // плитка «пекло (35°+)» в шапке месяца — для жаркого города
 };
 
@@ -28,8 +32,11 @@ export const CITIES: City[] = [
     coords: { lat: 43.36, lon: -5.85 },
     // iframe-плеер со страницы https://www.hispacams.com/webcams/oviedo-buenavista/
     cameras: [{ kind: 'rtspEmbed', name: 'buenavista', url: 'https://rtsp.me/embed/G2RB77AE/', source: 'hispacams' }],
-    station: meteobuenavista,
-    backup: aemet('1249X', 'AEMET Oviedo'), // официальная станция AEMET, El Cristo, 334 м
+    // Официальная станция AEMET, El Cristo, 334 м. Основная с 16.11.2026; до этого основной была любительская
+    // MeteoBuenavista (замолчала 31.10.2026), а AEMET — запасной (её замеры с 01.11 помечены полем station).
+    station: aemet('1249X', 'AEMET Oviedo'),
+    watch: [meteobuenavista],
+    formerStation: meteobuenavista,
   },
   {
     id: 'granada',

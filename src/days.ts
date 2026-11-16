@@ -152,6 +152,14 @@ export type DayInput = {
   log?: LogEntry[];
 };
 
+// Записи журнала, которые не делают день сомнительным (Овьедо, 31.10–16.11.2026: MeteoBuenavista молчала, данные
+// шли с AEMET, а теперь AEMET — основная):
+// - «основная не ответила, замер взят с запасной» — замер есть, просто с другой станции;
+// - любой сбой станции в день, чьи итоги пришли с AEMET (поле source): итоги за полные сутки важнее пропущенных замеров.
+const isHarmless = (e: LogEntry, totals?: DayTotals) =>
+  e.source === 'станция' &&
+  ((e.level === 'warn' && e.message.includes('замер взят с запасной')) || (!!totals?.source && !hasErrors(totals.issues)));
+
 export function summarizeDay(input: DayInput): DaySummary {
   const { date, isToday } = input;
   // Записи с ошибками проверки (невозможные значения) и устаревшие замеры в расчётах не участвуют.
@@ -166,7 +174,7 @@ export function summarizeDay(input: DayInput): DaySummary {
     ...input.readings.flatMap((r) => (r.issues ?? []).map((i) => `${r.time.slice(11)} станция: ${i.message}`)),
     ...(input.totals?.issues ?? []).map((i) => `итоги дня: ${i.message}`),
     ...(input.sky?.issues ?? []).map((i) => `небо/воздух: ${i.message}`),
-    ...(input.log ?? []).map((e) => `${e.time.slice(11)} ${e.source}: ${e.message}`),
+    ...(input.log ?? []).filter((e) => !isHarmless(e, input.totals)).map((e) => `${e.time.slice(11)} ${e.source}: ${e.message}`),
   ];
 
   const tMin = totals?.tMin ?? last?.tMin;

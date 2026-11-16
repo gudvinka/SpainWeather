@@ -1,6 +1,6 @@
 import { appendFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { hasErrors, type Issue, type Level, type StationValues } from './quality.ts';
+import { type Issue, type Level, type StationValues } from './quality.ts';
 
 // Данные города лежат по месяцам: site/<город>/<ГГГГ-ММ>/{weather.jsonl, daily.json, sky.json, log.jsonl}.
 // Храним только сырые данные и замечания проверок; итоги дней считаются при сборке страниц.
@@ -9,7 +9,9 @@ export type Reading = StationValues & {
   time: string; // время запуска, 2026-10-12T14:40
   stationTime: string; // время данных станции
   stale: boolean; // станция отстаёт больше допустимого (обычно час)
-  station?: string; // id станции, если замер взят с запасной (основная не ответила)
+  // id станции, давшей замер. С 16.11.2026 пишется всегда; раньше — только у запасной, а без поля — основная того
+  // времени (Овьедо — MeteoBuenavista, Гранада — UGR).
+  station?: string;
   raw: string;
   issues?: Issue[]; // нет у замеров, сохранённых до появления проверок
 };
@@ -19,7 +21,7 @@ export type DayTotals = {
   tMin: number;
   rain: number;
   sun?: number; // часы солнца по прибору (есть у AEMET)
-  source?: string; // id станции, если итоги взяты с запасной
+  source?: string; // id станции, чьи итоги (есть у итогов AEMET; без поля — MeteoBuenavista)
   issues?: Issue[];
 };
 
@@ -127,11 +129,17 @@ export async function writeHistory(cityDir: string, history: Record<string, Mont
 }
 export const readSky = (monthDir: string) => readJson<Record<string, SkyDay>>(path.join(monthDir, 'sky.json'), {});
 
-// Дни, когда основная станция стояла: сбор в этот день был (есть замер с запасной или ошибка станции в журнале),
-// но ни одного нормального замера основной. Её итоги за такие дни — скорее всего нули или мусор, их не берём.
-export function primaryDownDates(readings: Reading[], log: LogEntry[]): Set<string> {
-  const day = (time: string) => time.slice(0, 10);
-  const ran = new Set([...readings.map((r) => day(r.time)), ...log.filter((e) => e.source === 'станция').map((e) => day(e.time))]);
-  const ok = new Set(readings.filter((r) => !r.station && !r.stale && !hasErrors(r.issues)).map((r) => day(r.time)));
-  return new Set([...ran].filter((d) => !ok.has(d)));
+// Проверка станций, за которыми только следим (`watch` в cities.ts): site/<город>/watch.json, ключ — id станции.
+export type WatchState = {
+  label: string;
+  alive: boolean; // в последней проверке отдала свежие данные
+  since: string; // с какой проверки держится нынешнее состояние (alive)
+  checked: string; // время последней проверки
+  message: string; // ошибка или коротко — что отдала
+};
+
+export const readWatch = (cityDir: string) => readJson<Record<string, WatchState>>(path.join(cityDir, 'watch.json'), {});
+export async function writeWatch(cityDir: string, watch: Record<string, WatchState>) {
+  await mkdir(cityDir, { recursive: true });
+  await writeFile(path.join(cityDir, 'watch.json'), JSON.stringify(watch, null, 2) + '\n', 'utf8');
 }
