@@ -118,13 +118,6 @@ export const PLACES: Place[] = [
     ],
   },
   {
-    id: 'benalmadena',
-    names: { ru: 'Бенальмадена', es: 'Benalmádena' },
-    coords: { lat: 36.6, lon: -4.52 },
-    // https://meteo365.es/livecams/benalmadena-club.php — море и белые дома вдоль берега. С 10.11.2026.
-    cameras: [{ kind: 'image', name: 'benalmadena', url: 'https://webcam2.meteo365.es/livecams/benclub/current.webp', source: 'meteo365' }],
-  },
-  {
     id: 'nerja',
     names: { ru: 'Нерха · Балкон Европы', es: 'Nerja · Balcón de Europa' },
     coords: { lat: 36.75, lon: -3.88 },
