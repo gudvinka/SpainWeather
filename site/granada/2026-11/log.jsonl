@@ -8,3 +8,4 @@
 {"time":"2026-11-15T17:01","source":"камера sannicolas","level":"warn","message":"кадр камеры старый: 2472 мин"}
 {"time":"2026-11-18T10:01","source":"камера sannicolas","level":"warn","message":"кадр камеры старый: 611 мин"}
 {"time":"2026-11-18T10:01","source":"небо и воздух","level":"error","message":"Open-Meteo недоступен: fetch failed"}
+{"time":"2026-11-18T17:05","source":"камера sannicolas","level":"warn","message":"кадр камеры старый: 125 мин"}
