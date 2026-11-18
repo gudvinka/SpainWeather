@@ -256,3 +256,13 @@ test('сбой станции в день с итогами AEMET — не «д�
   });
   assert.deepEqual(day.issues, ['14:01 небо и воздух: Open-Meteo недоступен']);
 });
+
+test('Open-Meteo не ответил, но небо за день догрузил следующий сбор — не «данные под вопросом»', () => {
+  const log = [{ time: '2026-11-18T10:01', source: 'небо и воздух', level: 'error' as const, message: 'Open-Meteo недоступен: fetch failed' }];
+  const sky = { cloud: 40, sunHours: 5, sunrise: '08:20', sunset: '18:00' };
+  assert.deepEqual(summarizeDay({ date: '2026-11-18', readings: [], isToday: true, sky, log }).issues, []);
+  // Неба за день нет — пометка остаётся.
+  assert.deepEqual(summarizeDay({ date: '2026-11-18', readings: [], isToday: true, log }).issues, [
+    '10:01 небо и воздух: Open-Meteo недоступен: fetch failed',
+  ]);
+});
