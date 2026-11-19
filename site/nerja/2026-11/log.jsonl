@@ -3,3 +3,4 @@
 {"time":"2026-11-15T10:01","source":"небо и воздух","level":"warn","message":"Open-Meteo недоступен: fetch failed"}
 {"time":"2026-11-16T17:01","source":"небо и воздух","level":"warn","message":"Open-Meteo недоступен: fetch failed"}
 {"time":"2026-11-18T10:01","source":"небо и воздух","level":"warn","message":"Open-Meteo недоступен: fetch failed"}
+{"time":"2026-11-19T17:01","source":"небо и воздух","level":"warn","message":"Open-Meteo недоступен: Open-Meteo: HTTP 429"}
