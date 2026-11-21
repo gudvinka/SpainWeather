@@ -1,5 +1,6 @@
 import { DAY_FROM, DAY_TO } from './days.ts';
 import { checkSky } from './quality.ts';
+import { HttpError, withRetry } from './retry.ts';
 import type { SkyDay } from './store.ts';
 import { localIso } from './time.ts';
 
@@ -7,7 +8,8 @@ import { localIso } from './time.ts';
 // Берём то, чего нет у станций: облачность, часы солнца, качество воздуха и в какие часы шёл дождь;
 // и температуру по часам — для «других мест» без станции и как запасную под кадрами таймлапса.
 const TIMEOUT = 20_000;
-const RETRY_DELAY = 10_000; // Open-Meteo изредка не отвечает пару минут — даём вторую попытку
+// Open-Meteo изредка не отвечает или отвечает 429 «слишком много запросов» — ещё две попытки: через 10 с и через минуту.
+const RETRY_DELAYS = [10_000, 60_000];
 
 export type Coords = { lat: number; lon: number };
 
@@ -33,19 +35,12 @@ type AirResponse = { hourly: { time: string[]; european_aqi: (number | null)[] }
 
 async function getJsonOnce<T>(url: string): Promise<T> {
   const res = await fetch(url, { signal: AbortSignal.timeout(TIMEOUT) });
-  if (!res.ok) throw new Error(`Open-Meteo: HTTP ${res.status}`);
+  if (!res.ok) throw new HttpError('Open-Meteo', res.status);
   return res.json() as Promise<T>;
 }
 
-// Одна повторная попытка через 10 с: таймаут или ошибка сервера чаще всего разовые. Не вышло и со второй — ошибка.
-async function getJson<T>(url: string): Promise<T> {
-  try {
-    return await getJsonOnce<T>(url);
-  } catch {
-    await new Promise((r) => setTimeout(r, RETRY_DELAY));
-    return getJsonOnce<T>(url);
-  }
-}
+// Таймаут, 429 и ошибка сервера чаще всего разовые. Не вышло и с третьей попытки — ошибка.
+const getJson = <T>(url: string) => withRetry(() => getJsonOnce<T>(url), RETRY_DELAYS);
 
 // Итоги по дням за последние 31 день + сегодня. Для сегодня берём только прошедшие часы, без прогноза.
 export async function fetchSky(coords: Coords, now: Date): Promise<Record<string, SkyDay>> {

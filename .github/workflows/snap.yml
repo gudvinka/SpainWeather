@@ -35,7 +35,7 @@ jobs:
         id: snap
         run: node src/snap.ts
         env:
-          AEMET_API_KEY: ${{ secrets.AEMET_API_KEY }} # запасная станция Овьедо (AEMET OpenData)
+          AEMET_API_KEY: ${{ secrets.AEMET_API_KEY }} # основная станция Овьедо (AEMET OpenData)
         continue-on-error: true # что удалось собрать, сохраняем даже при ошибке одного источника
 
       - name: Сохранить данные

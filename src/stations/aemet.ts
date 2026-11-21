@@ -1,5 +1,6 @@
 import type { Issue } from '../quality.ts';
 import type { DayTotals } from '../store.ts';
+import { HttpError, withRetry } from '../retry.ts';
 import { dateOf, localIso } from '../time.ts';
 import { TIMEOUT, type Station, type StationResult } from './station.ts';
 
@@ -93,11 +94,17 @@ export function parseDaily(rows: unknown, source: string): Record<string, DayTot
   return days;
 }
 
-async function getJson(url: string, key?: string) {
+// AEMET с серверов GitHub нередко отвечает 429 «слишком много запросов», хотя мы шлём 2–4 запроса за сбор
+// (21.11.2026 — два сбора подряд). Лимит у них «в минуту», поэтому вторая пауза — минута.
+const RETRY_DELAYS = [20_000, 60_000];
+
+async function getJsonOnce(url: string, key?: string) {
   const res = await fetch(url, { headers: key ? { api_key: key } : {}, signal: AbortSignal.timeout(TIMEOUT) });
-  if (!res.ok) throw new Error(`AEMET: HTTP ${res.status}`);
+  if (!res.ok) throw new HttpError('AEMET', res.status);
   return JSON.parse(new TextDecoder('iso-8859-15').decode(await res.arrayBuffer()));
 }
+
+const getJson = (url: string, key?: string) => withRetry(() => getJsonOnce(url, key), RETRY_DELAYS);
 
 export function aemet(id: string, label: string): Station {
   return {
