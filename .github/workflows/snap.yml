@@ -5,16 +5,46 @@ name: snap
 
 on:
   workflow_dispatch: # «Run workflow»: Cloudflare Worker по расписанию или кнопка для ручного запуска
+    inputs:
+      force:
+        description: 'Собрать всё равно, даже если зелёный сбор был меньше 30 минут назад'
+        type: boolean
+        default: false
 
 permissions:
   contents: write # бот коммитит новые данные
+  actions: read # защита от дублей смотрит прошлые запуски snap
 
 concurrency:
   group: snap # два запуска не пушат одновременно
   cancel-in-progress: false
 
 jobs:
+  # Защита от дублей: Cloudflare изредка запускает cron дважды (22.11.2026 — в 14:00:11 и 14:00:38). Второй запуск ждёт
+  # первого (concurrency выше) и пропускает сбор, если меньше 30 минут назад был ЗЕЛЁНЫЙ snap. После красного (не ответил
+  # AEMET, Open-Meteo, не сохранились данные) — собирает заново. Пропущенный запуск — зелёный, сбор в нём «skipped».
+  guard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      skip: ${{ steps.recent.outputs.skip }}
+    steps:
+      - name: Был ли зелёный сбор за последние 30 минут
+        id: recent
+        if: ${{ !inputs.force }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          since=$(date -u -d '30 minutes ago' +%Y-%m-%dT%H:%M:%SZ)
+          n=$(gh run list -R "$GITHUB_REPOSITORY" --workflow snap.yml --status success --created ">=$since" --json databaseId --jq 'length') || n=0  # проверка сломалась — собираем как обычно
+          if [ "${n:-0}" -gt 0 ]; then
+            echo "::notice::Зелёный сбор уже был после $since UTC — это дубль, сбор пропущен"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi
+
   snap:
+    needs: guard
+    if: needs.guard.outputs.skip != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
