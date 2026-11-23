@@ -23,3 +23,23 @@ export async function withRetry<T>(fn: () => Promise<T>, delays: number[]): Prom
     }
   }
 }
+
+// Текст ошибки для журнала. У fetch настоящая причина спрятана в `cause`: «fetch failed» без неё ничего не говорит —
+// а это может быть обрыв связи (ECONNRESET), отказ в соединении (ECONNREFUSED), не найден адрес (ENOTFOUND) и т. п.
+export function errorText(e: unknown): string {
+  if (!(e instanceof Error)) return String(e);
+  if (e.name === 'TimeoutError') return 'нет ответа (тайм-аут)';
+  const text = e.message.split('\n')[0];
+  const reason = causeOf(e.cause);
+  return reason && !text.includes(reason) ? `${text} (${reason})` : text;
+}
+
+function causeOf(c: unknown): string | undefined {
+  if (!c || typeof c !== 'object') return undefined;
+  const { code, message, errors } = c as { code?: unknown; message?: unknown; errors?: unknown };
+  // Несколько адресов у сервера — несколько ошибок соединения в одной (AggregateError): хватит первой.
+  if (Array.isArray(errors) && errors.length) return causeOf(errors[0]);
+  const msg = typeof message === 'string' ? message.split('\n')[0] : '';
+  if (typeof code === 'string') return msg.includes(code) ? msg : msg ? `${code}: ${msg}` : code;
+  return msg || undefined;
+}

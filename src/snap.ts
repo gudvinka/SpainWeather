@@ -10,6 +10,7 @@ import { ensureHistory } from './history.ts';
 import { fetchSky } from './openmeteo.ts';
 import { checkDayTotals, checkReading, hasErrors, type Issue, type Level } from './quality.ts';
 import { buildSite, cityDir, SITE } from './report.ts';
+import { errorText } from './retry.ts';
 import {
   appendLog,
   appendReading,
@@ -24,7 +25,6 @@ import {
 } from './store.ts';
 import { dateOf, fileStamp, localIso, monthOf } from './time.ts';
 
-const errorText = (e: unknown) => (e instanceof Error ? e.message.split('\n')[0] : String(e));
 
 // Счётчики и вывод замечаний одного города (или другого места — тогда optional: ошибки считаются предупреждениями,
 // запуск из-за необязательных мест не краснеет).
