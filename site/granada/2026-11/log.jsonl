@@ -14,3 +14,4 @@
 {"time":"2026-11-19T17:01","source":"камера sannicolas","level":"warn","message":"кадр камеры старый: 1562 мин"}
 {"time":"2026-11-19T17:01","source":"небо и воздух","level":"error","message":"Open-Meteo недоступен: Open-Meteo: HTTP 429"}
 {"time":"2026-11-20T10:01","source":"камера sannicolas","level":"warn","message":"кадр камеры старый: 2582 мин"}
+{"time":"2026-11-23T14:01","source":"небо и воздух","level":"error","message":"Open-Meteo недоступен: fetch failed"}

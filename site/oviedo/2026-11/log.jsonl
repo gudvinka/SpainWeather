@@ -52,3 +52,4 @@
 {"time":"2026-11-18T10:01","source":"небо и воздух","level":"error","message":"Open-Meteo недоступен: fetch failed"}
 {"time":"2026-11-21T10:00","source":"станция","level":"error","message":"AEMET Oviedo недоступна: AEMET: HTTP 429"}
 {"time":"2026-11-21T14:00","source":"станция","level":"error","message":"AEMET Oviedo недоступна: AEMET: HTTP 429"}
+{"time":"2026-11-23T14:01","source":"небо и воздух","level":"error","message":"Open-Meteo недоступен: fetch failed"}
