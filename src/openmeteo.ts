@@ -19,7 +19,8 @@ export type Coords = { lat: number; lon: number };
 export const VISIBLE_CLOUD_PARAMS = 'cloud_cover_low,cloud_cover_mid';
 export const visibleCloud = (low: number, mid: number) => Math.max(low ?? 0, mid ?? 0);
 
-type WeatherResponse = {
+type Point = { latitude: number; longitude: number }; // точка сетки модели, к которой Open-Meteo привязал запрос
+type WeatherResponse = Point & {
   hourly: {
     time: string[];
     cloud_cover_low: number[];
@@ -31,7 +32,7 @@ type WeatherResponse = {
   };
   daily: { time: string[]; sunrise: string[]; sunset: string[] };
 };
-type AirResponse = { hourly: { time: string[]; european_aqi: (number | null)[] } };
+type AirResponse = Point & { hourly: { time: string[]; european_aqi: (number | null)[] } };
 
 async function getJsonOnce<T>(url: string): Promise<T> {
   const res = await fetch(url, { signal: AbortSignal.timeout(TIMEOUT) });
@@ -60,7 +61,24 @@ export async function fetchSkyMany(places: Coords[], now: Date): Promise<Record<
   if (ws.length !== places.length || as.length !== places.length) {
     throw new Error(`Open-Meteo: ответ на ${ws.length}/${as.length} мест вместо ${places.length}`);
   }
+  checkOrder(places, ws);
+  checkOrder(places, as);
   return ws.map((wi, i) => skyDays(wi, as[i], now));
+}
+
+// Порядок ответа сверяем по координатам: Open-Meteo привязывает точку к своей сетке и сдвигает её не больше чем на
+// ~0,05° (проверено 23.11.2026 на всех 12 местах). Дальше 0,1° (~10 км) — ответ не про это место: всё отбрасываем,
+// чтобы небо и температура одного места не попали другому (Овьедо от ближайшего соседа, Хихона, — в 0,2°).
+const MAX_SHIFT = 0.1;
+
+export function checkOrder(places: Coords[], points: Point[]) {
+  places.forEach((c, i) => {
+    const p = points[i];
+    const shift = Math.max(Math.abs(p?.latitude - c.lat), Math.abs(p?.longitude - c.lon));
+    if (!(shift <= MAX_SHIFT)) {
+      throw new Error(`Open-Meteo: ответ №${i + 1} не про то место — ${p?.latitude}, ${p?.longitude} вместо ${c.lat}, ${c.lon}`);
+    }
+  });
 }
 
 // Итоги по дням за последние 31 день + сегодня. Для сегодня берём только прошедшие часы, без прогноза.
