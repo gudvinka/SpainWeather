@@ -42,15 +42,29 @@ async function getJsonOnce<T>(url: string): Promise<T> {
 // Таймаут, 429 и ошибка сервера чаще всего разовые. Не вышло и с третьей попытки — ошибка.
 const getJson = <T>(url: string) => withRetry(() => getJsonOnce<T>(url), RETRY_DELAYS);
 
-// Итоги по дням за последние 31 день + сегодня. Для сегодня берём только прошедшие часы, без прогноза.
-export async function fetchSky(coords: Coords, now: Date): Promise<Record<string, SkyDay>> {
-  const q = `latitude=${coords.lat}&longitude=${coords.lon}&timezone=Europe%2FMadrid&past_days=31&forecast_days=1`;
+// Небо и воздух сразу для всех мест — двумя запросами на весь сбор, а не двумя на каждое место: Open-Meteo принимает
+// координаты списком через запятую и отвечает списком в том же порядке. Раньше 12 мест слали 24 запроса в одну секунду,
+// и Open-Meteo то и дело отказывал всем сразу (429, «fetch failed»). Ответ на одно место — объект, на несколько — список.
+export async function fetchSkyMany(places: Coords[], now: Date): Promise<Record<string, SkyDay>[]> {
+  const q =
+    `latitude=${places.map((c) => c.lat).join(',')}&longitude=${places.map((c) => c.lon).join(',')}` +
+    '&timezone=Europe%2FMadrid&past_days=31&forecast_days=1';
   const [w, a] = await Promise.all([
-    getJson<WeatherResponse>(
+    getJson<WeatherResponse | WeatherResponse[]>(
       `https://api.open-meteo.com/v1/forecast?${q}&hourly=${VISIBLE_CLOUD_PARAMS},sunshine_duration,is_day,precipitation,temperature_2m&daily=sunrise,sunset`,
     ),
-    getJson<AirResponse>(`https://air-quality-api.open-meteo.com/v1/air-quality?${q}&hourly=european_aqi`),
+    getJson<AirResponse | AirResponse[]>(`https://air-quality-api.open-meteo.com/v1/air-quality?${q}&hourly=european_aqi`),
   ]);
+  const ws = Array.isArray(w) ? w : [w];
+  const as = Array.isArray(a) ? a : [a];
+  if (ws.length !== places.length || as.length !== places.length) {
+    throw new Error(`Open-Meteo: ответ на ${ws.length}/${as.length} мест вместо ${places.length}`);
+  }
+  return ws.map((wi, i) => skyDays(wi, as[i], now));
+}
+
+// Итоги по дням за последние 31 день + сегодня. Для сегодня берём только прошедшие часы, без прогноза.
+export function skyDays(w: WeatherResponse, a: AirResponse, now: Date): Record<string, SkyDay> {
   if (!w.hourly?.time?.length || !w.daily?.time?.length) throw new Error('Open-Meteo: пустой ответ');
 
   const nowHour = localIso(now).slice(0, 13); // 2026-10-12T16

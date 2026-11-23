@@ -7,7 +7,7 @@ import { chromium, type Browser, type BrowserContext } from 'playwright';
 import { capture, type Camera } from './camera.ts';
 import { ALL_PLACES, CITIES, PLACES, type City, type Place } from './cities.ts';
 import { ensureHistory } from './history.ts';
-import { fetchSky } from './openmeteo.ts';
+import { fetchSkyMany } from './openmeteo.ts';
 import { checkDayTotals, checkReading, hasErrors, type Issue, type Level } from './quality.ts';
 import { buildSite, cityDir, SITE } from './report.ts';
 import { errorText } from './retry.ts';
@@ -22,6 +22,7 @@ import {
   writeWatch,
   type DayTotals,
   type Reading,
+  type SkyDay,
 } from './store.ts';
 import { dateOf, fileStamp, localIso, monthOf } from './time.ts';
 
@@ -204,9 +205,10 @@ async function checkWatched(run: CityRun) {
   await writeWatch(dir, watch);
 }
 
-async function collectSky(run: CityRun<Place>) {
+// Небо и воздух всех мест приходят одним ответом (fetchSkyMany); здесь — доля одного места.
+async function collectSky(run: CityRun<Place>, all: Promise<Record<string, SkyDay>[]>, index: number) {
   try {
-    const sky = await fetchSky(run.city.coords, run.now);
+    const sky = (await all)[index];
     for (const [date, day] of Object.entries(sky)) await run.notes(`небо ${date}`, day.issues ?? [], false);
     for (const m of await mergeSky(cityDir(run.city), sky)) run.months.add(m);
     run.ok('небо и воздух', `${Object.keys(sky).length} дн.`);
@@ -264,13 +266,17 @@ if (ALL_PLACES.filter(wanted).some((c) => c.cameras.some((cam) => cam.kind !== '
 
 const runs = CITIES.filter(wanted).map((city) => new CityRun(city, now));
 const placeRuns = PLACES.filter(wanted).map((place) => new CityRun<Place>(place, now, true));
+const allRuns = [...runs, ...placeRuns];
+const skyAll = fetchSkyMany(allRuns.map((r) => r.city.coords), now);
+skyAll.catch(() => {}); // ошибку запишет каждое место в collectSky; здесь — чтобы Node не счёл её «необработанной»
+const sky = (run: CityRun<Place>) => guarded(run, 'небо и воздух', () => collectSky(run, skyAll, allRuns.indexOf(run)));
 const frames = (run: CityRun<Place>) => run.city.cameras.map((cam) => guarded(run, 'камера', () => collectFrame(run, cam, browser)));
 try {
   await Promise.all([
     ...runs.map((run) =>
-      Promise.all([guarded(run, 'станция', () => collectStation(run)), guarded(run, 'небо и воздух', () => collectSky(run)), ...frames(run)]),
+      Promise.all([guarded(run, 'станция', () => collectStation(run)), sky(run), ...frames(run)]),
     ),
-    ...placeRuns.map((run) => Promise.all([guarded(run, 'небо и воздух', () => collectSky(run)), ...frames(run)])),
+    ...placeRuns.map((run) => Promise.all([sky(run), ...frames(run)])),
   ]);
 } finally {
   await browser?.close();
@@ -291,6 +297,6 @@ for (const run of runs) {
 const touched = new Map(runs.map((r) => [r.city.id, r.months]));
 for (const file of await buildSite(now, touched)) console.log(`PAGE  ${path.relative(SITE, file)}`);
 
-console.log(`\nИтог: ${[...runs, ...placeRuns].map((r) => r.summary()).join(' · ')}`);
+console.log(`\nИтог: ${allRuns.map((r) => r.summary()).join(' · ')}`);
 console.log(`Сайт: ${path.join(SITE, 'index.html')}`);
 process.exitCode = runs.some((r) => r.errors) ? 1 : 0;
