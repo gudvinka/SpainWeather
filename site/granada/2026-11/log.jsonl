@@ -16,3 +16,4 @@
 {"time":"2026-11-20T10:01","source":"камера sannicolas","level":"warn","message":"кадр камеры старый: 2582 мин"}
 {"time":"2026-11-23T14:01","source":"небо и воздух","level":"error","message":"Open-Meteo недоступен: fetch failed"}
 {"time":"2026-11-24T14:01","source":"небо и воздух","level":"error","message":"Open-Meteo недоступен: fetch failed (UND_ERR_CONNECT_TIMEOUT: Connect Timeout Error (attempted address: api.open-meteo.com:443, timeout: 10000ms))"}
+{"time":"2026-11-25T10:01","source":"камера sannicolas","level":"error","message":"кадр не получен: fetch failed (getaddrinfo EAI_AGAIN image-4.ibericam.com)"}
