@@ -6,3 +6,4 @@
 {"time":"2026-11-18T10:01","source":"небо и воздух","level":"warn","message":"Open-Meteo недоступен: fetch failed"}
 {"time":"2026-11-23T14:01","source":"небо и воздух","level":"warn","message":"Open-Meteo недоступен: fetch failed"}
 {"time":"2026-11-24T14:01","source":"небо и воздух","level":"warn","message":"Open-Meteo недоступен: fetch failed (UND_ERR_CONNECT_TIMEOUT: Connect Timeout Error (attempted address: api.open-meteo.com:443, timeout: 10000ms))"}
+{"time":"2026-11-25T14:01","source":"небо и воздух","level":"warn","message":"Open-Meteo недоступен: fetch failed (UND_ERR_CONNECT_TIMEOUT: Connect Timeout Error (attempted address: api.open-meteo.com:443, timeout: 10000ms))"}
