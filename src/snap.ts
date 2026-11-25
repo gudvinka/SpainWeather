@@ -213,7 +213,10 @@ async function collectSky(run: CityRun<Place>, all: Promise<Record<string, SkyDa
     for (const m of await mergeSky(cityDir(run.city), sky)) run.months.add(m);
     run.ok('небо и воздух', `${Object.keys(sky).length} дн.`);
   } catch (e) {
-    await run.note('небо и воздух', 'error', `Open-Meteo недоступен: ${errorText(e)}`);
+    // Предупреждение, а не ошибка: с серверов GitHub Open-Meteo часть сборов не отвечает на подключение
+    // (Connect Timeout, с ноября 2026), а пропуск не страшен — следующий удачный сбор догрузит 31 прошлый день.
+    // Если неба нет долго — это заметит сторож (в `sky.json` нет сегодня и вчера).
+    await run.note('небо и воздух', 'warn', `Open-Meteo недоступен: ${errorText(e)}`);
   }
 }
 
